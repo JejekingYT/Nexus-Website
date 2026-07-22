@@ -17,42 +17,40 @@ export const authOptions = {
   },
 
   callbacks: {
-
     async signIn({ profile }: any) {
-
       if (!profile) return false;
 
       await prisma.user.upsert({
-
         where: {
           discordId: profile.id,
         },
 
         update: {
           username: profile.username,
-          image: `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`,
+          image: profile.avatar
+            ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`
+            : null,
         },
 
         create: {
           discordId: profile.id,
           username: profile.username,
-          image: `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`,
+          image: profile.avatar
+            ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`
+            : null,
           role: "USER",
         },
-
       });
 
       return true;
     },
 
     async jwt({ token, profile }: any) {
-
       if (profile) {
         token.discordId = profile.id;
       }
 
       if (token.discordId) {
-
         const user = await prisma.user.findUnique({
           where: {
             discordId: token.discordId as string,
@@ -66,7 +64,6 @@ export const authOptions = {
     },
 
     async session({ session, token }: any) {
-
       if (session.user) {
         session.user.id = token.discordId;
         session.user.role = token.role;
@@ -75,12 +72,10 @@ export const authOptions = {
       return session;
     },
 
-    async redirect() {
-      return "http://localhost:3000/";
+    async redirect({ url, baseUrl }: any) {
+      return url.startsWith(baseUrl) ? url : baseUrl;
     },
-
   },
-
 };
 
 const handler = NextAuth(authOptions);
