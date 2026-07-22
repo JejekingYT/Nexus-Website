@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./nexus.db"
+}
+
+model Community {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique
+  name        String
+  type        String
+  icon        String
+  image       String
+  description String
+  members     Int      @default(0)
+  discord     String
+  roblox      String?
+  about       String
+  staff       Json?
+  createdAt   DateTime @default(now())
+  discordId   String?
+  games       Game[]
+}
+
+model News {
+  id        Int      @id @default(autoincrement())
+  title     String
+  slug      String   @unique
+  content   String
+  image     String?
+  published Boolean  @default(false)
+
+  authorId  Int?
+  author    User?    @relation(fields: [authorId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model Event {
+  id          Int      @id @default(autoincrement())
+  title       String
+  slug        String   @unique
+  description String
+  image       String?
+  date        String
+  time        String
+  discord     String?
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model Project {
+  id          Int      @id @default(autoincrement())
+  title       String
+  slug        String   @unique
+  description String
+  image       String?
+  platform    String
+  status      String
+  url         String?
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model Game {
+  id          Int        @id @default(autoincrement())
+  name        String
+  slug        String     @unique
+  description String
+  image       String?
+  platform    String
+  link        String?
+  featured    Boolean    @default(false)
+  communityId Int?
+  createdAt   DateTime   @default(now())
+  community   Community? @relation(fields: [communityId], references: [id])
+}
+
+model Developer {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  role        String
+  icon        String
+  description String
+  image       String?
+  github      String?
+  createdAt   DateTime @default(now())
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  discordId String     @unique
+  username  String
+  image     String?
+  bio       String?
+  role      String     @default("USER")
+  createdAt DateTime   @default(now())
+
+  news      News[]
+
+  logs      AuditLog[]
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  action    String
+  target    String
+  details   String
+  userId    Int?
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
+}
