@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 
 export const authOptions = {
   secret: process.env.NEXTAUTH_SECRET,
+  debug: true,
 
   providers: [
     DiscordProvider({
@@ -20,29 +21,35 @@ export const authOptions = {
     async signIn({ profile }: any) {
       if (!profile) return false;
 
-      await prisma.user.upsert({
-        where: {
-          discordId: profile.id,
-        },
+      try {
+        await prisma.user.upsert({
+          where: {
+            discordId: profile.id,
+          },
 
-        update: {
-          username: profile.username,
-          image: profile.avatar
-            ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`
-            : null,
-        },
+          update: {
+            username: profile.username,
+            image: profile.avatar
+              ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`
+              : null,
+          },
 
-        create: {
-          discordId: profile.id,
-          username: profile.username,
-          image: profile.avatar
-            ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`
-            : null,
-          role: "USER",
-        },
-      });
+          create: {
+            discordId: profile.id,
+            username: profile.username,
+            image: profile.avatar
+              ? `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png`
+              : null,
+            role: "USER",
+          },
+        });
 
-      return true;
+        return true;
+
+      } catch (error) {
+        console.error("Prisma Discord login error:", error);
+        return false;
+      }
     },
 
     async jwt({ token, profile }: any) {
