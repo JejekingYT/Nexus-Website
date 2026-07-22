@@ -88,19 +88,6 @@ async function main() {
       roblox: null,
       about:
         "The official Nexus community.",
-
-      staff: [
-        {
-          name: "Jeje_cozy",
-          role: "Owner",
-          icon: "👑",
-        },
-        {
-          name: "Snoi",
-          role: "Co-Owner",
-          icon: "👑",
-        },
-      ],
     },
 
     create: {
@@ -117,22 +104,8 @@ async function main() {
       roblox: null,
       about:
         "The official Nexus community.",
-
-      staff: [
-        {
-          name: "Jeje_cozy",
-          role: "Owner",
-          icon: "👑",
-        },
-        {
-          name: "Snoi",
-          role: "Co-Owner",
-          icon: "👑",
-        },
-      ],
     },
   });
-
 
 
   await prisma.project.upsert({
@@ -144,7 +117,7 @@ async function main() {
       title: "Nexus Website",
       description:
         "The official Nexus website built with Next.js. It features communities, projects, events, news, Discord integration, and a custom admin dashboard.",
-      image: "/projects/nexus-website.png",
+      image: "/nexus.png",
       platform: "Next.js",
       status: "Live",
       url: null,
@@ -156,7 +129,7 @@ async function main() {
       slug: "nexus-website",
       description:
         "The official Nexus website built with Next.js. It features communities, projects, events, news, Discord integration, and a custom admin dashboard.",
-      image: "/projects/nexus-website.png",
+      image: "/nexus.png",
       platform: "Next.js",
       status: "Live",
       url: null,
@@ -165,7 +138,6 @@ async function main() {
   });
 
 
-
   await prisma.game.upsert({
     where: {
       slug: "saber-legends",
@@ -175,7 +147,7 @@ async function main() {
       name: "Saber Legends",
       description:
         "A Roblox lightsaber combat game played by The Sanctuary clan.",
-      image: "/games/saber-legends.png",
+      image: "/saber-legends.png",
       platform: "Roblox",
       link: "https://www.roblox.com/",
       featured: true,
@@ -187,14 +159,13 @@ async function main() {
       slug: "saber-legends",
       description:
         "A Roblox lightsaber combat game played by The Sanctuary clan.",
-      image: "/games/saber-legends.png",
+      image: "/saber-legends.png",
       platform: "Roblox",
       link: "https://www.roblox.com/",
       featured: true,
       communityId: sanctuary.id,
     },
   });
-
 
 
   await prisma.game.upsert({
@@ -206,7 +177,7 @@ async function main() {
       name: "Saber Showdown",
       description:
         "A Roblox saber combat game played by The Sanctuary clan.",
-      image: "/games/saber-showdown.png",
+      image: "/saber-showdown.png",
       platform: "Roblox",
       link: "https://www.roblox.com/",
       featured: true,
@@ -218,94 +189,13 @@ async function main() {
       slug: "saber-showdown",
       description:
         "A Roblox saber combat game played by The Sanctuary clan.",
-      image: "/games/saber-showdown.png",
+      image: "/saber-showdown.png",
       platform: "Roblox",
       link: "https://www.roblox.com/",
       featured: true,
       communityId: sanctuary.id,
     },
   });
-
-    // Nexus Developers
-  await prisma.developer.upsert({
-    where: {
-      name: "Jeje_cozy",
-    },
-
-    update: {
-      role: "Founder / Full Stack Developer",
-      icon: "👑",
-      description:
-        "Founder of Nexus and developer of the Nexus platform, websites, and systems.",
-      image: null,
-      github: null,
-    },
-
-    create: {
-      name: "Jeje_cozy",
-      role: "Founder / Full Stack Developer",
-      icon: "👑",
-      description:
-        "Founder of Nexus and developer of the Nexus platform, websites, and systems.",
-      image: null,
-      github: null,
-    },
-  });
-
-
-
-  await prisma.developer.upsert({
-    where: {
-      name: "Snoi",
-    },
-
-    update: {
-      role: "Co-Founder / Developer",
-      icon: "⚡",
-      description:
-        "Co-Founder of Nexus and Developer helping create and improve Nexus projects.",
-      image: null,
-      github: null,
-    },
-
-    create: {
-      name: "Snoi",
-      role: "Co-Founder / Developer",
-      icon: "⚡",
-      description:
-        "Co-Founder of Nexus and Developer helping create and improve Nexus projects.",
-      image: null,
-      github: null,
-    },
-  });
-
-
-
-  await prisma.developer.upsert({
-    where: {
-      name: "Verx",
-    },
-
-    update: {
-      role: "UI Designer",
-      icon: "🎨",
-      description:
-        "Designer helping shape the visual style and community experience.",
-      image: null,
-      github: null,
-    },
-
-    create: {
-      name: "Verx",
-      role: "UI Designer",
-      icon: "🎨",
-      description:
-        "Designer helping shape the visual style and community experience.",
-      image: null,
-      github: null,
-    },
-  });
-
 
 
   console.log("✅ Database seeded!");
