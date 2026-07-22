@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./nexus.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Community {
@@ -74,9 +74,11 @@ model Game {
   platform    String
   link        String?
   featured    Boolean    @default(false)
+
   communityId Int?
-  createdAt   DateTime   @default(now())
   community   Community? @relation(fields: [communityId], references: [id])
+
+  createdAt DateTime @default(now())
 }
 
 model Developer {
@@ -91,17 +93,16 @@ model Developer {
 }
 
 model User {
-  id        Int        @id @default(autoincrement())
-  discordId String     @unique
+  id        Int      @id @default(autoincrement())
+  discordId String   @unique
   username  String
   image     String?
   bio       String?
-  role      String     @default("USER")
-  createdAt DateTime   @default(now())
+  role      String   @default("USER")
+  createdAt DateTime @default(now())
 
-  news      News[]
-
-  logs      AuditLog[]
+  news News[]
+  logs AuditLog[]
 }
 
 model AuditLog {
@@ -110,6 +111,8 @@ model AuditLog {
   target    String
   details   String
   userId    Int?
+
   createdAt DateTime @default(now())
-  user      User?    @relation(fields: [userId], references: [id])
+
+  user User? @relation(fields: [userId], references: [id])
 }
