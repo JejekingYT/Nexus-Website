@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Hero() {
   return (
     <section className="min-h-screen flex items-center justify-center px-6 relative overflow-hidden">
@@ -20,13 +22,21 @@ export default function Hero() {
 
         <div className="mt-10 flex justify-center gap-4 flex-wrap">
 
-          <button className="px-8 py-4 rounded-xl bg-purple-600 hover:bg-purple-700 transition font-bold">
+          <Link
+            href="/communities"
+            className="px-8 py-4 rounded-xl bg-purple-600 hover:bg-purple-700 transition font-bold"
+          >
             Explore Communities
-          </button>
+          </Link>
 
-          <button className="px-8 py-4 rounded-xl border border-purple-500 hover:bg-purple-500/10 transition font-bold">
+          <a
+            href="https://discord.gg/M3e8gBUPws"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-8 py-4 rounded-xl border border-purple-500 hover:bg-purple-500/10 transition font-bold"
+          >
             Join Discord
-          </button>
+          </a>
 
         </div>
 
