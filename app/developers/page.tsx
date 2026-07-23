@@ -1,6 +1,9 @@
 import Navbar from "@/components/layout/Navbar";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
+
 export default async function DevelopersPage() {
 
   const developers = await prisma.developer.findMany({
@@ -22,7 +25,9 @@ export default async function DevelopersPage() {
 
 
           <h1 className="text-5xl font-extrabold">
-            Nexus <span className="text-purple-500">Developers</span>
+            Nexus <span className="text-purple-500">
+              Developers
+            </span>
           </h1>
 
 
@@ -39,7 +44,15 @@ export default async function DevelopersPage() {
 
               <div
                 key={developer.id}
-                className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-purple-500 transition"
+                className="
+                bg-white/5
+                border
+                border-white/10
+                rounded-2xl
+                p-6
+                hover:border-purple-500
+                transition
+                "
               >
 
 
@@ -51,12 +64,28 @@ export default async function DevelopersPage() {
                     <img
                       src={developer.image}
                       alt={developer.name}
-                      className="w-16 h-16 rounded-full object-cover"
+                      className="
+                      w-16
+                      h-16
+                      rounded-full
+                      object-cover
+                      "
                     />
 
                   ) : (
 
-                    <div className="w-16 h-16 rounded-full bg-purple-600 flex items-center justify-center text-3xl">
+                    <div
+                      className="
+                      w-16
+                      h-16
+                      rounded-full
+                      bg-purple-600
+                      flex
+                      items-center
+                      justify-center
+                      text-3xl
+                      "
+                    >
                       {developer.icon}
                     </div>
 
@@ -94,7 +123,16 @@ export default async function DevelopersPage() {
                     href={developer.github}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-block mt-6 bg-purple-600 hover:bg-purple-700 px-5 py-2 rounded-xl font-bold"
+                    className="
+                    inline-block
+                    mt-6
+                    bg-purple-600
+                    hover:bg-purple-700
+                    px-5
+                    py-2
+                    rounded-xl
+                    font-bold
+                    "
                   >
                     GitHub
                   </a>

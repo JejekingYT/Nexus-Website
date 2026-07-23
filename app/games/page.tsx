@@ -4,6 +4,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
+
 export default async function GamesPage() {
 
   const games = await prisma.game.findMany({
@@ -47,7 +50,15 @@ export default async function GamesPage() {
 
               <div
                 key={game.id}
-                className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-purple-500 transition"
+                className="
+                bg-white/5
+                border
+                border-white/10
+                rounded-2xl
+                overflow-hidden
+                hover:border-purple-500
+                transition
+                "
               >
 
 
@@ -122,7 +133,17 @@ export default async function GamesPage() {
                     <Link
                       href={game.link}
                       target="_blank"
-                      className="inline-block mt-6 bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-xl font-bold transition"
+                      className="
+                      inline-block
+                      mt-6
+                      bg-purple-600
+                      hover:bg-purple-700
+                      px-6
+                      py-3
+                      rounded-xl
+                      font-bold
+                      transition
+                      "
                     >
                       Play Game
                     </Link>

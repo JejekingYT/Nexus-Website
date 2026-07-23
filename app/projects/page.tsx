@@ -4,6 +4,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
+
 export default async function ProjectsPage() {
 
   const projects = await prisma.project.findMany({
@@ -44,7 +47,15 @@ export default async function ProjectsPage() {
 
               <div
                 key={project.id}
-                className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-purple-500 transition"
+                className="
+                bg-white/5
+                border
+                border-white/10
+                rounded-2xl
+                overflow-hidden
+                hover:border-purple-500
+                transition
+                "
               >
 
 
@@ -108,7 +119,17 @@ export default async function ProjectsPage() {
 
                   <Link
                     href={`/projects/${project.slug}`}
-                    className="inline-block mt-6 bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-xl font-bold transition"
+                    className="
+                    inline-block
+                    mt-6
+                    bg-purple-600
+                    hover:bg-purple-700
+                    px-6
+                    py-3
+                    rounded-xl
+                    font-bold
+                    transition
+                    "
                   >
                     View Project
                   </Link>

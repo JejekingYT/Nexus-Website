@@ -3,6 +3,9 @@ import Footer from "@/components/layout/Footer";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
+
 export default async function EventsPage() {
 
 
@@ -51,7 +54,15 @@ export default async function EventsPage() {
 
               <div
                 key={event.id}
-                className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-purple-500 transition"
+                className="
+                bg-white/5
+                border
+                border-white/10
+                rounded-2xl
+                p-6
+                hover:border-purple-500
+                transition
+                "
               >
 
 
@@ -73,7 +84,16 @@ export default async function EventsPage() {
 
                 <Link
                   href={`/events/${event.slug}`}
-                  className="inline-block mt-6 bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-xl font-bold"
+                  className="
+                  inline-block
+                  mt-6
+                  bg-purple-600
+                  hover:bg-purple-700
+                  px-6
+                  py-3
+                  rounded-xl
+                  font-bold
+                  "
                 >
                   View Event
                 </Link>

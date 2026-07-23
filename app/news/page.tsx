@@ -1,10 +1,11 @@
 import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
-export default async function NewsPage() {
+export default async function EventsPage() {
 
-  const news = await prisma.news.findMany({
+  const events = await prisma.event.findMany({
     where: {
       published: true,
     },
@@ -19,62 +20,87 @@ export default async function NewsPage() {
 
       <Navbar />
 
-      <section className="pt-32 px-6">
+
+      <section className="pt-32 pb-24 px-6">
 
         <div className="max-w-6xl mx-auto">
 
 
-          <h1 className="text-5xl font-extrabold">
+          <h1 className="text-6xl font-extrabold text-center">
             Nexus <span className="text-purple-500">
-              News
+              Events
             </span>
           </h1>
 
 
-          <p className="text-gray-400 mt-4">
-            Latest announcements and updates.
+          <p className="text-gray-400 text-center mt-6 text-lg">
+            Upcoming events from the Nexus community.
           </p>
 
 
 
-          <div className="grid md:grid-cols-2 gap-6 mt-12">
+          {events.length > 0 ? (
+
+            <div className="grid md:grid-cols-2 gap-6 mt-16">
+
+              {events.map((event) => (
+
+                <div
+                  key={event.id}
+                  className="
+                  bg-white/5
+                  border
+                  border-white/10
+                  rounded-2xl
+                  p-6
+                  hover:border-purple-500
+                  transition
+                  "
+                >
+
+                  <h2 className="text-3xl font-bold">
+                    {event.title}
+                  </h2>
 
 
-            {news.map((article) => (
-
-              <div
-                key={article.id}
-                className="bg-white/5 border border-white/10 rounded-2xl p-6"
-              >
+                  <p className="text-purple-400 mt-3">
+                    📅 {event.date} • {event.time}
+                  </p>
 
 
-                <h2 className="text-2xl font-bold">
-                  {article.title}
-                </h2>
+                  <p className="text-gray-400 mt-5">
+                    {event.description}
+                  </p>
 
 
-                <p className="text-gray-400 mt-4">
-                  {article.content}
-                </p>
+
+                  <Link
+                    href={`/events/${event.slug}`}
+                    className="
+                    inline-block
+                    mt-6
+                    bg-purple-600
+                    hover:bg-purple-700
+                    px-6
+                    py-3
+                    rounded-xl
+                    font-bold
+                    "
+                  >
+                    View Event
+                  </Link>
 
 
-                <p className="text-purple-400 mt-4">
-                  {new Date(article.createdAt).toLocaleDateString()}
-                </p>
+                </div>
 
+              ))}
 
-              </div>
+            </div>
 
-            ))}
+          ) : (
 
-
-          </div>
-
-
-          {news.length === 0 && (
-
-            <p className="text-gray-400 mt-10">
-              No news available yet.
+            <p className="text-center text-gray-400 mt-16 text-xl">
+              No upcoming events yet.
             </p>
 
           )}
@@ -83,6 +109,9 @@ export default async function NewsPage() {
         </div>
 
       </section>
+
+
+      <Footer />
 
     </main>
   );
