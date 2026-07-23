@@ -1,4 +1,4 @@
-import Navbar from "@/components/layout/Navbar";
+import Navbar from "@/components/layout/NavbarWrapper";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";

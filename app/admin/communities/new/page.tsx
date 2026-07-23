@@ -1,4 +1,4 @@
-import Navbar from "@/components/layout/Navbar";
+import Navbar from "@/components/layout/NavbarWrapper";
 import CreateCommunityForm from "./CreateCommunityForm";
 
 export default function NewCommunityPage() {

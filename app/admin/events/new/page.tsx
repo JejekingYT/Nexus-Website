@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Navbar from "@/components/layout/Navbar";
+import Navbar from "@/components/layout/NavbarWrapper";
 
 export default function CreateEventPage() {
 

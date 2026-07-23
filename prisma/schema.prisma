@@ -116,3 +116,21 @@ model AuditLog {
 
   user User? @relation(fields: [userId], references: [id])
 }
+
+model SiteSettings {
+  id          Int      @id @default(1)
+
+  siteName    String   @default("Nexus")
+  description String?
+
+  logo        String?
+  favicon     String?
+
+  discord     String?
+  github      String?
+  youtube     String?
+
+  maintenance Boolean  @default(false)
+
+  updatedAt   DateTime @updatedAt
+}

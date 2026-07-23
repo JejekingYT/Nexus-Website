@@ -1,4 +1,4 @@
-import Navbar from "@/components/layout/Navbar";
+import Navbar from "@/components/layout/NavbarWrapper";
 import Link from "next/link";
 import DeleteNewsButton from "./DeleteNewsButton";
 import { prisma } from "@/lib/prisma";

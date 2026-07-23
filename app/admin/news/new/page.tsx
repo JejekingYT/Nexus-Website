@@ -1,4 +1,4 @@
-import Navbar from "@/components/layout/Navbar";
+import Navbar from "@/components/layout/NavbarWrapper";
 import CreateNewsForm from "./CreateNewsForm";
 import { requireRole } from "@/lib/auth";
 

@@ -1,4 +1,4 @@
-import Navbar from "@/components/layout/Navbar";
+import Navbar from "@/components/layout/NavbarWrapper";
 import { prisma } from "@/lib/prisma";
 import { redirect, notFound } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
