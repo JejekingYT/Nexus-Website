@@ -1,5 +1,9 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
+
+import { getCurrentUser } from "@/lib/auth";
+
 import PageHeader from "@/components/admin/PageHeader";
 import AdminCard from "@/components/admin/AdminCard";
 
@@ -7,17 +11,114 @@ import AdminCard from "@/components/admin/AdminCard";
 export default async function ProjectsAdminPage() {
 
 
+  const currentUser = await getCurrentUser();
+
+
+  if (
+    currentUser.role !== "OWNER" &&
+    currentUser.role !== "ADMIN"
+  ) {
+    redirect("/admin");
+  }
+
+
+
+
   const projects = await prisma.project.findMany({
+
     orderBy: {
       createdAt: "desc",
     },
+
   });
+
+
+
+
+
+  async function deleteProject(formData: FormData) {
+    "use server";
+
+
+    const currentUser = await getCurrentUser();
+
+
+    if (
+      currentUser.role !== "OWNER" &&
+      currentUser.role !== "ADMIN"
+    ) {
+      redirect("/admin");
+    }
+
+
+
+    const id = Number(formData.get("id"));
+
+
+
+    const project = await prisma.project.findUnique({
+
+      where: {
+        id,
+      },
+
+    });
+
+
+
+    if (!project) {
+      redirect("/admin/projects");
+    }
+
+
+
+
+
+    await prisma.project.delete({
+
+      where: {
+        id,
+      },
+
+    });
+
+
+
+
+
+    await prisma.auditLog.create({
+
+      data: {
+
+        action: "DELETE_PROJECT",
+
+        target: project.title,
+
+        details:
+          `Deleted project "${project.title}"`,
+
+        userId: currentUser.id,
+
+      },
+
+    });
+
+
+
+
+    redirect("/admin/projects");
+
+  }
+
+
+
 
 
 
   return (
 
     <section className="p-6 md:p-10">
+
 
 
       <PageHeader
@@ -29,7 +130,9 @@ export default async function ProjectsAdminPage() {
         action={
 
           <Link
+
             href="/admin/projects/create"
+
             className="
             inline-block
             bg-purple-600
@@ -40,8 +143,11 @@ export default async function ProjectsAdminPage() {
             font-bold
             transition
             "
+
           >
+
             + Add Project
+
           </Link>
 
         }
@@ -50,7 +156,10 @@ export default async function ProjectsAdminPage() {
 
 
 
+
+
       <AdminCard title="All Projects">
+
 
 
         {projects.length === 0 ? (
@@ -58,6 +167,7 @@ export default async function ProjectsAdminPage() {
           <p className="text-gray-400">
             No projects added yet.
           </p>
+
 
         ) : (
 
@@ -67,8 +177,11 @@ export default async function ProjectsAdminPage() {
 
             {projects.map((project) => (
 
+
               <div
+
                 key={project.id}
+
                 className="
                 bg-white/5
                 border
@@ -78,22 +191,31 @@ export default async function ProjectsAdminPage() {
                 hover:border-purple-500
                 transition
                 "
+
               >
+
 
 
                 {project.image && (
 
                   <img
+
                     src={project.image}
+
                     alt={project.title}
+
                     className="
                     w-full
                     h-40
                     object-cover
                     "
+
                   />
 
                 )}
+
+
+
 
 
 
@@ -101,14 +223,20 @@ export default async function ProjectsAdminPage() {
 
 
                   <h3 className="text-xl font-bold">
+
                     {project.title}
+
                   </h3>
 
 
 
+
                   <p className="text-gray-400 mt-2">
+
                     {project.description}
+
                   </p>
+
 
 
 
@@ -123,9 +251,11 @@ export default async function ProjectsAdminPage() {
 
 
 
+
                   {project.featured && (
 
                     <span
+
                       className="
                       inline-block
                       mt-4
@@ -136,19 +266,28 @@ export default async function ProjectsAdminPage() {
                       py-1
                       rounded-full
                       "
+
                     >
+
                       ⭐ Featured
+
                     </span>
 
                   )}
 
 
 
-                  <div className="flex gap-3 mt-6">
+
+
+
+                  <div className="flex gap-3 mt-6 flex-wrap">
+
 
 
                     <Link
+
                       href={`/admin/projects/edit/${project.id}`}
+
                       className="
                       bg-blue-600
                       hover:bg-blue-700
@@ -158,17 +297,25 @@ export default async function ProjectsAdminPage() {
                       font-bold
                       text-sm
                       "
+
                     >
+
                       Edit
+
                     </Link>
+
+
 
 
 
                     {project.url && (
 
                       <Link
+
                         href={project.url}
+
                         target="_blank"
+
                         className="
                         bg-purple-600
                         hover:bg-purple-700
@@ -178,11 +325,17 @@ export default async function ProjectsAdminPage() {
                         font-bold
                         text-sm
                         "
+
                       >
+
                         Open
+
                       </Link>
 
                     )}
+
+
+
 
 
 
@@ -199,21 +352,73 @@ export default async function ProjectsAdminPage() {
                       rounded-lg
                       text-sm
                       "
+
                     >
+
                       Preview
+
                     </Link>
+
+
+
+
+
+
+
+                    <form action={deleteProject}>
+
+
+                      <input
+
+                        type="hidden"
+
+                        name="id"
+
+                        value={project.id}
+
+                      />
+
+
+
+                      <button
+
+                        className="
+                        bg-red-500/10
+                        text-red-400
+                        hover:bg-red-500/20
+                        px-4
+                        py-2
+                        rounded-lg
+                        text-sm
+                        transition
+                        "
+
+                      >
+
+                        Delete
+
+                      </button>
+
+
+
+                    </form>
+
 
 
 
                   </div>
 
 
+
                 </div>
+
 
 
               </div>
 
+
             ))}
+
 
 
           </div>
@@ -222,10 +427,13 @@ export default async function ProjectsAdminPage() {
         )}
 
 
+
       </AdminCard>
+
 
 
     </section>
 
   );
+
 }
