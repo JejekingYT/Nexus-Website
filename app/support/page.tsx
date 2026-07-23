@@ -30,6 +30,7 @@ export default async function SupportPage() {
 
 
 
+
   async function createTicket(formData: FormData) {
     "use server";
 
@@ -68,9 +69,85 @@ export default async function SupportPage() {
 
 
 
+
+    // Discord Support Log
+
+    const webhook =
+      process.env.DISCORD_SUPPORT_LOG_WEBHOOK;
+
+
+
+    if (webhook) {
+
+      await fetch(webhook, {
+
+        method: "POST",
+
+        headers: {
+
+          "Content-Type": "application/json",
+
+        },
+
+        body: JSON.stringify({
+
+          embeds: [
+
+            {
+
+              title: "🎫 New Support Ticket",
+
+              description: `
+
+**Ticket:** #${ticket.id}
+
+**User:** ${user.username}
+
+**Category:** ${category}
+
+**Subject:** ${subject}
+
+
+**Message:**
+
+${message}
+
+
+**Open Ticket:**
+
+${process.env.NEXTAUTH_URL}/admin/support/${ticket.id}
+
+              `,
+
+              color: 10181046,
+
+              timestamp: new Date().toISOString(),
+
+              footer: {
+
+                text: "Nexus Support System",
+
+              },
+
+            },
+
+          ],
+
+        }),
+
+      });
+
+    }
+
+
+
+
     redirect(`/support/${ticket.id}`);
 
   }
+
+
+
 
 
 
@@ -106,7 +183,6 @@ export default async function SupportPage() {
 
 
 
-          {/* Create Ticket */}
 
           <form
             action={createTicket}
@@ -175,6 +251,7 @@ export default async function SupportPage() {
 
 
 
+
             <textarea
               name="message"
               required
@@ -190,6 +267,7 @@ export default async function SupportPage() {
               py-4
               "
             />
+
 
 
 
@@ -216,11 +294,11 @@ export default async function SupportPage() {
 
 
 
-          {/* Existing Tickets */}
 
           <h2 className="text-3xl font-bold mt-16">
             Your Tickets
           </h2>
+
 
 
 
@@ -234,6 +312,8 @@ export default async function SupportPage() {
               </p>
 
             )}
+
+
 
 
 
@@ -252,14 +332,18 @@ export default async function SupportPage() {
               >
 
 
+
                 <h3 className="text-xl font-bold">
                   {ticket.subject}
                 </h3>
 
 
+
                 <p className="text-purple-400 mt-2">
                   {ticket.category}
                 </p>
+
+
 
 
                 <p
@@ -273,6 +357,7 @@ export default async function SupportPage() {
                   {ticket.status}
 
                 </p>
+
 
 
 
@@ -293,6 +378,7 @@ export default async function SupportPage() {
                   Open Ticket
 
                 </Link>
+
 
 
               </div>

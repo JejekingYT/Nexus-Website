@@ -2,7 +2,59 @@
 
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { requireRole } from "@/lib/auth";
+
+
+async function sendDiscordLog(
+  title: string,
+  description: string,
+  color: number
+) {
+
+  const webhook =
+    process.env.DISCORD_SUPPORT_LOG_WEBHOOK;
+
+
+  if (!webhook) return;
+
+
+
+  await fetch(webhook, {
+
+    method: "POST",
+
+    headers: {
+      "Content-Type": "application/json",
+    },
+
+    body: JSON.stringify({
+
+      embeds: [
+
+        {
+          title,
+
+          description,
+
+          color,
+
+          timestamp: new Date().toISOString(),
+
+          footer: {
+            text: "Nexus Support System",
+          },
+
+        },
+
+      ],
+
+    }),
+
+  });
+
+}
+
+
+
 
 
 export async function updateTicketStatus(
@@ -10,24 +62,67 @@ export async function updateTicketStatus(
   status: string
 ) {
 
-  await requireRole([
-    "OWNER",
-    "ADMIN",
-    "SUPPORT",
-  ]);
+
+  const ticket =
+    await prisma.supportTicket.findUnique({
+
+      where:{
+        id,
+      },
+
+      include:{
+        user:true,
+      },
+
+    });
+
+
+
+  if (!ticket) return;
+
+
 
 
   await prisma.supportTicket.update({
 
-    where: {
+    where:{
       id,
     },
 
-    data: {
+    data:{
       status,
     },
 
   });
+
+
+
+
+  if(status === "CLOSED") {
+
+
+    await sendDiscordLog(
+
+      "🎫 Ticket Closed",
+
+      `
+**Ticket:** #${ticket.id}
+
+**Subject:** ${ticket.subject}
+
+**User:** ${ticket.user?.username ?? "Unknown"}
+
+**Closed By:** Nexus Support
+
+      `,
+
+      15158332
+
+    );
+
+  }
+
+
 
 
   redirect("/admin/support");
@@ -38,36 +133,80 @@ export async function updateTicketStatus(
 
 
 
+
+
 export async function deleteTicket(
-  id: number
-) {
-
-  await requireRole([
-    "OWNER",
-    "ADMIN",
-  ]);
+  id:number
+){
 
 
 
-  // Delete messages first
+
+  const ticket =
+    await prisma.supportTicket.findUnique({
+
+      where:{
+        id,
+      },
+
+      include:{
+        user:true,
+
+        messages:true,
+
+      },
+
+    });
+
+
+
+  if(!ticket) return;
+
+
+
+
+  await sendDiscordLog(
+
+    "🗑️ Ticket Deleted",
+
+    `
+**Ticket:** #${ticket.id}
+
+**Subject:** ${ticket.subject}
+
+**User:** ${ticket.user?.username ?? "Unknown"}
+
+**Messages:** ${ticket.messages.length}
+
+**Deleted By:** Nexus Support
+
+    `,
+
+    16711680
+
+  );
+
+
+
+
   await prisma.supportMessage.deleteMany({
 
-    where: {
-      ticketId: id,
+    where:{
+      ticketId:id,
     },
 
   });
 
 
 
-  // Delete ticket
   await prisma.supportTicket.delete({
 
-    where: {
+    where:{
       id,
     },
 
   });
+
 
 
 

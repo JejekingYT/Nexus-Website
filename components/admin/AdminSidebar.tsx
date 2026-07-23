@@ -21,7 +21,7 @@ export default function AdminSidebar({ role }: Props) {
     {
       name: "📊 Dashboard",
       href: "/admin",
-      roles: ["OWNER", "ADMIN", "MODERATOR"],
+      roles: ["OWNER", "ADMIN", "MODERATOR", "SUPPORT"],
     },
 
     {
@@ -64,6 +64,12 @@ export default function AdminSidebar({ role }: Props) {
       name: "📦 Projects",
       href: "/admin/projects",
       roles: ["OWNER", "ADMIN"],
+    },
+
+    {
+      name: "🎫 Support",
+      href: "/admin/support",
+      roles: ["OWNER", "ADMIN", "SUPPORT"],
     },
 
     {
