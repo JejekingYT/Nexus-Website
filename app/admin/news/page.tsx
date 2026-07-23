@@ -4,6 +4,8 @@ import DeleteNewsButton from "./DeleteNewsButton";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 export default async function NewsManager() {
 
 
@@ -237,6 +239,16 @@ export default async function NewsManager() {
 
 
           </div>
+
+
+
+          {news.length === 0 && (
+
+            <p className="text-gray-400 mt-10">
+              No news articles found.
+            </p>
+
+          )}
 
 
 
