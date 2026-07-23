@@ -203,7 +203,26 @@ async function main() {
     },
   });
 
+  await prisma.siteSettings.upsert({
+  where: {
+    id: 1,
+  },
+  update: {},
+  create: {
+    id: 1,
+    siteName: "Nexus",
+    description: "Nexus Community",
 
+    logo: null,
+    favicon: null,
+
+    discord: null,
+    github: null,
+    youtube: null,
+
+    maintenance: false,
+  },
+});
 
   console.log("✅ Database seeded!");
 }
