@@ -6,6 +6,7 @@ import {
   createHallOfFame,
   deleteHallOfFame,
 } from "./actions";
+import Image from "next/image";
 
 
 export default async function AdminHallOfFamePage() {
@@ -44,13 +45,14 @@ export default async function AdminHallOfFamePage() {
 
           <h1 className="text-5xl font-extrabold">
 
-            🏆 Hall of Fame
+            🏆 Hall of Fame{" "}
 
             <span className="text-purple-500">
               Admin
             </span>
 
           </h1>
+
 
 
           <p className="text-gray-400 mt-3">
@@ -63,9 +65,7 @@ export default async function AdminHallOfFamePage() {
 
 
 
-
           {/* Create Form */}
-
 
           <form
 
@@ -84,20 +84,11 @@ export default async function AdminHallOfFamePage() {
           >
 
 
-
             <input
               name="name"
               required
               placeholder="Name"
-              className="
-              w-full
-              bg-black/30
-              border
-              border-white/10
-              rounded-xl
-              px-5
-              py-4
-              "
+              className="input"
             />
 
 
@@ -106,15 +97,7 @@ export default async function AdminHallOfFamePage() {
               name="title"
               required
               placeholder="Title (Founder, Legend, Retired Admin...)"
-              className="
-              w-full
-              bg-black/30
-              border
-              border-white/10
-              rounded-xl
-              px-5
-              py-4
-              "
+              className="input"
             />
 
 
@@ -123,15 +106,7 @@ export default async function AdminHallOfFamePage() {
               name="category"
               required
               placeholder="Category (Nexus Legends, Retired Staff, Partners...)"
-              className="
-              w-full
-              bg-black/30
-              border
-              border-white/10
-              rounded-xl
-              px-5
-              py-4
-              "
+              className="input"
             />
 
 
@@ -139,15 +114,7 @@ export default async function AdminHallOfFamePage() {
             <input
               name="image"
               placeholder="Image URL"
-              className="
-              w-full
-              bg-black/30
-              border
-              border-white/10
-              rounded-xl
-              px-5
-              py-4
-              "
+              className="input"
             />
 
 
@@ -155,15 +122,7 @@ export default async function AdminHallOfFamePage() {
             <input
               name="year"
               placeholder="Year (Example: 2026)"
-              className="
-              w-full
-              bg-black/30
-              border
-              border-white/10
-              rounded-xl
-              px-5
-              py-4
-              "
+              className="input"
             />
 
 
@@ -212,16 +171,11 @@ export default async function AdminHallOfFamePage() {
 
 
 
-
           </form>
 
 
 
 
-
-
-
-          {/* Existing Members */}
 
 
 
@@ -235,143 +189,214 @@ export default async function AdminHallOfFamePage() {
 
 
 
-          <div className="grid md:grid-cols-2 gap-6 mt-8">
+
+
+          {members.length === 0 ? (
+
+            <div className="
+            mt-8
+            bg-white/5
+            border
+            border-white/10
+            rounded-2xl
+            p-10
+            text-center
+            text-gray-400
+            ">
+
+              No Hall of Fame members yet.
+
+            </div>
+
+
+          ) : (
+
+
+            <div className="grid md:grid-cols-2 gap-6 mt-8">
 
 
 
-            {members.map((member)=>(
+              {members.map((member)=>(
 
 
-              <div
+                <div
 
-                key={member.id}
+                  key={member.id}
 
-                className="
-                bg-white/5
-                border
-                border-white/10
-                rounded-2xl
-                p-6
-                "
+                  className="
+                  bg-white/5
+                  border
+                  border-white/10
+                  rounded-2xl
+                  p-6
+                  hover:border-purple-500
+                  transition
+                  "
 
-              >
-
-
-
-                <h3 className="text-2xl font-bold">
-
-                  {member.name}
-
-                </h3>
+                >
 
 
 
-                <p className="text-purple-400 mt-1">
+                  {member.image && (
 
-                  {member.title}
+                    <Image
 
-                </p>
+                      src={member.image}
 
+                      alt={member.name}
 
+                      width={100}
 
-                <p className="text-gray-400 mt-4">
+                      height={100}
 
-                  {member.description}
+                      className="
+                      rounded-full
+                      object-cover
+                      border
+                      border-purple-500/40
+                      mb-5
+                      "
 
-                </p>
+                    />
 
-
-
-
-                <div className="flex gap-3 mt-6">
-
-
-                  <span className="
-                  bg-purple-500/20
-                  text-purple-300
-                  px-3
-                  py-1
-                  rounded-full
-                  text-sm
-                  ">
-
-                    {member.category}
-
-                  </span>
+                  )}
 
 
 
-                  {member.year && (
 
-                    <span className="
-                    bg-white/10
-                    px-3
-                    py-1
-                    rounded-full
-                    text-sm
-                    ">
 
-                      {member.year}
+
+                  <h3 className="text-2xl font-bold">
+
+                    {member.name}
+
+                  </h3>
+
+
+
+                  <p className="text-purple-400 mt-1">
+
+                    {member.title}
+
+                  </p>
+
+
+
+                  <p className="text-gray-400 mt-4">
+
+                    {member.description}
+
+                  </p>
+
+
+
+
+
+                  <div className="flex gap-3 mt-6">
+
+
+                    <span
+
+                      className="
+                      bg-purple-500/20
+                      text-purple-300
+                      px-3
+                      py-1
+                      rounded-full
+                      text-sm
+                      "
+
+                    >
+
+                      {member.category}
 
                     </span>
 
-                  )}
+
+
+
+
+                    {member.year && (
+
+                      <span
+
+                        className="
+                        bg-white/10
+                        px-3
+                        py-1
+                        rounded-full
+                        text-sm
+                        "
+
+                      >
+
+                        ⭐ {member.year}
+
+                      </span>
+
+                    )}
+
+
+
+                  </div>
+
+
+
+
+
+
+
+                  <form
+
+                    action={async()=>{
+
+                      "use server";
+
+                      await deleteHallOfFame(member.id);
+
+                    }}
+
+                  >
+
+
+
+                    <button
+
+                      className="
+                      mt-6
+                      bg-red-600
+                      hover:bg-red-700
+                      px-5
+                      py-3
+                      rounded-xl
+                      font-bold
+                      "
+
+                    >
+
+                      Delete
+
+                    </button>
+
+
+
+                  </form>
+
+
 
 
 
                 </div>
 
 
+              ))}
 
 
 
-                <form
-
-                  action={async()=>{
-
-                    "use server";
-
-                    await deleteHallOfFame(member.id);
-
-                  }}
-
-                >
+            </div>
 
 
-                  <button
-
-                    className="
-                    mt-6
-                    bg-red-600
-                    hover:bg-red-700
-                    px-5
-                    py-3
-                    rounded-xl
-                    font-bold
-                    "
-
-                  >
-
-                    Delete
-
-                  </button>
-
-
-                </form>
-
-
-
-
-              </div>
-
-
-            ))}
-
-
-
-          </div>
-
-
+          )}
 
 
 
