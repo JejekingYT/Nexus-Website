@@ -33,13 +33,19 @@ export default function AdminSidebar({ role }: Props) {
     {
       name: "📜 Activity Logs",
       href: "/admin/logs",
-      roles: ["OWNER"],
+      roles: ["OWNER", "ADMIN"],
     },
 
     {
       name: "🌐 Communities",
       href: "/admin/communities",
-      roles: ["OWNER", "ADMIN"],
+      roles: ["OWNER"],
+    },
+
+    {
+      name: "🤝 Partners",
+      href: "/admin/partners",
+      roles: ["OWNER"],
     },
 
     {
@@ -57,13 +63,13 @@ export default function AdminSidebar({ role }: Props) {
     {
       name: "🎮 Games",
       href: "/admin/games",
-      roles: ["OWNER", "ADMIN"],
+      roles: ["OWNER"],
     },
 
     {
       name: "📦 Projects",
       href: "/admin/projects",
-      roles: ["OWNER", "ADMIN"],
+      roles: ["OWNER"],
     },
 
     {
