@@ -67,9 +67,50 @@ export default function Navbar({
         <div className="hidden md:flex gap-8 text-gray-300 font-medium">
 
 
-          <Link href="/" className="hover:text-purple-400 transition">
-            Home
-          </Link>
+          <div className="relative group">
+
+  <button className="hover:text-purple-400 transition">
+    Communities ▾
+  </button>
+
+  <div
+    className="
+    absolute
+    left-0
+    mt-3
+    w-64
+    bg-[#111]
+    border
+    border-white/10
+    rounded-xl
+    shadow-xl
+    opacity-0
+    invisible
+    group-hover:opacity-100
+    group-hover:visible
+    transition-all
+    duration-200
+    overflow-hidden
+    "
+  >
+
+    <Link
+      href="/communities"
+      className="block px-5 py-4 hover:bg-white/10"
+    >
+      🏛 Nexus Communities
+    </Link>
+
+    <Link
+      href="/partners"
+      className="block px-5 py-4 hover:bg-white/10"
+    >
+      🤝 Partner Communities
+    </Link>
+
+  </div>
+
+</div>
 
           <Link href="/communities" className="hover:text-purple-400 transition">
             Communities
@@ -234,8 +275,12 @@ export default function Navbar({
               Home
             </Link>
 
-            <Link href="/communities" onClick={closeMobile}>
-              Communities
+           <Link href="/communities" onClick={closeMobile}>
+              🏛 Nexus Communities
+            </Link>
+
+            <Link href="/partners" onClick={closeMobile}>
+              🤝 Partner Communities
             </Link>
 
             <Link href="/games" onClick={closeMobile}>

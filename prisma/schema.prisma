@@ -172,3 +172,44 @@ model SupportMessage {
 
   createdAt DateTime @default(now())
 }
+
+enum PartnerStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Partner {
+
+  id Int @id @default(autoincrement())
+
+  name String
+  slug String @unique
+
+  ownerName String
+  email String
+
+  logo String
+  banner String?
+
+  description String
+  reason String
+
+  members Int @default(0)
+
+  discord String?
+  roblox String?
+  website String?
+
+  socials String?
+
+  featured Boolean @default(false)
+  verified Boolean @default(true)
+
+  tier String @default("Official")
+
+  status PartnerStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
