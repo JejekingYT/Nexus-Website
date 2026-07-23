@@ -5,9 +5,9 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-export default async function EventsPage() {
+export default async function NewsPage() {
 
-  const events = await prisma.event.findMany({
+  const news = await prisma.news.findMany({
     where: {
       published: true,
     },
@@ -30,25 +30,25 @@ export default async function EventsPage() {
 
           <h1 className="text-6xl font-extrabold text-center">
             Nexus <span className="text-purple-500">
-              Events
+              News
             </span>
           </h1>
 
 
           <p className="text-gray-400 text-center mt-6 text-lg">
-            Upcoming events from the Nexus community.
+            Latest announcements and updates from the Nexus community.
           </p>
 
 
 
-          {events.length > 0 ? (
+          {news.length > 0 ? (
 
             <div className="grid md:grid-cols-2 gap-6 mt-16">
 
-              {events.map((event) => (
+              {news.map((article) => (
 
                 <div
-                  key={event.id}
+                  key={article.id}
                   className="
                   bg-white/5
                   border
@@ -60,24 +60,27 @@ export default async function EventsPage() {
                   "
                 >
 
+
                   <h2 className="text-3xl font-bold">
-                    {event.title}
+                    {article.title}
                   </h2>
 
 
-                  <p className="text-purple-400 mt-3">
-                    📅 {event.date} • {event.time}
+
+                  <p className="text-gray-400 mt-5">
+                    {article.content}
                   </p>
 
 
-                  <p className="text-gray-400 mt-5">
-                    {event.description}
+
+                  <p className="text-purple-400 mt-4">
+                    📅 {new Date(article.createdAt).toLocaleDateString()}
                   </p>
 
 
 
                   <Link
-                    href={`/events/${event.slug}`}
+                    href={`/news/${article.slug}`}
                     className="
                     inline-block
                     mt-6
@@ -89,7 +92,7 @@ export default async function EventsPage() {
                     font-bold
                     "
                   >
-                    View Event
+                    Read News
                   </Link>
 
 
@@ -102,7 +105,7 @@ export default async function EventsPage() {
           ) : (
 
             <p className="text-center text-gray-400 mt-16 text-xl">
-              No upcoming events yet.
+              No news available yet.
             </p>
 
           )}
