@@ -10,9 +10,9 @@ import AdminCard from "@/components/admin/AdminCard";
 export default async function EditProjectPage({
   params,
 }: {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }) {
 
 
@@ -20,18 +20,24 @@ export default async function EditProjectPage({
 
 
   if (
-    currentUser.role !== "OWNER" &&
-    currentUser.role !== "ADMIN"
+    !currentUser ||
+    (
+      currentUser.role !== "OWNER" &&
+      currentUser.role !== "ADMIN"
+    )
   ) {
     redirect("/admin/projects");
   }
+
+
+  const { id } = await params;
 
 
 
   const project = await prisma.project.findUnique({
 
     where: {
-      id: Number(params.id),
+      id: Number(id),
     },
 
   });
@@ -44,7 +50,6 @@ export default async function EditProjectPage({
 
 
   const existingProject = project;
-
 
 
 
@@ -90,7 +95,6 @@ export default async function EditProjectPage({
       },
 
     });
-
 
 
 
@@ -169,15 +173,10 @@ export default async function EditProjectPage({
 
 
           <input
-
             name="title"
-
             defaultValue={existingProject.title}
-
             required
-
             placeholder="Project Title"
-
             className="
             w-full
             bg-white/5
@@ -187,22 +186,16 @@ export default async function EditProjectPage({
             px-5
             py-4
             "
-
           />
 
 
 
 
           <textarea
-
             name="description"
-
             defaultValue={existingProject.description}
-
             required
-
             placeholder="Description"
-
             className="
             w-full
             h-40
@@ -213,20 +206,15 @@ export default async function EditProjectPage({
             px-5
             py-4
             "
-
           />
 
 
 
 
           <input
-
             name="image"
-
             defaultValue={existingProject.image ?? ""}
-
             placeholder="/projects/image.png"
-
             className="
             w-full
             bg-white/5
@@ -236,22 +224,16 @@ export default async function EditProjectPage({
             px-5
             py-4
             "
-
           />
 
 
 
 
           <input
-
             name="platform"
-
             defaultValue={existingProject.platform}
-
             placeholder="Platform"
-
             required
-
             className="
             w-full
             bg-white/5
@@ -261,22 +243,16 @@ export default async function EditProjectPage({
             px-5
             py-4
             "
-
           />
 
 
 
 
           <input
-
             name="status"
-
             defaultValue={existingProject.status}
-
             placeholder="Status"
-
             required
-
             className="
             w-full
             bg-white/5
@@ -286,20 +262,15 @@ export default async function EditProjectPage({
             px-5
             py-4
             "
-
           />
 
 
 
 
           <input
-
             name="url"
-
             defaultValue={existingProject.url ?? ""}
-
             placeholder="https://..."
-
             className="
             w-full
             bg-white/5
@@ -309,7 +280,6 @@ export default async function EditProjectPage({
             px-5
             py-4
             "
-
           />
 
 
@@ -318,17 +288,11 @@ export default async function EditProjectPage({
 
           <label className="flex items-center gap-3">
 
-
             <input
-
               type="checkbox"
-
               name="featured"
-
               defaultChecked={existingProject.featured}
-
               className="w-5 h-5"
-
             />
 
 
@@ -345,7 +309,6 @@ export default async function EditProjectPage({
 
 
           <button
-
             className="
             bg-purple-600
             hover:bg-purple-700
@@ -354,7 +317,6 @@ export default async function EditProjectPage({
             rounded-xl
             font-bold
             "
-
           >
 
             Save Changes
