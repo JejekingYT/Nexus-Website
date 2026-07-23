@@ -7,6 +7,7 @@ import {
   deleteHallOfFame,
 } from "./actions";
 import Image from "next/image";
+import Link from "next/link";
 
 
 export default async function AdminHallOfFamePage() {
@@ -265,7 +266,6 @@ export default async function AdminHallOfFamePage() {
 
 
 
-
                   <h3 className="text-2xl font-bold">
 
                     {member.name}
@@ -345,27 +345,17 @@ export default async function AdminHallOfFamePage() {
 
 
 
-
-                  <form
-
-                    action={async()=>{
-
-                      "use server";
-
-                      await deleteHallOfFame(member.id);
-
-                    }}
-
-                  >
+                  <div className="flex gap-3 mt-6">
 
 
 
-                    <button
+                    <Link
+
+                      href={`/admin/hall-of-fame/edit/${member.id}`}
 
                       className="
-                      mt-6
-                      bg-red-600
-                      hover:bg-red-700
+                      bg-purple-600
+                      hover:bg-purple-700
                       px-5
                       py-3
                       rounded-xl
@@ -374,13 +364,53 @@ export default async function AdminHallOfFamePage() {
 
                     >
 
-                      Delete
+                      ✏️ Edit
 
-                    </button>
+                    </Link>
 
 
 
-                  </form>
+
+
+
+                    <form
+
+                      action={async()=>{
+
+                        "use server";
+
+                        await deleteHallOfFame(member.id);
+
+                      }}
+
+                    >
+
+
+
+                      <button
+
+                        className="
+                        bg-red-600
+                        hover:bg-red-700
+                        px-5
+                        py-3
+                        rounded-xl
+                        font-bold
+                        "
+
+                      >
+
+                        🗑 Delete
+
+                      </button>
+
+
+
+                    </form>
+
+
+
+                  </div>
 
 
 
