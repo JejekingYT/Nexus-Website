@@ -18,7 +18,6 @@ export default function Navbar({
   const [openMobile, setOpenMobile] = useState(false);
 
 
-
   const isAdmin =
     session?.user?.role === "OWNER" ||
     session?.user?.role === "ADMIN";
@@ -26,7 +25,6 @@ export default function Navbar({
 
   const isSupport =
     session?.user?.role === "SUPPORT";
-
 
 
   const openAdmin = () => {
@@ -41,11 +39,9 @@ export default function Navbar({
   };
 
 
-
   const closeMobile = () => {
     setOpenMobile(false);
   };
-
 
 
   return (
@@ -67,82 +63,132 @@ export default function Navbar({
         <div className="hidden md:flex gap-8 text-gray-300 font-medium">
 
 
+
+          {/* Communities Dropdown */}
+
           <div className="relative group">
 
-  <button className="hover:text-purple-400 transition">
-    Communities ▾
-  </button>
+            <button className="hover:text-purple-400 transition">
+              Communities ▾
+            </button>
 
-  <div
-    className="
-    absolute
-    left-0
-    mt-3
-    w-64
-    bg-[#111]
-    border
-    border-white/10
-    rounded-xl
-    shadow-xl
-    opacity-0
-    invisible
-    group-hover:opacity-100
-    group-hover:visible
-    transition-all
-    duration-200
-    overflow-hidden
-    "
-  >
 
-    <Link
-      href="/communities"
-      className="block px-5 py-4 hover:bg-white/10"
-    >
-      🏛 Nexus Communities
-    </Link>
+            <div
+              className="
+              absolute
+              left-0
+              mt-3
+              w-64
+              bg-[#111]
+              border
+              border-white/10
+              rounded-xl
+              shadow-xl
+              opacity-0
+              invisible
+              group-hover:opacity-100
+              group-hover:visible
+              transition-all
+              duration-200
+              overflow-hidden
+              "
+            >
 
-    <Link
-      href="/partners"
-      className="block px-5 py-4 hover:bg-white/10"
-    >
-      🤝 Partner Communities
-    </Link>
+              <Link
+                href="/communities"
+                className="block px-5 py-4 hover:bg-white/10"
+              >
+                🏛 Nexus Communities
+              </Link>
 
-  </div>
 
-</div>
+              <Link
+                href="/communities"
+                className="block px-5 py-4 hover:bg-white/10"
+              >
+                🤝 Partner Communities
+              </Link>
 
-          <Link href="/communities" className="hover:text-purple-400 transition">
-            Communities
-          </Link>
 
-          <Link href="/games" className="hover:text-purple-400 transition">
+              <Link
+                href="/partners/apply"
+                className="
+                block
+                px-5
+                py-4
+                text-purple-400
+                hover:bg-purple-600/10
+                "
+              >
+                ✨ Become a Partner
+              </Link>
+
+
+            </div>
+
+
+          </div>
+
+
+
+
+
+          <Link
+            href="/games"
+            className="hover:text-purple-400 transition"
+          >
             Games
           </Link>
 
-          <Link href="/projects" className="hover:text-purple-400 transition">
+
+          <Link
+            href="/projects"
+            className="hover:text-purple-400 transition"
+          >
             Projects
           </Link>
 
-          <Link href="/news" className="hover:text-purple-400 transition">
+
+          <Link
+            href="/news"
+            className="hover:text-purple-400 transition"
+          >
             News
           </Link>
 
-          <Link href="/events" className="hover:text-purple-400 transition">
+
+          <Link
+            href="/events"
+            className="hover:text-purple-400 transition"
+          >
             Events
           </Link>
 
-          <Link href="/developers" className="hover:text-purple-400 transition">
+
+          <Link
+            href="/developers"
+            className="hover:text-purple-400 transition"
+          >
             Developers
           </Link>
 
-          <Link href="/contact" className="hover:text-purple-400 transition">
+
+          <Link
+            href="/contact"
+            className="hover:text-purple-400 transition"
+          >
             Contact
           </Link>
 
-          <Link href="/support" className="hover:text-purple-400 transition">
+
+          <Link
+            href="/support"
+            className="hover:text-purple-400 transition"
+          >
             Support
           </Link>
+
+
 
 
 
@@ -167,6 +213,7 @@ export default function Navbar({
                 className="flex items-center gap-2"
               >
 
+
                 {session.user.image && (
 
                   <img
@@ -187,9 +234,24 @@ export default function Navbar({
 
 
 
+
+
               {openProfile && (
 
-                <div className="absolute right-0 mt-3 w-56 bg-[#111] border border-white/10 rounded-xl shadow-xl p-3">
+                <div
+                  className="
+                  absolute
+                  right-0
+                  mt-3
+                  w-56
+                  bg-[#111]
+                  border
+                  border-white/10
+                  rounded-xl
+                  shadow-xl
+                  p-3
+                  "
+                >
 
 
                   <Link
@@ -211,11 +273,20 @@ export default function Navbar({
 
 
 
+
                   {(isAdmin || isSupport) && (
 
                     <button
                       onClick={openAdmin}
-                      className="w-full text-left px-4 py-3 rounded-lg hover:bg-white/10 text-purple-400"
+                      className="
+                      w-full
+                      text-left
+                      px-4
+                      py-3
+                      rounded-lg
+                      hover:bg-white/10
+                      text-purple-400
+                      "
                     >
                       🛠 Admin Panel
                     </button>
@@ -225,9 +296,18 @@ export default function Navbar({
 
 
 
+
                   <button
                     onClick={() => signOut()}
-                    className="w-full text-left px-4 py-3 rounded-lg hover:bg-red-500/10 text-red-400"
+                    className="
+                    w-full
+                    text-left
+                    px-4
+                    py-3
+                    rounded-lg
+                    hover:bg-red-500/10
+                    text-red-400
+                    "
                   >
                     🚪 Logout
                   </button>
@@ -268,44 +348,68 @@ export default function Navbar({
 
         <div className="md:hidden bg-[#09090B] border-t border-purple-500/20 px-6 py-6">
 
+
           <div className="flex flex-col gap-5 text-gray-300">
+
 
 
             <Link href="/" onClick={closeMobile}>
               Home
             </Link>
 
-           <Link href="/communities" onClick={closeMobile}>
-              🏛 Nexus Communities
+
+            <Link
+              href="/communities"
+              onClick={closeMobile}
+            >
+              🏛 Communities & Partners
             </Link>
 
-            <Link href="/partners" onClick={closeMobile}>
-              🤝 Partner Communities
+
+
+            <Link
+              href="/partners/apply"
+              onClick={closeMobile}
+              className="text-purple-400"
+            >
+              ✨ Become a Partner
             </Link>
+
+
+
+
 
             <Link href="/games" onClick={closeMobile}>
               Games
             </Link>
 
+
             <Link href="/projects" onClick={closeMobile}>
               Projects
             </Link>
+
 
             <Link href="/news" onClick={closeMobile}>
               News
             </Link>
 
+
             <Link href="/events" onClick={closeMobile}>
               Events
             </Link>
+
 
             <Link href="/developers" onClick={closeMobile}>
               Developers
             </Link>
 
+
             <Link href="/contact" onClick={closeMobile}>
               Contact
             </Link>
+
+
+
 
 
             {!session ? (
@@ -325,14 +429,22 @@ export default function Navbar({
               <>
 
 
-                <Link href="/profile" onClick={closeMobile}>
+                <Link
+                  href="/profile"
+                  onClick={closeMobile}
+                >
                   👤 Profile
                 </Link>
 
 
-                <Link href="/profile/edit" onClick={closeMobile}>
+
+                <Link
+                  href="/profile/edit"
+                  onClick={closeMobile}
+                >
                   ⚙ Settings
                 </Link>
+
 
 
 
@@ -354,6 +466,7 @@ export default function Navbar({
 
 
 
+
                 <button
                   onClick={() => signOut()}
                   className="text-left text-red-400"
@@ -369,6 +482,7 @@ export default function Navbar({
 
           </div>
 
+
         </div>
 
       )}
@@ -377,4 +491,5 @@ export default function Navbar({
     </nav>
 
   );
+
 }
