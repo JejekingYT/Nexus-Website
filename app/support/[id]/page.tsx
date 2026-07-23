@@ -3,6 +3,9 @@ import Footer from "@/components/layout/Footer";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { notFound, redirect } from "next/navigation";
+import { pusher } from "@/lib/pusher";
+import TicketChat from "@/components/support/TicketChat";
+
 
 export default async function SupportTicketPage({
   params,
@@ -10,16 +13,20 @@ export default async function SupportTicketPage({
   params: Promise<{ id: string }>;
 }) {
 
+
   const user = await getCurrentUser();
+
 
   if (!user) {
     redirect("/api/auth/signin");
   }
 
+
   const currentUser = user;
 
 
   const { id } = await params;
+
 
 
   const ticket = await prisma.supportTicket.findUnique({
@@ -29,14 +36,19 @@ export default async function SupportTicketPage({
     },
 
     include: {
+
       messages: {
+
         include: {
           sender: true,
         },
+
         orderBy: {
           createdAt: "asc",
         },
+
       },
+
     },
 
   });
@@ -48,29 +60,36 @@ export default async function SupportTicketPage({
   }
 
 
+
   const currentTicket = ticket;
 
 
 
-  // Prevent users viewing other people's tickets
-  // Allow OWNER, ADMIN and SUPPORT staff
+  // Permission check
   if (
     currentTicket.userId !== currentUser.id &&
     currentUser.role !== "ADMIN" &&
     currentUser.role !== "OWNER" &&
     currentUser.role !== "SUPPORT"
   ) {
+
     redirect("/support");
+
   }
 
 
 
 
+
   async function sendMessage(formData: FormData) {
+
     "use server";
 
 
-    const message = formData.get("message") as string;
+
+    const message =
+      formData.get("message") as string;
+
 
 
     if (!message.trim()) {
@@ -79,19 +98,59 @@ export default async function SupportTicketPage({
 
 
 
-    await prisma.supportMessage.create({
+    const newMessage =
+      await prisma.supportMessage.create({
 
-      data: {
+        data: {
 
-        ticketId: currentTicket.id,
+          ticketId: currentTicket.id,
 
-        senderId: currentUser.id,
+          senderId: currentUser.id,
 
-        message,
+          message,
 
-      },
+        },
 
-    });
+        include: {
+
+          sender: true,
+
+        },
+
+      });
+
+
+
+
+
+    // Send message instantly to Pusher
+    await pusher.trigger(
+
+      `ticket-${currentTicket.id}`,
+
+      "new-message",
+
+      {
+
+        id: newMessage.id,
+
+        message: newMessage.message,
+
+        createdAt: newMessage.createdAt,
+
+        sender: {
+
+          id: newMessage.sender?.id,
+
+          username: newMessage.sender?.username,
+
+          role: newMessage.sender?.role,
+
+        },
+
+      }
+
+    );
 
 
 
@@ -102,16 +161,23 @@ export default async function SupportTicketPage({
 
 
 
+
+
+
   return (
 
     <main className="min-h-screen bg-[#09090B] text-white">
 
+
       <Navbar />
+
 
 
       <section className="pt-32 pb-24 px-6">
 
+
         <div className="max-w-4xl mx-auto">
+
 
 
           <h1 className="text-4xl font-bold">
@@ -119,6 +185,7 @@ export default async function SupportTicketPage({
             {currentTicket.subject}
 
           </h1>
+
 
 
 
@@ -131,59 +198,17 @@ export default async function SupportTicketPage({
 
 
 
-          <div className="mt-10 space-y-4">
 
 
-            {currentTicket.messages.map((msg) => (
+          <TicketChat
 
-              <div
-                key={msg.id}
-                className="
-                bg-white/5
-                border
-                border-white/10
-                rounded-xl
-                p-5
-                "
-              >
+            ticketId={currentTicket.id}
+
+            initialMessages={currentTicket.messages}
+
+          />
 
 
-                <p className="text-purple-400 font-bold">
-
-                  {(
-                    msg.sender?.role === "SUPPORT" ||
-                    msg.sender?.role === "ADMIN" ||
-                    msg.sender?.role === "OWNER"
-                  )
-                    ? "🎫 Nexus Support"
-                    : msg.sender?.username ?? "Unknown"
-                  }
-
-                </p>
-
-
-
-                <p className="text-gray-300 mt-2">
-
-                  {msg.message}
-
-                </p>
-
-
-
-                <p className="text-xs text-gray-500 mt-3">
-
-                  {new Date(msg.createdAt).toLocaleString()}
-
-                </p>
-
-
-              </div>
-
-            ))}
-
-
-          </div>
 
 
 
@@ -191,14 +216,25 @@ export default async function SupportTicketPage({
 
           {currentTicket.status !== "CLOSED" && (
 
+
             <form
+
               action={sendMessage}
-              className="mt-8 flex gap-4"
+
+              className="
+              mt-8
+              flex
+              gap-4
+              "
+
             >
+
 
               <input
 
                 name="message"
+
+                required
 
                 placeholder="Write a message..."
 
@@ -233,14 +269,19 @@ export default async function SupportTicketPage({
               </button>
 
 
+
             </form>
+
 
           )}
 
 
+
         </div>
 
+
       </section>
+
 
 
       <Footer />
