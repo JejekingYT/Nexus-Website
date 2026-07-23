@@ -27,7 +27,7 @@ export default async function Footer() {
           >
 
             <img
-              src="/icons/discord.png"
+              src="/discord.png"
               alt="Discord"
               className="w-8 h-8"
             />
@@ -46,7 +46,7 @@ export default async function Footer() {
           >
 
             <img
-              src="/icons/github.png"
+              src="/github.png"
               alt="GitHub"
               className="w-8 h-8"
             />
@@ -66,7 +66,7 @@ export default async function Footer() {
           >
 
             <img
-              src="/icons/youtube.png"
+              src="/youtube.png"
               alt="YouTube"
               className="w-8 h-8"
             />
