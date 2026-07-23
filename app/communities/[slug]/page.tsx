@@ -23,11 +23,9 @@ export default async function CommunityPage({
   });
 
 
-
   if (!community) {
     notFound();
   }
-
 
 
   return (
@@ -37,6 +35,7 @@ export default async function CommunityPage({
 
 
       <section className="pt-32 pb-24 px-6">
+
 
         <div className="max-w-5xl mx-auto text-center">
 
@@ -95,6 +94,7 @@ export default async function CommunityPage({
               <a
                 href={community.discord}
                 target="_blank"
+                rel="noopener noreferrer"
                 className="inline-block px-8 py-4 rounded-xl bg-purple-600 hover:bg-purple-700 transition font-bold"
               >
                 Join Discord
@@ -109,6 +109,7 @@ export default async function CommunityPage({
               <a
                 href={community.roblox}
                 target="_blank"
+                rel="noopener noreferrer"
                 className="inline-block ml-4 px-8 py-4 rounded-xl border border-purple-500 hover:bg-purple-500/10 transition font-bold"
               >
                 Roblox Group
@@ -159,6 +160,7 @@ export default async function CommunityPage({
 
 
         {/* About */}
+
         <div className="max-w-5xl mx-auto mt-20 text-left">
 
           <h2 className="text-4xl font-bold">
@@ -177,6 +179,7 @@ export default async function CommunityPage({
 
 
         {/* Community Games */}
+
         {community.games.length > 0 && (
 
           <div className="max-w-5xl mx-auto mt-20">
@@ -219,6 +222,7 @@ export default async function CommunityPage({
                     <a
                       href={game.link}
                       target="_blank"
+                      rel="noopener noreferrer"
                       className="inline-block mt-6 bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-xl font-bold transition"
                     >
                       Play Game
@@ -243,8 +247,8 @@ export default async function CommunityPage({
 
 
 
-
         {/* Staff Team */}
+
         <div className="max-w-5xl mx-auto mt-20">
 
 
@@ -257,38 +261,51 @@ export default async function CommunityPage({
           <div className="grid md:grid-cols-3 gap-6 mt-10">
 
 
-            {Array.isArray(community.staff) && community.staff.map((member: any) => (
+            {Array.isArray(community.staff) &&
+              (community.staff as Array<{
+                name: string;
+                role: string;
+                icon: string;
+              }>).map((member) => (
 
-              <div
-                key={member.role}
-                className="bg-white/5 border border-white/10 rounded-2xl p-6 text-center hover:border-purple-500 transition"
-              >
+                <div
+                  key={member.role}
+                  className="
+                  bg-white/5
+                  border
+                  border-white/10
+                  rounded-2xl
+                  p-6
+                  text-center
+                  hover:border-purple-500
+                  transition
+                  "
+                >
 
-                <div className="text-5xl">
-                  {member.icon}
+                  <div className="text-5xl">
+                    {member.icon}
+                  </div>
+
+
+                  <h3 className="text-xl font-bold mt-4">
+                    {member.name}
+                  </h3>
+
+
+                  <p className="text-purple-400 mt-2">
+                    {member.role}
+                  </p>
+
+
                 </div>
 
-
-                <h3 className="text-xl font-bold mt-4">
-                  {member.name}
-                </h3>
-
-
-                <p className="text-purple-400 mt-2">
-                  {member.role}
-                </p>
-
-
-              </div>
-
-            ))}
+              ))}
 
 
           </div>
 
 
         </div>
-
 
 
       </section>

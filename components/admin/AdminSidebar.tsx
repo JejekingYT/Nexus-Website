@@ -85,6 +85,12 @@ export default function AdminSidebar({ role }: Props) {
     },
 
     {
+      name: "🏆 Hall of Fame",
+      href: "/admin/hall-of-fame",
+      roles: ["OWNER"],
+    },
+
+    {
       name: "⚙️ Settings",
       href: "/admin/settings",
       roles: ["OWNER"],
