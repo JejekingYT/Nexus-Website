@@ -15,7 +15,7 @@ export default async function Footer() {
 
 
 
-      <div className="flex justify-center gap-6 mt-5">
+      <div className="flex justify-center gap-5 mt-6">
 
 
         {settings.discord && (
@@ -23,9 +23,15 @@ export default async function Footer() {
             href={settings.discord}
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-purple-400 transition"
+            className="hover:scale-110 transition"
           >
-            Discord
+
+            <img
+              src="/icons/discord.png"
+              alt="Discord"
+              className="w-8 h-8"
+            />
+
           </a>
         )}
 
@@ -36,11 +42,18 @@ export default async function Footer() {
             href={settings.github}
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-purple-400 transition"
+            className="hover:scale-110 transition"
           >
-            GitHub
+
+            <img
+              src="/icons/github.png"
+              alt="GitHub"
+              className="w-8 h-8"
+            />
+
           </a>
         )}
+
 
 
 
@@ -49,9 +62,15 @@ export default async function Footer() {
             href={settings.youtube}
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-purple-400 transition"
+            className="hover:scale-110 transition"
           >
-            YouTube
+
+            <img
+              src="/icons/youtube.png"
+              alt="YouTube"
+              className="w-8 h-8"
+            />
+
           </a>
         )}
 
