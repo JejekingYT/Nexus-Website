@@ -108,7 +108,7 @@ export default function Navbar({
 
 
               <Link
-                href="/communities"
+                href="/communities/partners"
                 className="block px-5 py-4 hover:bg-white/10"
               >
                 🤝 Partner Communities
