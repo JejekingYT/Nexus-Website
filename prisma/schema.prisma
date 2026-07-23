@@ -148,6 +148,11 @@ model SupportTicket {
   category String
   status   String @default("OPEN")
 
+  // Soft delete system
+  deleted   Boolean   @default(false)
+  deletedAt DateTime?
+  deletedBy String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 
 async function sendDiscordLog(
@@ -57,6 +58,7 @@ async function sendDiscordLog(
 
 
 
+
 export async function updateTicketStatus(
   id: number,
   status: string
@@ -66,12 +68,12 @@ export async function updateTicketStatus(
   const ticket =
     await prisma.supportTicket.findUnique({
 
-      where:{
+      where: {
         id,
       },
 
-      include:{
-        user:true,
+      include: {
+        user: true,
       },
 
     });
@@ -82,23 +84,14 @@ export async function updateTicketStatus(
 
 
 
-
-  await prisma.supportTicket.update({
-
-    where:{
-      id,
-    },
-
-    data:{
-      status,
-    },
-
-  });
+  const website =
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    "https://nexus-community-web.vercel.app";
 
 
 
 
-  if(status === "CLOSED") {
+  if (status === "CLOSED") {
 
 
     await sendDiscordLog(
@@ -114,6 +107,9 @@ export async function updateTicketStatus(
 
 **Closed By:** Nexus Support
 
+
+**Transcript:**
+${website}/admin/support/transcript/${ticket.id}
       `,
 
       15158332
@@ -123,6 +119,23 @@ export async function updateTicketStatus(
   }
 
 
+
+
+  await prisma.supportTicket.update({
+
+    where: {
+      id,
+    },
+
+    data: {
+      status,
+    },
+
+  });
+
+
+
+  revalidatePath("/admin/support");
 
 
   redirect("/admin/support");
@@ -135,24 +148,26 @@ export async function updateTicketStatus(
 
 
 
-export async function deleteTicket(
-  id:number
-){
 
+
+export async function deleteTicket(
+  id: number
+) {
 
 
 
   const ticket =
     await prisma.supportTicket.findUnique({
 
-      where:{
+      where: {
         id,
       },
 
-      include:{
-        user:true,
+      include: {
 
-        messages:true,
+        user: true,
+
+        messages: true,
 
       },
 
@@ -160,7 +175,14 @@ export async function deleteTicket(
 
 
 
-  if(!ticket) return;
+  if (!ticket) return;
+
+
+
+  const website =
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    "https://nexus-community-web.vercel.app";
+
 
 
 
@@ -180,6 +202,9 @@ export async function deleteTicket(
 
 **Deleted By:** Nexus Support
 
+
+**Transcript:**
+${website}/admin/support/transcript/${ticket.id}
     `,
 
     16711680
@@ -189,25 +214,32 @@ export async function deleteTicket(
 
 
 
-  await prisma.supportMessage.deleteMany({
-
-    where:{
-      ticketId:id,
-    },
-
-  });
 
 
+  await prisma.supportTicket.update({
 
-  await prisma.supportTicket.delete({
-
-    where:{
+    where: {
       id,
     },
 
+    data: {
+
+      deleted: true,
+
+      deletedAt: new Date(),
+
+      deletedBy: "Nexus Support",
+
+      status: "DELETED",
+
+    },
+
   });
 
 
+
+
+  revalidatePath("/admin/support");
 
 
   redirect("/admin/support");
