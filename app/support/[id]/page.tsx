@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { notFound, redirect } from "next/navigation";
 import { pusher } from "@/lib/pusher";
 import TicketChat from "@/components/support/TicketChat";
+import TicketInput from "@/components/support/TicketInput";
 
 
 export default async function SupportTicketPage({
@@ -75,6 +76,7 @@ export default async function SupportTicketPage({
     redirect("/support");
 
   }
+
 
 
 
@@ -232,56 +234,17 @@ export default async function SupportTicketPage({
             >
 
 
+              <TicketInput
 
-              <input
+                ticketId={currentTicket.id}
 
-                name="message"
+                userId={currentUser.id}
 
-                required
+                username={currentUser.username}
 
-                placeholder="Write a message..."
-
-                onChange={() => {
-
-                  fetch("/api/support/typing", {
-
-                    method: "POST",
-
-                    headers: {
-
-                      "Content-Type": "application/json",
-
-                    },
-
-                    body: JSON.stringify({
-
-                      ticketId: currentTicket.id,
-
-                      userId: currentUser.id,
-
-                      username: currentUser.username,
-
-                      role: currentUser.role,
-
-                    }),
-
-                  });
-
-                }}
-
-
-                className="
-                flex-1
-                bg-white/5
-                border
-                border-white/10
-                rounded-xl
-                px-5
-                py-4
-                "
+                role={currentUser.role}
 
               />
-
 
 
 
