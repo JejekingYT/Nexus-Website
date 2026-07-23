@@ -5,6 +5,7 @@ import { requireRole } from "@/lib/auth";
 import { notFound, redirect } from "next/navigation";
 import { pusher } from "@/lib/pusher";
 import TicketChat from "@/components/support/TicketChat";
+import TicketInput from "@/components/support/TicketInput";
 
 
 export default async function AdminSupportTicketPage({
@@ -150,6 +151,7 @@ export default async function AdminSupportTicketPage({
 
 
 
+
   return (
 
     <main className="min-h-screen bg-[#09090B] text-white">
@@ -199,6 +201,7 @@ export default async function AdminSupportTicketPage({
 
 
 
+
           <TicketChat
 
             ticketId={currentTicket.id}
@@ -234,52 +237,15 @@ export default async function AdminSupportTicketPage({
 
 
 
-              <input
+              <TicketInput
 
-                name="message"
+                ticketId={currentTicket.id}
 
-                required
+                username="Nexus Support"
 
-                placeholder="Reply as Nexus Support..."
+                userId={currentUser.id}
 
-                onChange={() => {
-
-                  fetch("/api/support/typing", {
-
-                    method: "POST",
-
-                    headers: {
-
-                      "Content-Type": "application/json",
-
-                    },
-
-                    body: JSON.stringify({
-
-                      ticketId: currentTicket.id,
-
-                      userId: currentUser.id,
-
-                      username: "Nexus Support",
-
-                      role: "SUPPORT",
-
-                    }),
-
-                  });
-
-                }}
-
-
-                className="
-                flex-1
-                bg-white/5
-                border
-                border-white/10
-                rounded-xl
-                px-5
-                py-4
-                "
+                role={currentUser.role}
 
               />
 
