@@ -56,6 +56,7 @@ export default function RoleSelector({
 
 
     router.refresh();
+
   }
 
 
@@ -81,13 +82,21 @@ export default function RoleSelector({
         USER
       </option>
 
+
+      <option value="SUPPORT">
+        SUPPORT
+      </option>
+
+
       <option value="MODERATOR">
         MODERATOR
       </option>
 
+
       <option value="ADMIN">
         ADMIN
       </option>
+
 
       <option value="OWNER">
         OWNER

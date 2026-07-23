@@ -4,6 +4,14 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 
 
+export type UserRole =
+  | "USER"
+  | "SUPPORT"
+  | "ADMIN"
+  | "OWNER";
+
+
+
 export async function getCurrentUser() {
 
   const session = await getServerSession(authOptions);
@@ -37,14 +45,14 @@ export async function getCurrentUser() {
 
 
 export async function requireRole(
-  roles: string[]
+  roles: UserRole[]
 ) {
 
   const user = await getCurrentUser();
 
 
 
-  if (!roles.includes(user.role)) {
+  if (!roles.includes(user.role as UserRole)) {
 
     redirect("/admin/denied");
 

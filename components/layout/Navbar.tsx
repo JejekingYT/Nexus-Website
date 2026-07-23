@@ -18,14 +18,34 @@ export default function Navbar({
   const [openMobile, setOpenMobile] = useState(false);
 
 
+
   const isAdmin =
     session?.user?.role === "OWNER" ||
     session?.user?.role === "ADMIN";
 
 
+  const isSupport =
+    session?.user?.role === "SUPPORT";
+
+
+
+  const openAdmin = () => {
+
+    if (isSupport) {
+      router.push("/admin/support");
+      return;
+    }
+
+    router.push("/admin");
+
+  };
+
+
+
   const closeMobile = () => {
     setOpenMobile(false);
   };
+
 
 
   return (
@@ -34,8 +54,6 @@ export default function Navbar({
 
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
 
-
-        {/* Logo */}
 
         <Link
           href="/"
@@ -46,9 +64,6 @@ export default function Navbar({
 
 
 
-
-        {/* Desktop */}
-
         <div className="hidden md:flex gap-8 text-gray-300 font-medium">
 
 
@@ -56,36 +71,29 @@ export default function Navbar({
             Home
           </Link>
 
-
           <Link href="/communities" className="hover:text-purple-400 transition">
             Communities
           </Link>
-
 
           <Link href="/games" className="hover:text-purple-400 transition">
             Games
           </Link>
 
-
           <Link href="/projects" className="hover:text-purple-400 transition">
             Projects
           </Link>
-
 
           <Link href="/news" className="hover:text-purple-400 transition">
             News
           </Link>
 
-
           <Link href="/events" className="hover:text-purple-400 transition">
             Events
           </Link>
 
-
           <Link href="/developers" className="hover:text-purple-400 transition">
             Developers
           </Link>
-
 
           <Link href="/contact" className="hover:text-purple-400 transition">
             Contact
@@ -101,6 +109,7 @@ export default function Navbar({
             >
               Login
             </button>
+
 
           ) : (
 
@@ -156,16 +165,18 @@ export default function Navbar({
 
 
 
-                  {isAdmin && (
+
+                  {(isAdmin || isSupport) && (
 
                     <button
-                      onClick={() => router.push("/admin")}
+                      onClick={openAdmin}
                       className="w-full text-left px-4 py-3 rounded-lg hover:bg-white/10 text-purple-400"
                     >
                       🛠 Admin Panel
                     </button>
 
                   )}
+
 
 
 
@@ -193,8 +204,6 @@ export default function Navbar({
 
 
 
-        {/* Mobile Button */}
-
         <button
           onClick={() => setOpenMobile(!openMobile)}
           className="md:hidden text-white text-3xl"
@@ -209,7 +218,6 @@ export default function Navbar({
 
 
 
-      {/* Mobile Menu */}
 
       {openMobile && (
 
@@ -222,40 +230,34 @@ export default function Navbar({
               Home
             </Link>
 
-
             <Link href="/communities" onClick={closeMobile}>
               Communities
             </Link>
-
 
             <Link href="/games" onClick={closeMobile}>
               Games
             </Link>
 
-
             <Link href="/projects" onClick={closeMobile}>
               Projects
             </Link>
-
 
             <Link href="/news" onClick={closeMobile}>
               News
             </Link>
 
-
             <Link href="/events" onClick={closeMobile}>
               Events
             </Link>
-
 
             <Link href="/developers" onClick={closeMobile}>
               Developers
             </Link>
 
-
             <Link href="/contact" onClick={closeMobile}>
               Contact
             </Link>
+
 
 
 
@@ -287,16 +289,21 @@ export default function Navbar({
 
 
 
-                {isAdmin && (
+
+                {(isAdmin || isSupport) && (
 
                   <button
-                    onClick={() => router.push("/admin")}
+                    onClick={() => {
+                      closeMobile();
+                      openAdmin();
+                    }}
                     className="text-left text-purple-400"
                   >
                     🛠 Admin Panel
                   </button>
 
                 )}
+
 
 
 

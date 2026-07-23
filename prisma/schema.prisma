@@ -26,15 +26,15 @@ model Community {
 }
 
 model News {
-  id        Int      @id @default(autoincrement())
+  id        Int     @id @default(autoincrement())
   title     String
-  slug      String   @unique
+  slug      String  @unique
   content   String
   image     String?
-  published Boolean  @default(false)
+  published Boolean @default(false)
 
-  authorId  Int?
-  author    User?    @relation(fields: [authorId], references: [id])
+  authorId Int?
+  author   User? @relation(fields: [authorId], references: [id])
 
   createdAt DateTime @default(now())
 }
@@ -66,14 +66,14 @@ model Project {
 }
 
 model Game {
-  id          Int        @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   name        String
-  slug        String     @unique
+  slug        String  @unique
   description String
   image       String?
   platform    String
   link        String?
-  featured    Boolean    @default(false)
+  featured    Boolean @default(false)
 
   communityId Int?
   community   Community? @relation(fields: [communityId], references: [id])
@@ -103,14 +103,17 @@ model User {
 
   news News[]
   logs AuditLog[]
+
+  supportTickets  SupportTicket[]
+  supportMessages SupportMessage[]
 }
 
 model AuditLog {
-  id        Int      @id @default(autoincrement())
-  action    String
-  target    String
-  details   String
-  userId    Int?
+  id      Int    @id @default(autoincrement())
+  action  String
+  target  String
+  details String
+  userId  Int?
 
   createdAt DateTime @default(now())
 
@@ -118,19 +121,49 @@ model AuditLog {
 }
 
 model SiteSettings {
-  id          Int      @id @default(1)
+  id Int @id @default(1)
 
-  siteName    String   @default("Nexus")
+  siteName    String  @default("Nexus")
   description String?
 
-  logo        String?
-  favicon     String?
+  logo    String?
+  favicon String?
 
-  discord     String?
-  github      String?
-  youtube     String?
+  discord String?
+  github  String?
+  youtube String?
 
-  maintenance Boolean  @default(false)
+  maintenance Boolean @default(false)
 
-  updatedAt   DateTime @updatedAt
+  updatedAt DateTime @updatedAt
+}
+
+model SupportTicket {
+  id Int @id @default(autoincrement())
+
+  userId Int?
+  user   User? @relation(fields: [userId], references: [id])
+
+  subject  String
+  category String
+  status   String @default("OPEN")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages SupportMessage[]
+}
+
+model SupportMessage {
+  id Int @id @default(autoincrement())
+
+  ticketId Int
+  ticket   SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  senderId Int?
+  sender   User? @relation(fields: [senderId], references: [id])
+
+  message String
+
+  createdAt DateTime @default(now())
 }

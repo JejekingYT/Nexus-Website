@@ -29,6 +29,16 @@ export default async function AdminPage() {
 
 
 
+  const isSupport = currentUser?.role === "SUPPORT";
+
+
+  // Support users only access support panel
+  if (isSupport) {
+    redirect("/admin/support");
+  }
+
+
+
   const [
     communityCount,
     newsCount,
@@ -37,6 +47,7 @@ export default async function AdminPage() {
     developerCount,
     userCount,
     projectCount,
+    supportCount,
   ] = await Promise.all([
 
     prisma.community.count(),
@@ -53,7 +64,11 @@ export default async function AdminPage() {
 
     prisma.project.count(),
 
+    prisma.supportTicket.count(),
+
   ]);
+
+
 
 
 
@@ -108,6 +123,13 @@ export default async function AdminPage() {
       button: "Manage Users",
     },
 
+    {
+      title: "🎫 Support",
+      desc: "Manage user support tickets.",
+      link: "/admin/support",
+      button: "Manage Support",
+    },
+
   ];
 
 
@@ -116,12 +138,16 @@ export default async function AdminPage() {
 
     <main className="min-h-screen bg-[#09090B] text-white">
 
+
       <Navbar />
+
 
 
       <section className="pt-32 pb-24 px-6">
 
+
         <div className="max-w-7xl mx-auto">
+
 
 
           <PageHeader
@@ -144,7 +170,9 @@ export default async function AdminPage() {
 
 
 
-          <div className="grid md:grid-cols-4 gap-6">
+
+
+          <div className="grid md:grid-cols-4 gap-6 mt-12">
 
 
             <StatCard
@@ -196,7 +224,15 @@ export default async function AdminPage() {
             />
 
 
+            <StatCard
+              title="Support Tickets"
+              value={supportCount}
+              icon="🎫"
+            />
+
+
           </div>
+
 
 
 
@@ -207,6 +243,7 @@ export default async function AdminPage() {
 
 
 
+
           <div className="grid md:grid-cols-3 gap-6 mt-8">
 
 
@@ -214,8 +251,17 @@ export default async function AdminPage() {
 
               <div
                 key={item.title}
-                className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-purple-500 transition"
+                className="
+                bg-white/5
+                border
+                border-white/10
+                rounded-2xl
+                p-6
+                hover:border-purple-500
+                transition
+                "
               >
+
 
                 <h2 className="text-2xl font-bold">
                   {item.title}
@@ -228,11 +274,17 @@ export default async function AdminPage() {
 
 
                 <Link
-
                   href={item.link}
-
-                  className="inline-block mt-6 bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-xl font-bold"
-
+                  className="
+                  inline-block
+                  mt-6
+                  bg-purple-600
+                  hover:bg-purple-700
+                  px-6
+                  py-3
+                  rounded-xl
+                  font-bold
+                  "
                 >
 
                   {item.button}
@@ -249,13 +301,15 @@ export default async function AdminPage() {
 
 
 
+
+
           <div className="grid md:grid-cols-2 gap-6 mt-10">
 
 
             <AdminCard title="Quick Actions">
 
               <p className="text-gray-400">
-                Create projects, communities, games, news and events.
+                Create projects, communities, games, news, events and manage support tickets.
               </p>
 
             </AdminCard>
@@ -274,7 +328,9 @@ export default async function AdminPage() {
           </div>
 
 
+
         </div>
+
 
       </section>
 
@@ -282,4 +338,5 @@ export default async function AdminPage() {
     </main>
 
   );
+
 }
