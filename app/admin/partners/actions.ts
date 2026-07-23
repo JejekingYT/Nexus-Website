@@ -14,30 +14,56 @@ export async function createPartner(formData: FormData) {
 
     data: {
 
-      name: formData.get("name") as string,
+      name:
+        formData.get("name") as string,
 
-      slug: formData.get("slug") as string,
 
-      logo: formData.get("logo") as string,
+      slug:
+        formData.get("slug") as string,
+
+
+      ownerName:
+        "Nexus Staff",
+
+
+      email:
+        "staff@nexus.com",
+
+
+      logo:
+        formData.get("logo") as string,
+
 
       banner:
-        formData.get("banner") as string || null,
+        (formData.get("banner") as string) || null,
 
 
       description:
         formData.get("description") as string,
 
 
+      reason:
+        "Manually created by Nexus OWNER",
+
+
+      members:
+        Number(formData.get("members") || 0),
+
+
       discord:
-        formData.get("discord") as string || null,
+        (formData.get("discord") as string) || null,
 
 
       roblox:
-        formData.get("roblox") as string || null,
+        (formData.get("roblox") as string) || null,
 
 
       website:
-        formData.get("website") as string || null,
+        (formData.get("website") as string) || null,
+
+
+      socials:
+        (formData.get("socials") as string) || null,
 
 
       featured:
@@ -48,8 +74,9 @@ export async function createPartner(formData: FormData) {
         formData.get("verified") === "on",
 
 
-      // Manual OWNER created partners are instantly approved
-      status: "APPROVED",
+      // Manual OWNER partners are instantly approved
+      status:
+        "APPROVED",
 
     },
 
@@ -59,6 +86,8 @@ export async function createPartner(formData: FormData) {
   redirect("/admin/partners");
 
 }
+
+
 
 
 
@@ -84,7 +113,8 @@ export async function approvePartner(
 
     data:{
 
-      status:"APPROVED",
+      status:
+        "APPROVED",
 
     },
 
@@ -94,6 +124,8 @@ export async function approvePartner(
   redirect("/admin/partners");
 
 }
+
+
 
 
 
@@ -119,7 +151,8 @@ export async function rejectPartner(
 
     data:{
 
-      status:"REJECTED",
+      status:
+        "REJECTED",
 
     },
 
@@ -133,7 +166,13 @@ export async function rejectPartner(
 
 
 
-export async function updatePartner(formData: FormData) {
+
+
+
+
+export async function updatePartner(
+  formData: FormData
+) {
 
   await requireRole(["OWNER"]);
 
@@ -143,14 +182,16 @@ export async function updatePartner(formData: FormData) {
   );
 
 
+
   await prisma.partner.update({
 
-    where: {
+    where:{
       id,
     },
 
 
-    data: {
+    data:{
+
 
       name:
         formData.get("name") as string,
@@ -158,6 +199,14 @@ export async function updatePartner(formData: FormData) {
 
       slug:
         formData.get("slug") as string,
+
+
+      ownerName:
+        formData.get("ownerName") as string,
+
+
+      email:
+        formData.get("email") as string,
 
 
       logo:
@@ -172,6 +221,14 @@ export async function updatePartner(formData: FormData) {
         formData.get("description") as string,
 
 
+      reason:
+        formData.get("reason") as string,
+
+
+      members:
+        Number(formData.get("members") || 0),
+
+
       discord:
         (formData.get("discord") as string) || null,
 
@@ -184,8 +241,12 @@ export async function updatePartner(formData: FormData) {
         (formData.get("roblox") as string) || null,
 
 
+      socials:
+        (formData.get("socials") as string) || null,
+
+
       tier:
-        formData.get("tier") as string,
+        (formData.get("tier") as string) || "Official",
 
 
       featured:
@@ -207,6 +268,9 @@ export async function updatePartner(formData: FormData) {
   redirect("/admin/partners");
 
 }
+
+
+
 
 
 
