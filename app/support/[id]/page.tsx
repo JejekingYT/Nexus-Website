@@ -65,7 +65,6 @@ export default async function SupportTicketPage({
 
 
 
-  // Permission check
   if (
     currentTicket.userId !== currentUser.id &&
     currentUser.role !== "ADMIN" &&
@@ -123,7 +122,6 @@ export default async function SupportTicketPage({
 
 
 
-    // Send message instantly to Pusher
     await pusher.trigger(
 
       `ticket-${currentTicket.id}`,
@@ -200,13 +198,17 @@ export default async function SupportTicketPage({
 
 
 
+
           <TicketChat
 
             ticketId={currentTicket.id}
 
             initialMessages={currentTicket.messages}
 
+            currentUserId={currentUser.id}
+
           />
+
 
 
 
@@ -230,6 +232,7 @@ export default async function SupportTicketPage({
             >
 
 
+
               <input
 
                 name="message"
@@ -237,6 +240,35 @@ export default async function SupportTicketPage({
                 required
 
                 placeholder="Write a message..."
+
+                onChange={() => {
+
+                  fetch("/api/support/typing", {
+
+                    method: "POST",
+
+                    headers: {
+
+                      "Content-Type": "application/json",
+
+                    },
+
+                    body: JSON.stringify({
+
+                      ticketId: currentTicket.id,
+
+                      userId: currentUser.id,
+
+                      username: currentUser.username,
+
+                      role: currentUser.role,
+
+                    }),
+
+                  });
+
+                }}
+
 
                 className="
                 flex-1
@@ -249,6 +281,8 @@ export default async function SupportTicketPage({
                 "
 
               />
+
+
 
 
 

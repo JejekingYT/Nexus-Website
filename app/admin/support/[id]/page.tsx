@@ -110,7 +110,6 @@ export default async function AdminSupportTicketPage({
 
 
 
-    // Send message instantly with Pusher
     await pusher.trigger(
 
       `ticket-${currentTicket.id}`,
@@ -199,13 +198,18 @@ export default async function AdminSupportTicketPage({
 
 
 
+
           <TicketChat
 
             ticketId={currentTicket.id}
 
             initialMessages={currentTicket.messages}
 
+            currentUserId={currentUser.id}
+
           />
+
+
 
 
 
@@ -229,6 +233,7 @@ export default async function AdminSupportTicketPage({
             >
 
 
+
               <input
 
                 name="message"
@@ -236,6 +241,35 @@ export default async function AdminSupportTicketPage({
                 required
 
                 placeholder="Reply as Nexus Support..."
+
+                onChange={() => {
+
+                  fetch("/api/support/typing", {
+
+                    method: "POST",
+
+                    headers: {
+
+                      "Content-Type": "application/json",
+
+                    },
+
+                    body: JSON.stringify({
+
+                      ticketId: currentTicket.id,
+
+                      userId: currentUser.id,
+
+                      username: "Nexus Support",
+
+                      role: "SUPPORT",
+
+                    }),
+
+                  });
+
+                }}
+
 
                 className="
                 flex-1
@@ -248,6 +282,8 @@ export default async function AdminSupportTicketPage({
                 "
 
               />
+
+
 
 
 

@@ -7,41 +7,44 @@ import { pusherClient } from "@/lib/pusher-client";
 interface Props {
   ticketId: number;
   initialMessages: any[];
+  currentUserId: number;
 }
 
 
 export default function TicketChat({
   ticketId,
   initialMessages,
+  currentUserId,
 }: Props) {
 
 
-  const [messages, setMessages] = useState(
-    initialMessages
-  );
+  const [messages, setMessages] =
+    useState(initialMessages);
+
+
+  const [typingUser, setTypingUser] =
+    useState<string | null>(null);
 
 
 
   useEffect(() => {
 
 
-    const channel = pusherClient.subscribe(
-      `ticket-${ticketId}`
-    );
+    const channel =
+      pusherClient.subscribe(
+        `ticket-${ticketId}`
+      );
 
 
 
     channel.bind(
       "new-message",
-      (newMessage: any) => {
+      (newMessage:any)=>{
 
 
-        setMessages((current) => [
-
-          ...current,
-
+        setMessages((old:any)=>[
+          ...old,
           newMessage,
-
         ]);
 
 
@@ -50,7 +53,31 @@ export default function TicketChat({
 
 
 
-    return () => {
+    channel.bind(
+      "typing",
+      (data:any)=>{
+
+
+        if(data.userId !== currentUserId){
+
+          setTypingUser(data.name);
+
+
+          setTimeout(()=>{
+
+            setTypingUser(null);
+
+          },3000);
+
+        }
+
+
+      }
+    );
+
+
+
+    return()=>{
 
 
       pusherClient.unsubscribe(
@@ -61,7 +88,10 @@ export default function TicketChat({
     };
 
 
-  }, [ticketId]);
+  },[
+    ticketId,
+    currentUserId
+  ]);
 
 
 
@@ -69,74 +99,67 @@ export default function TicketChat({
 
   return (
 
-    <div className="mt-10 space-y-4">
+    <div className="mt-10">
 
 
-      {messages.map((msg) => (
+      <div className="space-y-4">
 
 
-        <div
+        {messages.map((msg:any)=>(
 
-          key={msg.id}
+          <div
+            key={msg.id}
+            className="
+            bg-white/5
+            border
+            border-white/10
+            rounded-xl
+            p-5
+            "
+          >
 
-          className="
-          bg-white/5
-          border
-          border-white/10
-          rounded-xl
-          p-5
-          "
+            <p className="text-purple-400 font-bold">
 
-        >
+              {
+                msg.sender?.role === "SUPPORT" ||
+                msg.sender?.role === "ADMIN" ||
+                msg.sender?.role === "OWNER"
 
+                ? "🎫 Nexus Support"
 
+                : msg.sender?.username ?? "Unknown"
+              }
 
-          <p className="text-purple-400 font-bold">
-
-
-            {
-              msg.sender?.role === "SUPPORT" ||
-              msg.sender?.role === "ADMIN" ||
-              msg.sender?.role === "OWNER"
-
-              ? "🎫 Nexus Support"
-
-              : msg.sender?.username ?? "Unknown"
-            }
+            </p>
 
 
-          </p>
+            <p className="mt-2 text-gray-300">
+
+              {msg.message}
+
+            </p>
 
 
+          </div>
+
+        ))}
 
 
-
-          <p className="text-gray-300 mt-2">
-
-            {msg.message}
-
-          </p>
-
-
-
-
-
-          <p className="text-xs text-gray-500 mt-3">
-
-            {
-              new Date(
-                msg.createdAt
-              ).toLocaleString()
-            }
-
-          </p>
+      </div>
 
 
 
-        </div>
 
+      {typingUser && (
 
-      ))}
+        <p className="text-gray-400 mt-4 italic">
+
+          {typingUser} is typing...
+
+        </p>
+
+      )}
+
 
 
     </div>
