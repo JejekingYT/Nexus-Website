@@ -9,6 +9,7 @@ export default async function PartnersPage() {
 
     where: {
       verified: true,
+      status: "APPROVED",
     },
 
     orderBy: [
@@ -22,23 +23,32 @@ export default async function PartnersPage() {
 
   });
 
+
   return (
 
     <main className="min-h-screen bg-[#09090B] text-white">
 
+
       <Navbar />
+
 
       <section className="pt-32 pb-24 px-6">
 
+
         <div className="max-w-7xl mx-auto">
+
 
           <h1 className="text-5xl font-extrabold">
 
-            🤝 <span className="text-purple-500">
+            🤝{" "}
+
+            <span className="text-purple-500">
               Partner Communities
             </span>
 
           </h1>
+
+
 
           <p className="text-gray-400 mt-4">
 
@@ -46,9 +56,38 @@ export default async function PartnersPage() {
 
           </p>
 
+
+
+
+
+          {partners.length === 0 ? (
+
+            <div
+              className="
+              mt-14
+              bg-white/5
+              border
+              border-white/10
+              rounded-3xl
+              p-10
+              text-center
+              text-gray-400
+              "
+            >
+
+              No partner communities available yet.
+
+            </div>
+
+          ) : (
+
+
+
           <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8 mt-14">
 
+
             {partners.map((partner) => (
+
 
               <div
 
@@ -67,37 +106,64 @@ export default async function PartnersPage() {
 
               >
 
+
+
                 {partner.banner && (
 
                   <img
+
                     src={partner.banner}
-                    className="w-full h-44 object-cover"
+
+                    className="
+                    w-full
+                    h-44
+                    object-cover
+                    "
+
                     alt={partner.name}
+
                   />
 
                 )}
 
+
+
+
+
+
                 <div className="p-6">
+
 
                   <div className="flex items-center gap-4">
 
-                    <img
 
-                      src={partner.logo}
 
-                      alt={partner.name}
+                    {partner.logo && (
 
-                      className="
-                      w-16
-                      h-16
-                      rounded-2xl
-                      border
-                      border-white/10
-                      "
+                      <img
 
-                    />
+                        src={partner.logo}
+
+                        alt={partner.name}
+
+                        className="
+                        w-16
+                        h-16
+                        rounded-2xl
+                        border
+                        border-white/10
+                        object-cover
+                        "
+
+                      />
+
+                    )}
+
+
+
 
                     <div>
+
 
                       <h2 className="text-2xl font-bold">
 
@@ -105,11 +171,23 @@ export default async function PartnersPage() {
 
                       </h2>
 
-                      <div className="flex gap-2 mt-1">
+
+
+                      <div className="flex gap-2 mt-2">
+
 
                         {partner.featured && (
 
-                          <span className="bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full text-xs">
+                          <span
+                            className="
+                            bg-yellow-500/20
+                            text-yellow-400
+                            px-3
+                            py-1
+                            rounded-full
+                            text-xs
+                            "
+                          >
 
                             ⭐ Featured
 
@@ -117,9 +195,21 @@ export default async function PartnersPage() {
 
                         )}
 
+
+
+
                         {partner.verified && (
 
-                          <span className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs">
+                          <span
+                            className="
+                            bg-green-500/20
+                            text-green-400
+                            px-3
+                            py-1
+                            rounded-full
+                            text-xs
+                            "
+                          >
 
                             ✔ Verified
 
@@ -127,17 +217,30 @@ export default async function PartnersPage() {
 
                         )}
 
+
                       </div>
+
 
                     </div>
 
+
                   </div>
+
+
+
+
+
 
                   <p className="text-gray-400 mt-6 line-clamp-3">
 
                     {partner.description}
 
                   </p>
+
+
+
+
+
 
                   <Link
 
@@ -152,6 +255,7 @@ export default async function PartnersPage() {
                     py-3
                     rounded-xl
                     font-bold
+                    transition
                     "
 
                   >
@@ -160,19 +264,37 @@ export default async function PartnersPage() {
 
                   </Link>
 
+
+
                 </div>
+
+
 
               </div>
 
+
+
             ))}
+
+
 
           </div>
 
+
+          )}
+
+
+
         </div>
+
+
 
       </section>
 
+
+
       <Footer />
+
 
     </main>
 

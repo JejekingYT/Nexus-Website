@@ -29,7 +29,9 @@ export default async function AdminPartnersPage() {
 const partners = await prisma.partner.findMany({
 
   where:{
-    status:"APPROVED",
+    status:{
+      not:"PENDING",
+    },
   },
 
   orderBy:{
