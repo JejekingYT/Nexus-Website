@@ -1,6 +1,6 @@
 import Navbar from "@/components/layout/NavbarWrapper";
 import Footer from "@/components/layout/Footer";
-import { updateTicketStatus } from "./actions";
+import { updateTicketStatus, deleteTicket } from "./actions";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth";
@@ -18,6 +18,13 @@ export default async function AdminSupportPage() {
 
 
   const canManageStatus =
+    currentUser.role === "OWNER" ||
+    currentUser.role === "ADMIN" ||
+    currentUser.role === "SUPPORT";
+
+
+
+  const canDelete =
     currentUser.role === "OWNER" ||
     currentUser.role === "ADMIN";
 
@@ -41,7 +48,6 @@ export default async function AdminSupportPage() {
     },
 
   });
-
 
 
 
@@ -163,8 +169,9 @@ export default async function AdminSupportPage() {
                 <div className="flex gap-3 mt-6">
 
 
+
                   <Link
-                    href={`/support/${ticket.id}`}
+                    href={`/admin/support/${ticket.id}`}
                     className="
                     bg-purple-600
                     hover:bg-purple-700
@@ -260,6 +267,44 @@ export default async function AdminSupportPage() {
 
 
 
+
+
+                  {canDelete && (
+
+                    <form
+                      action={async () => {
+                        "use server";
+
+                        await deleteTicket(
+                          ticket.id
+                        );
+
+                      }}
+                    >
+
+                      <button
+                        className="
+                        bg-red-800
+                        hover:bg-red-900
+                        px-5
+                        py-3
+                        rounded-xl
+                        font-bold
+                        "
+                      >
+
+                        Delete
+
+                      </button>
+
+
+                    </form>
+
+                  )}
+
+
+
+
                 </div>
 
 
@@ -286,6 +331,8 @@ export default async function AdminSupportPage() {
             </p>
 
           )}
+
+
 
 
 

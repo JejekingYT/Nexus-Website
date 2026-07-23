@@ -1,25 +1,27 @@
 import Navbar from "@/components/layout/NavbarWrapper";
 import Footer from "@/components/layout/Footer";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
+import { requireRole } from "@/lib/auth";
 import { notFound, redirect } from "next/navigation";
 
-export default async function SupportTicketPage({
+
+export default async function AdminSupportTicketPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
 
-  const user = await getCurrentUser();
 
-  if (!user) {
-    redirect("/api/auth/signin");
-  }
+  const currentUser = await requireRole([
+    "OWNER",
+    "ADMIN",
+    "SUPPORT",
+  ]);
 
-  const currentUser = user;
 
 
   const { id } = await params;
+
 
 
   const ticket = await prisma.supportTicket.findUnique({
@@ -29,14 +31,21 @@ export default async function SupportTicketPage({
     },
 
     include: {
+
+      user: true,
+
       messages: {
+
         include: {
           sender: true,
         },
+
         orderBy: {
           createdAt: "asc",
         },
+
       },
+
     },
 
   });
@@ -48,20 +57,10 @@ export default async function SupportTicketPage({
   }
 
 
+
   const currentTicket = ticket;
 
 
-
-  // Prevent users viewing other people's tickets
-  // Allow OWNER, ADMIN and SUPPORT staff
-  if (
-    currentTicket.userId !== currentUser.id &&
-    currentUser.role !== "ADMIN" &&
-    currentUser.role !== "OWNER" &&
-    currentUser.role !== "SUPPORT"
-  ) {
-    redirect("/support");
-  }
 
 
 
@@ -70,7 +69,9 @@ export default async function SupportTicketPage({
     "use server";
 
 
-    const message = formData.get("message") as string;
+    const message =
+      formData.get("message") as string;
+
 
 
     if (!message.trim()) {
@@ -95,9 +96,11 @@ export default async function SupportTicketPage({
 
 
 
-    redirect(`/support/${currentTicket.id}`);
+    redirect(`/admin/support/${currentTicket.id}`);
 
   }
+
+
 
 
 
@@ -106,12 +109,16 @@ export default async function SupportTicketPage({
 
     <main className="min-h-screen bg-[#09090B] text-white">
 
+
       <Navbar />
+
 
 
       <section className="pt-32 pb-24 px-6">
 
+
         <div className="max-w-4xl mx-auto">
+
 
 
           <h1 className="text-4xl font-bold">
@@ -131,13 +138,28 @@ export default async function SupportTicketPage({
 
 
 
+
+          <div className="mt-4 text-gray-400">
+
+            User:{" "}
+            {currentTicket.user?.username ?? "Unknown"}
+
+          </div>
+
+
+
+
+
           <div className="mt-10 space-y-4">
+
 
 
             {currentTicket.messages.map((msg) => (
 
               <div
+
                 key={msg.id}
+
                 className="
                 bg-white/5
                 border
@@ -145,21 +167,29 @@ export default async function SupportTicketPage({
                 rounded-xl
                 p-5
                 "
+
               >
 
 
+
                 <p className="text-purple-400 font-bold">
+
 
                   {(
                     msg.sender?.role === "SUPPORT" ||
                     msg.sender?.role === "ADMIN" ||
                     msg.sender?.role === "OWNER"
                   )
+
                     ? "🎫 Nexus Support"
+
                     : msg.sender?.username ?? "Unknown"
+
                   }
 
+
                 </p>
+
 
 
 
@@ -171,16 +201,22 @@ export default async function SupportTicketPage({
 
 
 
+
                 <p className="text-xs text-gray-500 mt-3">
 
-                  {new Date(msg.createdAt).toLocaleString()}
+                  {new Date(
+                    msg.createdAt
+                  ).toLocaleString()}
 
                 </p>
 
 
+
               </div>
 
+
             ))}
+
 
 
           </div>
@@ -189,18 +225,30 @@ export default async function SupportTicketPage({
 
 
 
+
+
           {currentTicket.status !== "CLOSED" && (
 
             <form
+
               action={sendMessage}
-              className="mt-8 flex gap-4"
+
+              className="
+              mt-8
+              flex
+              gap-4
+              "
+
             >
+
 
               <input
 
                 name="message"
 
-                placeholder="Write a message..."
+                required
+
+                placeholder="Reply as Nexus Support..."
 
                 className="
                 flex-1
@@ -233,14 +281,18 @@ export default async function SupportTicketPage({
               </button>
 
 
+
             </form>
 
           )}
 
 
+
         </div>
 
+
       </section>
+
 
 
       <Footer />
