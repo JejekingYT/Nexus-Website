@@ -99,6 +99,10 @@ export default function Navbar({
             Contact
           </Link>
 
+          <Link href="/support" className="hover:text-purple-400 transition">
+            Support
+          </Link>
+
 
 
           {!session ? (
@@ -257,8 +261,6 @@ export default function Navbar({
             <Link href="/contact" onClick={closeMobile}>
               Contact
             </Link>
-
-
 
 
             {!session ? (
