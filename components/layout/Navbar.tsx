@@ -69,6 +69,10 @@ export default function Navbar() {
             Developers
           </Link>
 
+          <Link href="/contact" className="hover:text-purple-400 transition">
+            Contact
+          </Link>
+
 
           {!session ? (
 
@@ -208,6 +212,10 @@ export default function Navbar() {
 
             <Link href="/developers" onClick={closeMobile}>
               Developers
+            </Link>
+
+            <Link href="/contact" onClick={closeMobile}>
+              Contact
             </Link>
 
 

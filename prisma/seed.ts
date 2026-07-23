@@ -15,7 +15,8 @@ async function main() {
       members: 68,
       discord: "https://discord.gg/uYKKybvrR6",
       discordId: "1492240815878312148",
-      roblox: "https://www.roblox.com/communities/390316982/The-Sanctuary#!/about",
+      roblox:
+        "https://www.roblox.com/communities/390316982/The-Sanctuary#!/about",
       about:
         "The Sanctuary is a Roblox clan built around teamwork and events.",
 
@@ -49,7 +50,8 @@ async function main() {
       members: 68,
       discord: "https://discord.gg/uYKKybvrR6",
       discordId: "1492240815878312148",
-      roblox: "https://www.roblox.com/communities/390316982/The-Sanctuary#!/about",
+      roblox:
+        "https://www.roblox.com/communities/390316982/The-Sanctuary#!/about",
       about:
         "The Sanctuary is a Roblox clan built around teamwork and events.",
 
@@ -72,6 +74,7 @@ async function main() {
       ],
     },
   });
+
 
 
   await prisma.community.upsert({
@@ -108,6 +111,7 @@ async function main() {
   });
 
 
+
   await prisma.project.upsert({
     where: {
       slug: "nexus-website",
@@ -138,6 +142,7 @@ async function main() {
   });
 
 
+
   await prisma.game.upsert({
     where: {
       slug: "saber-legends",
@@ -168,6 +173,7 @@ async function main() {
   });
 
 
+
   await prisma.game.upsert({
     where: {
       slug: "saber-showdown",
@@ -196,6 +202,7 @@ async function main() {
       communityId: sanctuary.id,
     },
   });
+
 
 
   console.log("✅ Database seeded!");
