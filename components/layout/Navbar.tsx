@@ -62,7 +62,12 @@ export default function Navbar({
 
         <div className="hidden md:flex gap-8 text-gray-300 font-medium">
 
-
+          <Link
+            href="/"
+            className="hover:text-purple-400 transition"
+>
+            Home
+          </Link>
 
           {/* Communities Dropdown */}
 
