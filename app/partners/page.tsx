@@ -2,7 +2,10 @@ import Navbar from "@/components/layout/NavbarWrapper";
 import Footer from "@/components/layout/Footer";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { getDiscordServerWidget } from "@/lib/discord";
+import { getDiscordMemberCount } from "@/lib/discord";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function PartnersPage() {
 
@@ -26,10 +29,12 @@ export default async function PartnersPage() {
       let members = partner.members;
 
       if (partner.discordId) {
-        const widget = await getDiscordServerWidget(partner.discordId);
+        const widget = await getDiscordMemberCount(partner.discordId);
 
         if (widget) {
-          members = widget.presence_count;
+          members = await getDiscordMemberCount(
+            partner.discordId
+          );
         }
       }
 

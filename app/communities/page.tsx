@@ -3,9 +3,10 @@ import Footer from "@/components/layout/Footer";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import Image from "next/image";
-import { getDiscordServerWidget } from "@/lib/discord";
+import { getDiscordMemberCount } from "@/lib/discord";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 
 export default async function Communities() {
@@ -39,18 +40,11 @@ const communities = await Promise.all(
 
     if (community.discordId) {
 
-      const widget = await getDiscordServerWidget(
-        community.discordId
-      );
+  members = await getDiscordMemberCount(
+    community.discordId
+  );
 
-
-      if (widget) {
-
-        members = widget.presence_count;
-
-      }
-
-    }
+}
 
 
     return {
