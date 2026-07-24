@@ -9,26 +9,41 @@ import { notFound } from "next/navigation";
 export default async function EditPartnerPage({
   params,
 }: {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }) {
 
+
   await requireRole(["OWNER"]);
+
+
+  const { id } = await params;
+
+
+  const partnerId = Number(id);
+
+
+  if (isNaN(partnerId)) {
+    notFound();
+  }
+
 
 
   const partner = await prisma.partner.findUnique({
 
     where: {
-      id: Number(params.id),
+      id: partnerId,
     },
 
   });
 
 
+
   if (!partner) {
     notFound();
   }
+
 
 
 
@@ -56,6 +71,7 @@ export default async function EditPartnerPage({
           <p className="text-gray-400 mt-3">
             OWNER Partner Management
           </p>
+
 
 
 
@@ -90,6 +106,7 @@ export default async function EditPartnerPage({
             />
 
 
+
             <input
               name="slug"
               defaultValue={partner.slug}
@@ -98,12 +115,14 @@ export default async function EditPartnerPage({
             />
 
 
+
             <input
               name="logo"
               defaultValue={partner.logo}
               className="input"
               placeholder="Logo URL"
             />
+
 
 
             <input
@@ -204,6 +223,7 @@ export default async function EditPartnerPage({
 
 
 
+
             <label className="flex gap-3 items-center">
 
               <input
@@ -215,6 +235,7 @@ export default async function EditPartnerPage({
               Verified Partner
 
             </label>
+
 
 
 
@@ -265,6 +286,7 @@ export default async function EditPartnerPage({
             </button>
 
 
+
           </form>
 
 
@@ -276,7 +298,9 @@ export default async function EditPartnerPage({
 
       <Footer />
 
+
     </main>
 
   );
+
 }
