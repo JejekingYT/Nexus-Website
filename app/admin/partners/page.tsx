@@ -139,7 +139,11 @@ const partners = await prisma.partner.findMany({
               placeholder="Website"
               className="w-full bg-black/30 border border-white/10 rounded-xl px-5 py-4"
             />
-
+            <input
+              name="discordServerId"
+              placeholder="Discord Server ID"
+              className="w-full bg-black/30 border border-white/10 rounded-xl px-5 py-4"
+            />
             <input
               name="roblox"
               placeholder="Roblox Group"

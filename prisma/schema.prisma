@@ -198,6 +198,9 @@ model Partner {
   members Int @default(0)
 
   discord String?
+  
+  discordId String?
+
   roblox String?
   website String?
 

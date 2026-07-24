@@ -3,6 +3,7 @@ import Footer from "@/components/layout/Footer";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import Image from "next/image";
+import { getDiscordServerWidget } from "@/lib/discord";
 
 export const dynamic = "force-dynamic";
 
@@ -10,13 +11,43 @@ export const dynamic = "force-dynamic";
 export default async function Communities() {
 
 
-  const communities = await prisma.community.findMany({
+  const communityData = await prisma.community.findMany({
+  select: {
+    id: true,
+    slug: true,
+    name: true,
+    type: true,
+    icon: true,
+    image: true,
+    description: true,
+    discord: true,
+    roblox: true,
+    about: true,
+    discordId: true,
+  },
+  orderBy: {
+    createdAt: "asc",
+  },
+});
 
-    orderBy: {
-      createdAt: "asc",
-    },
+const communities = await Promise.all(
+  communityData.map(async (community) => {
+    let members = 0;
 
-  });
+    if (community.discordId) {
+      const widget = await getDiscordServerWidget(community.discordId);
+
+      if (widget) {
+        members = widget.presence_count;
+      }
+    }
+
+    return {
+      ...community,
+      members,
+    };
+  })
+);
 
 
 
