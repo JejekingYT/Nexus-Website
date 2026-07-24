@@ -2,18 +2,21 @@ import Navbar from "@/components/layout/NavbarWrapper";
 import Footer from "@/components/layout/Footer";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { getDiscordMemberCount } from "@/lib/discord";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+
 export default async function PartnersPage() {
 
-  const partnerData = await prisma.partner.findMany({
+
+  const partners = await prisma.partner.findMany({
+
     where: {
       verified: true,
       status: "APPROVED",
     },
+
     orderBy: [
       {
         featured: "desc",
@@ -22,48 +25,44 @@ export default async function PartnersPage() {
         name: "asc",
       },
     ],
+
   });
 
-  const partners = await Promise.all(
-    partnerData.map(async (partner) => {
-      let members = partner.members;
 
-      if (partner.discordId) {
-        const widget = await getDiscordMemberCount(partner.discordId);
-
-        if (widget) {
-          members = await getDiscordMemberCount(
-            partner.discordId
-          );
-        }
-      }
-
-      return {
-        ...partner,
-        members,
-      };
-    })
-  );
 
   return (
+
     <main className="min-h-screen bg-[#09090B] text-white">
+
 
       <Navbar />
 
+
       <section className="pt-32 pb-24 px-6">
+
 
         <div className="max-w-7xl mx-auto">
 
+
           <h1 className="text-5xl font-extrabold">
+
             🤝{" "}
             <span className="text-purple-500">
               Partner Communities
             </span>
+
           </h1>
 
+
           <p className="text-gray-400 mt-4">
+
             Trusted communities partnered with Nexus.
+
           </p>
+
+
+
+
 
           {partners.length === 0 ? (
 
@@ -79,14 +78,20 @@ export default async function PartnersPage() {
               text-gray-400
               "
             >
+
               No partner communities available yet.
+
             </div>
+
 
           ) : (
 
+
             <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8 mt-14">
 
-              {partners.map((partner) => (
+
+              {partners.map((partner)=>(
+
 
                 <div
                   key={partner.id}
@@ -102,7 +107,10 @@ export default async function PartnersPage() {
                   "
                 >
 
+
+
                   {partner.banner && (
+
                     <img
                       src={partner.banner}
                       className="
@@ -112,13 +120,22 @@ export default async function PartnersPage() {
                       "
                       alt={partner.name}
                     />
+
                   )}
+
+
+
 
                   <div className="p-6">
 
+
+
                     <div className="flex items-center gap-4">
 
+
+
                       {partner.logo && (
+
                         <img
                           src={partner.logo}
                           alt={partner.name}
@@ -131,41 +148,113 @@ export default async function PartnersPage() {
                           object-cover
                           "
                         />
+
                       )}
+
+
+
+
 
                       <div>
 
+
                         <h2 className="text-2xl font-bold">
+
                           {partner.name}
+
                         </h2>
+
+
+
+
 
                         <div className="flex gap-2 mt-2">
 
+
                           {partner.featured && (
-                            <span className="bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full text-xs">
+
+                            <span
+                              className="
+                              bg-yellow-500/20
+                              text-yellow-400
+                              px-3
+                              py-1
+                              rounded-full
+                              text-xs
+                              "
+                            >
+
                               ⭐ Featured
+
                             </span>
+
                           )}
 
+
+
+
+
+
                           {partner.verified && (
-                            <span className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs">
+
+                            <span
+                              className="
+                              bg-green-500/20
+                              text-green-400
+                              px-3
+                              py-1
+                              rounded-full
+                              text-xs
+                              "
+                            >
+
                               ✔ Verified
+
                             </span>
+
                           )}
+
+
 
                         </div>
 
+
+
                       </div>
+
+
 
                     </div>
 
+
+
+
+
+
+
                     <p className="text-gray-400 mt-6 line-clamp-3">
+
                       {partner.description}
+
                     </p>
 
+
+
+
+
+
+
                     <p className="text-sm text-gray-500 mt-4">
+
                       👥 {partner.members.toLocaleString()} members
+
                     </p>
+
+
+
+
+
+
 
                     <Link
                       href={`/partners/${partner.slug}`}
@@ -181,25 +270,44 @@ export default async function PartnersPage() {
                       transition
                       "
                     >
+
                       View Community →
+
                     </Link>
+
+
+
 
                   </div>
 
+
+
+
                 </div>
+
 
               ))}
 
+
+
             </div>
+
 
           )}
 
+
+
         </div>
+
 
       </section>
 
+
       <Footer />
 
+
     </main>
+
   );
+
 }

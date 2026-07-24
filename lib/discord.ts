@@ -1,60 +1,51 @@
-import { Client, GatewayIntentBits } from "discord.js";
-
-
-const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-  ],
-});
-
-
-let loggedIn = false;
-
-
-export async function getDiscordClient() {
-
-  if (!loggedIn) {
-
-    await client.login(
-      process.env.DISCORD_BOT_TOKEN
-    );
-
-    loggedIn = true;
-
-  }
-
-
-  return client;
-
-}
-
+import "server-only";
 
 
 export async function getDiscordMemberCount(
-  serverId:string
+  serverId: string
 ) {
 
+  try {
 
-  const discord = await getDiscordClient();
+    const response = await fetch(
+      `https://discord.com/api/guilds/${serverId}/widget.json`,
+      {
+        cache: "no-store",
+      }
+    );
 
 
-  const guild = await discord.guilds.fetch(
-    serverId
-  );
+    if (!response.ok) {
+      return 0;
+    }
 
 
-  return guild.memberCount;
+    const data = await response.json();
 
+
+    return data.presence_count ?? 0;
+
+
+  } catch (error) {
+
+    console.error(
+      "Discord member count error:",
+      error
+    );
+
+    return 0;
+
+  }
 
 }
 
 
 
 export async function sendSupportLog(
-  message:string
+  message: string
 ) {
 
-  if(!process.env.DISCORD_SUPPORT_WEBHOOK)
+  if (!process.env.DISCORD_SUPPORT_WEBHOOK)
     return;
 
 
@@ -62,14 +53,14 @@ export async function sendSupportLog(
     process.env.DISCORD_SUPPORT_WEBHOOK,
     {
 
-      method:"POST",
+      method: "POST",
 
-      headers:{
-        "Content-Type":"application/json",
+      headers: {
+        "Content-Type": "application/json",
       },
 
-      body:JSON.stringify({
-        content:message,
+      body: JSON.stringify({
+        content: message,
       }),
 
     }

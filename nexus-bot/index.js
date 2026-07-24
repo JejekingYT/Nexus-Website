@@ -1,101 +1,142 @@
 require("dotenv").config({ path: ".env.local" });
 
-const fs = require("fs");
-const path = require("path");
 const { Client, GatewayIntentBits } = require("discord.js");
+const prisma = require("./prisma");
 
 
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildPresences,
   ],
 });
 
 
-// Replace these with your actual Discord Server IDs
-const SERVERS = {
-  "1492240815878312148": "the-sanctuary",
-  "1228973961094627420": "nexus-community",
-};
+
+async function updateStats() {
+
+  console.log("📊 Updating database stats...");
 
 
-
-function updateStats() {
-
-  const stats = {};
+  // Update Communities
+  const communities = await prisma.community.findMany();
 
 
-  client.guilds.cache.forEach((guild) => {
+  for (const community of communities) {
+
+    if (!community.discordId)
+      continue;
 
 
-    console.log(
-      `${guild.name}: ${guild.memberCount} members`
-    );
+    try {
+
+      const guild = await client.guilds.fetch(
+        community.discordId
+      );
 
 
-    const slug = SERVERS[guild.id];
+      await prisma.community.update({
+
+        where: {
+          id: community.id,
+        },
+
+        data: {
+          members: guild.memberCount,
+        },
+
+      });
 
 
-    if (slug) {
+      console.log(
+        `✅ Community ${community.name}: ${guild.memberCount} members`
+      );
 
-      stats[slug] = {
-        members: guild.memberCount,
-      };
+
+    } catch(error) {
+
+      console.log(
+        `❌ Failed updating community: ${community.name}`,
+        error.message
+      );
 
     }
-
-
-  });
-
-
-
-  const dataFolder = path.join(
-    __dirname,
-    "data"
-  );
-
-
-  if (!fs.existsSync(dataFolder)) {
-
-    fs.mkdirSync(dataFolder);
 
   }
 
 
 
-  const filePath = path.join(
-    dataFolder,
-    "stats.json"
-  );
+  // Update Partners
+  const partners = await prisma.partner.findMany();
 
 
-  fs.writeFileSync(
-    filePath,
-    JSON.stringify(stats, null, 2)
-  );
+  for (const partner of partners) {
 
 
-  console.log("📊 Stats updated");
+    if (!partner.discordId)
+      continue;
+
+
+    try {
+
+
+      const guild = await client.guilds.fetch(
+        partner.discordId
+      );
+
+
+      await prisma.partner.update({
+
+        where:{
+          id: partner.id,
+        },
+
+        data:{
+          members: guild.memberCount,
+        },
+
+      });
+
+
+      console.log(
+        `✅ Partner ${partner.name}: ${guild.memberCount} members`
+      );
+
+
+    } catch(error) {
+
+
+      console.log(
+        `❌ Failed updating partner: ${partner.name}`,
+        error.message
+      );
+
+
+    }
+
+
+  }
+
 
 }
 
 
 
-client.once("clientReady", () => {
+client.once("clientReady", async () => {
 
   console.log(
     `✅ Logged in as ${client.user.tag}`
   );
 
 
-  updateStats();
+  await updateStats();
 
 
   // Update every 5 minutes
-  setInterval(() => {
+  setInterval(async () => {
 
-    updateStats();
+    await updateStats();
 
   }, 5 * 60 * 1000);
 
