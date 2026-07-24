@@ -24,6 +24,7 @@ export default async function Communities() {
     roblox: true,
     about: true,
     discordId: true,
+    members: true,
   },
   orderBy: {
     createdAt: "asc",
@@ -32,20 +33,31 @@ export default async function Communities() {
 
 const communities = await Promise.all(
   communityData.map(async (community) => {
-    let members = 0;
+
+    let members = community.members ?? 0;
+
 
     if (community.discordId) {
-      const widget = await getDiscordServerWidget(community.discordId);
+
+      const widget = await getDiscordServerWidget(
+        community.discordId
+      );
+
 
       if (widget) {
+
         members = widget.presence_count;
+
       }
+
     }
+
 
     return {
       ...community,
       members,
     };
+
   })
 );
 
