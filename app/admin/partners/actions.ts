@@ -61,8 +61,8 @@ export async function createPartner(formData: FormData) {
       website:
         (formData.get("website") as string) || null,
 
-      discordServerId:
-        (formData.get("discordServerId") as string) || null,
+      discordId:
+        (formData.get("discordId") as string) || null,
 
 
       socials:
