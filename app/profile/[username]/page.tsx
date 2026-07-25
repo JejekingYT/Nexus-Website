@@ -134,10 +134,6 @@ export default async function PublicProfilePage({
                     text-center
                     "
                   >
-                    <div className="text-3xl">
-                      👤
-                    </div>
-
                     <p className="text-purple-400 mt-2 font-semibold">
                     {user.role === "OWNER"
                         ? "👑 Founder"
