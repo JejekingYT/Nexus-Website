@@ -187,7 +187,7 @@ export default function Navbar({
           <Link
             href="/hall-of-fame"
             className="hover:text-purple-400 transition"
->
+          >
             Hall of Fame
           </Link>
 
