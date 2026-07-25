@@ -31,6 +31,12 @@ export default function AdminSidebar({ role }: Props) {
     },
 
     {
+      name: "🏆 Badges",
+      href: "/admin/badges",
+      roles: ["OWNER"],
+    },
+
+    {
       name: "📜 Activity Logs",
       href: "/admin/logs",
       roles: ["OWNER", "ADMIN"],

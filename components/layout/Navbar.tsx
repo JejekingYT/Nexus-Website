@@ -177,6 +177,13 @@ export default function Navbar({
             Developers
           </Link>
 
+          <Link 
+            href="/members"
+            className="hover:text-purple-400 transition"
+          > 
+            👥 Members 
+          </Link>
+
           <Link
             href="/hall-of-fame"
             className="hover:text-purple-400 transition"
@@ -413,6 +420,10 @@ export default function Navbar({
 
             <Link href="/developers" onClick={closeMobile}>
               Developers
+            </Link>
+
+            <Link href="/members" onClick={closeMobile}>
+              👥 Members 
             </Link>
 
             <Link 

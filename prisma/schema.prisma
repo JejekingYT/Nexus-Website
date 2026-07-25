@@ -26,17 +26,15 @@ model Community {
 }
 
 model News {
-  id        Int     @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   title     String
-  slug      String  @unique
+  slug      String   @unique
   content   String
   image     String?
-  published Boolean @default(false)
-
-  authorId Int?
-  author   User? @relation(fields: [authorId], references: [id])
-
+  published Boolean  @default(false)
+  authorId  Int?
   createdAt DateTime @default(now())
+  author    User?    @relation(fields: [authorId], references: [id])
 }
 
 model Event {
@@ -66,19 +64,17 @@ model Project {
 }
 
 model Game {
-  id          Int     @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   name        String
-  slug        String  @unique
+  slug        String     @unique
   description String
   image       String?
   platform    String
   link        String?
-  featured    Boolean @default(false)
-
+  featured    Boolean    @default(false)
   communityId Int?
+  createdAt   DateTime   @default(now())
   community   Community? @relation(fields: [communityId], references: [id])
-
-  createdAt DateTime @default(now())
 }
 
 model Developer {
@@ -93,146 +89,139 @@ model Developer {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  discordId String   @unique
-  username  String
-  image     String?
-  bio       String?
-  role      String   @default("USER")
-  createdAt DateTime @default(now())
+  id              Int              @id @default(autoincrement())
+  discordId       String           @unique
+  username        String
+  image           String?
+  bio             String?
+  role            String           @default("USER")
+  createdAt       DateTime         @default(now())
 
-  news News[]
-  logs AuditLog[]
-
-  supportTickets  SupportTicket[]
+  logs            AuditLog[]
+  news            News[]
   supportMessages SupportMessage[]
+  supportTickets  SupportTicket[]
+
+  badges          UserBadge[]      @relation("UserBadges")
+  awardedBadges   UserBadge[]      @relation("AwardedBadges")
+}
+
+model Badge {
+  id          Int         @id @default(autoincrement())
+  name        String      @unique
+  slug        String      @unique
+  icon        String
+  description String
+
+  createdAt   DateTime    @default(now())
+
+  users       UserBadge[]
+}
+
+model UserBadge {
+  id          Int      @id @default(autoincrement())
+
+  userId      Int
+  badgeId     Int
+
+  awardedById Int?
+  awardedAt   DateTime @default(now())
+
+  user        User     @relation("UserBadges", fields: [userId], references: [id], onDelete: Cascade)
+  badge       Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  awardedBy   User?    @relation("AwardedBadges", fields: [awardedById], references: [id], onDelete: SetNull)
+
+  @@unique([userId, badgeId])
+  @@index([userId])
+  @@index([badgeId])
+  @@index([awardedById])
 }
 
 model AuditLog {
-  id      Int    @id @default(autoincrement())
-  action  String
-  target  String
-  details String
-  userId  Int?
-
+  id        Int      @id @default(autoincrement())
+  action    String
+  target    String
+  details   String
+  userId    Int?
   createdAt DateTime @default(now())
-
-  user User? @relation(fields: [userId], references: [id])
+  user      User?    @relation(fields: [userId], references: [id])
 }
 
 model SiteSettings {
-  id Int @id @default(1)
-
-  siteName    String  @default("Nexus")
+  id          Int      @id @default(1)
+  siteName    String   @default("Nexus")
   description String?
-
-  logo    String?
-  favicon String?
-
-  discord String?
-  github  String?
-  youtube String?
-
-  maintenance Boolean @default(false)
-
-  updatedAt DateTime @updatedAt
+  logo        String?
+  favicon     String?
+  discord     String?
+  github      String?
+  youtube     String?
+  maintenance Boolean  @default(false)
+  updatedAt   DateTime @updatedAt
 }
 
 model SupportTicket {
-  id Int @id @default(autoincrement())
-
-  userId Int?
-  user   User? @relation(fields: [userId], references: [id])
-
-  subject  String
-  category String
-  status   String @default("OPEN")
-
-  // Soft delete system
-  deleted   Boolean   @default(false)
+  id        Int              @id @default(autoincrement())
+  userId    Int?
+  subject   String
+  category  String
+  status    String           @default("OPEN")
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  deleted   Boolean          @default(false)
   deletedAt DateTime?
   deletedBy String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  messages SupportMessage[]
+  messages  SupportMessage[]
+  user      User?            @relation(fields: [userId], references: [id])
 }
 
 model SupportMessage {
-  id Int @id @default(autoincrement())
+  id        Int           @id @default(autoincrement())
+  ticketId  Int
+  senderId  Int?
+  message   String
+  createdAt DateTime      @default(now())
+  sender    User?         @relation(fields: [senderId], references: [id])
+  ticket    SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+}
 
-  ticketId Int
-  ticket   SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+model Partner {
+  id          Int           @id @default(autoincrement())
+  name        String
+  slug        String        @unique
+  logo        String
+  banner      String?
+  description String
+  discord     String?
+  roblox      String?
+  website     String?
+  featured    Boolean       @default(false)
+  verified    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  tier        String        @default("Official")
+  email       String
+  members     Int           @default(0)
+  ownerName   String
+  reason      String
+  socials     String?
+  status      PartnerStatus @default(PENDING)
+  discordId   String?
+}
 
-  senderId Int?
-  sender   User? @relation(fields: [senderId], references: [id])
-
-  message String
-
-  createdAt DateTime @default(now())
+model HallOfFame {
+  id          Int      @id @default(autoincrement())
+  name        String
+  title       String
+  category    String
+  description String
+  image       String?
+  year        String?
+  createdAt   DateTime @default(now())
 }
 
 enum PartnerStatus {
   PENDING
   APPROVED
   REJECTED
-}
-
-model Partner {
-
-  id Int @id @default(autoincrement())
-
-  name String
-  slug String @unique
-
-  ownerName String
-  email String
-
-  logo String
-  banner String?
-
-  description String
-  reason String
-
-  members Int @default(0)
-
-  discord String?
-  
-  discordId String?
-
-  roblox String?
-  website String?
-
-  socials String?
-
-  featured Boolean @default(false)
-  verified Boolean @default(true)
-
-  tier String @default("Official")
-
-  status PartnerStatus @default(PENDING)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model HallOfFame {
-
-  id Int @id @default(autoincrement())
-
-  name String
-
-  title String
-
-  category String
-
-  description String
-
-  image String?
-
-  year String?
-
-  createdAt DateTime @default(now())
-
 }
