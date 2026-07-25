@@ -138,12 +138,16 @@ export default async function PublicProfilePage({
                       👤
                     </div>
 
-                    <p className="font-bold mt-2">
-                      Nexus Member
-                    </p>
-
-                    <p className="text-gray-500 text-sm mt-1">
-                      Member of the Nexus Community
+                    <p className="text-purple-400 mt-2 font-semibold">
+                    {user.role === "OWNER"
+                        ? "Founder"
+                    : user.role === "ADMIN"
+                        ? "Administrator"
+                    : user.role === "MODERATOR"
+                        ? "Moderator"
+                    : user.role === "SUPPORT"
+                        ? "Support"
+                    : "Nexus Member"}
                     </p>
                   </div>
 
