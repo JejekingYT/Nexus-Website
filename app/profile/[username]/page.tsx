@@ -37,7 +37,7 @@ export default async function PublicProfilePage({
           <div className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden">
 
             {/* Header */}
-            <div className="h-40 bg-gradient-to-r from-purple-900/40 via-purple-600/20 to-black/20" />
+            <div className="h-40 bg-linear-to-r from-purple-900/40 via-purple-600/20 to-black/20" />
 
             <div className="px-8 pb-10">
 

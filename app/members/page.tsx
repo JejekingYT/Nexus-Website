@@ -231,7 +231,7 @@ export default async function MembersPage({
                     </div>
 
                     {/* Bio */}
-                    <p className="text-gray-400 text-sm mt-5 line-clamp-2 min-h-[40px]">
+                    <p className="text-gray-400 text-sm mt-5 line-clamp-2 min-h-10">
                       {user.bio || "No bio set yet."}
                     </p>
 

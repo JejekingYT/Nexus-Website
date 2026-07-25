@@ -181,14 +181,14 @@ export default function Navbar({
             href="/members"
             className="hover:text-purple-400 transition"
           > 
-            👥 Members 
+            Members 
           </Link>
 
           <Link
             href="/hall-of-fame"
             className="hover:text-purple-400 transition"
 >
-            🏆 Hall of Fame
+            Hall of Fame
           </Link>
 
 
@@ -423,7 +423,7 @@ export default function Navbar({
             </Link>
 
             <Link href="/members" onClick={closeMobile}>
-              👥 Members 
+              Members 
             </Link>
 
             <Link 

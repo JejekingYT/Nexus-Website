@@ -51,7 +51,7 @@ export default async function ProfilePage() {
           <div className="mt-10 bg-white/5 border border-white/10 rounded-3xl overflow-hidden">
 
             {/* Profile Banner */}
-            <div className="h-36 bg-gradient-to-r from-purple-950 via-purple-900/60 to-purple-500/20" />
+            <div className="h-32 bg-linear-to-r from-purple-900/60 to-purple-500/20" />
 
             <div className="px-8 pb-10 text-center">
 
