@@ -140,14 +140,14 @@ export default async function PublicProfilePage({
 
                     <p className="text-purple-400 mt-2 font-semibold">
                     {user.role === "OWNER"
-                        ? "Founder"
+                        ? "👑 Founder"
                     : user.role === "ADMIN"
-                        ? "Administrator"
+                        ? "🛡️ Administrator"
                     : user.role === "MODERATOR"
-                        ? "Moderator"
+                        ? "🛡️ Moderator"
                     : user.role === "SUPPORT"
-                        ? "Support"
-                    : "Nexus Member"}
+                        ? "🛡️ Support"
+                    : "✅ Nexus Member"}
                     </p>
                   </div>
 
