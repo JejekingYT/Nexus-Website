@@ -8,6 +8,8 @@ import TicketChat from "@/components/support/TicketChat";
 import TicketInput from "@/components/support/TicketInput";
 import TicketStatusCheck from "@/components/support/TicketStatusCheck";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function SupportTicketPage({
   params,

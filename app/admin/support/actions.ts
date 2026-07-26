@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
 
+
 async function sendDiscordLog(
   title: string,
   description: string,
@@ -54,6 +55,7 @@ async function sendDiscordLog(
 
     });
 
+
   } catch (error) {
 
     console.error(
@@ -64,6 +66,74 @@ async function sendDiscordLog(
   }
 
 }
+
+
+
+
+
+
+
+
+export async function updateTicketStatus(
+  id: number,
+  status: string
+) {
+
+
+  const ticket =
+    await prisma.supportTicket.findUnique({
+
+      where: {
+        id,
+      },
+
+    });
+
+
+
+  if (!ticket) return;
+
+
+
+
+
+  await prisma.supportTicket.update({
+
+    where: {
+      id,
+    },
+
+    data: {
+
+      status,
+
+    },
+
+  });
+
+
+
+
+
+
+  revalidatePath("/admin/support");
+
+  revalidatePath("/support");
+
+  revalidatePath(`/support/${id}`);
+
+
+
+
+
+
+  redirect("/admin/support");
+
+}
+
+
+
+
 
 
 
@@ -97,6 +167,8 @@ export async function deleteTicket(
 
 
   if (!ticket) return;
+
+
 
 
 
@@ -168,7 +240,16 @@ ${website}/admin/support/transcript/${ticket.id}
 
 
 
+
   revalidatePath("/admin/support");
+
+  revalidatePath("/support");
+
+  revalidatePath(`/support/${id}`);
+
+
+
+
 
 
   redirect("/admin/support");
