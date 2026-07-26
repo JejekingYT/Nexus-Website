@@ -39,10 +39,10 @@ export default function TicketChat({
 
     channel.bind(
       "new-message",
-      (newMessage:any)=>{
+      (newMessage: any) => {
 
 
-        setMessages((old:any)=>[
+        setMessages((old: any) => [
           ...old,
           newMessage,
         ]);
@@ -55,19 +55,21 @@ export default function TicketChat({
 
     channel.bind(
       "typing",
-      (data:any)=>{
+      (data: any) => {
 
 
-        if(data.userId !== currentUserId){
+        if (data.userId !== currentUserId) {
+
 
           setTypingUser(data.name);
 
 
-          setTimeout(()=>{
+          setTimeout(() => {
 
             setTypingUser(null);
 
-          },3000);
+          }, 3000);
+
 
         }
 
@@ -77,7 +79,21 @@ export default function TicketChat({
 
 
 
-    return()=>{
+
+    channel.bind(
+      "ticket-deleted",
+      () => {
+
+        window.location.href = "/support";
+
+      }
+    );
+
+
+
+
+
+    return () => {
 
 
       pusherClient.unsubscribe(
@@ -88,10 +104,11 @@ export default function TicketChat({
     };
 
 
-  },[
+  }, [
     ticketId,
     currentUserId
   ]);
+
 
 
 
@@ -105,7 +122,8 @@ export default function TicketChat({
       <div className="space-y-4">
 
 
-        {messages.map((msg:any)=>(
+        {messages.map((msg: any) => (
+
 
           <div
             key={msg.id}
@@ -118,7 +136,9 @@ export default function TicketChat({
             "
           >
 
+
             <p className="text-purple-400 font-bold">
+
 
               {
                 msg.sender?.role === "SUPPORT" ||
@@ -130,7 +150,9 @@ export default function TicketChat({
                 : msg.sender?.username ?? "Unknown"
               }
 
+
             </p>
+
 
 
             <p className="mt-2 text-gray-300">
@@ -142,10 +164,12 @@ export default function TicketChat({
 
           </div>
 
+
         ))}
 
 
       </div>
+
 
 
 

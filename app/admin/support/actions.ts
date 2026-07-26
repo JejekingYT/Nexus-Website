@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { pusher } from "@/lib/pusher";
 
 
 
@@ -110,6 +111,14 @@ export async function updateTicketStatus(
     },
 
   });
+
+  await pusher.trigger(
+  `ticket-${id}`,
+  "ticket-deleted",
+  {
+    deleted: true,
+  }
+);
 
 
 
