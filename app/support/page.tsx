@@ -19,19 +19,32 @@ export default async function SupportPage() {
 
 
 
-
   const tickets = await prisma.supportTicket.findMany({
 
     where: {
+
       userId: user.id,
+
+      AND: [
+        {
+          deleted: false,
+        },
+        {
+          status: {
+            not: "DELETED",
+          },
+        },
+      ],
+
     },
 
     orderBy: {
+
       updatedAt: "desc",
+
     },
 
   });
-
 
 
 
@@ -85,10 +98,8 @@ export default async function SupportPage() {
 
 
 
-
     const webhook =
       process.env.DISCORD_SUPPORT_LOG_WEBHOOK;
-
 
 
 
@@ -182,9 +193,6 @@ ${process.env.NEXTAUTH_URL}/admin/support/${ticket.id}
 
 
 
-
-
-
       <section className="
         pt-32
         pb-24
@@ -255,7 +263,6 @@ ${process.env.NEXTAUTH_URL}/admin/support/${ticket.id}
 
 
 
-
           <form
 
             action={createTicket}
@@ -268,8 +275,6 @@ ${process.env.NEXTAUTH_URL}/admin/support/${ticket.id}
             "
 
           >
-
-
 
 
 
@@ -289,7 +294,6 @@ ${process.env.NEXTAUTH_URL}/admin/support/${ticket.id}
 
 
 
-
             <select
 
               name="category"
@@ -298,21 +302,17 @@ ${process.env.NEXTAUTH_URL}/admin/support/${ticket.id}
 
             >
 
-
               <option>
                 Technical Issue
               </option>
-
 
               <option>
                 Account Help
               </option>
 
-
               <option>
                 Community Question
               </option>
-
 
               <option>
                 Report
@@ -320,7 +320,6 @@ ${process.env.NEXTAUTH_URL}/admin/support/${ticket.id}
 
 
             </select>
-
 
 
 
@@ -343,7 +342,6 @@ ${process.env.NEXTAUTH_URL}/admin/support/${ticket.id}
               "
 
             />
-
 
 
 
@@ -502,16 +500,19 @@ ${process.env.NEXTAUTH_URL}/admin/support/${ticket.id}
                     <span
 
                       className={`
+
                         px-4
                         py-2
                         rounded-full
                         text-sm
                         font-bold
+
                         ${
                           ticket.status === "OPEN"
                           ? "bg-green-500/20 text-green-400"
                           : "bg-red-500/20 text-red-400"
                         }
+
                       `}
 
                     >
