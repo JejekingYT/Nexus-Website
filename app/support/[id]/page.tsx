@@ -6,6 +6,7 @@ import { notFound, redirect } from "next/navigation";
 import { pusher } from "@/lib/pusher";
 import TicketChat from "@/components/support/TicketChat";
 import TicketInput from "@/components/support/TicketInput";
+import TicketStatusCheck from "@/components/support/TicketStatusCheck";
 
 
 export default async function SupportTicketPage({
@@ -30,7 +31,7 @@ export default async function SupportTicketPage({
 
 
 
-    const ticket = await prisma.supportTicket.findUnique({
+  const ticket = await prisma.supportTicket.findUnique({
 
     where: {
       id: Number(id),
@@ -111,26 +112,26 @@ export default async function SupportTicketPage({
 
   async function sendMessage(formData: FormData) {
 
-  "use server";
+    "use server";
 
 
-  if (
-    currentTicket.status === "CLOSED" ||
-    currentTicket.status === "DELETED" ||
-    currentTicket.deleted
-  ) {
-    return;
-  }
+    if (
+      currentTicket.status === "CLOSED" ||
+      currentTicket.status === "DELETED" ||
+      currentTicket.deleted
+    ) {
+      return;
+    }
 
 
-  const message =
-    formData.get("message") as string;
+    const message =
+      formData.get("message") as string;
 
 
 
-  if (!message.trim()) {
-    return;
-  }
+    if (!message.trim()) {
+      return;
+    }
 
 
 
@@ -210,6 +211,9 @@ export default async function SupportTicketPage({
     <main className="min-h-screen text-white">
 
 
+      <TicketStatusCheck status={currentTicket.status} />
+
+
       <Navbar />
 
 
@@ -280,7 +284,6 @@ export default async function SupportTicketPage({
 
 
           </div>
-
 
 
 
@@ -394,7 +397,6 @@ export default async function SupportTicketPage({
 
 
           </div>
-
 
 
 
