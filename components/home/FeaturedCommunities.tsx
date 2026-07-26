@@ -4,94 +4,242 @@ import { prisma } from "@/lib/prisma";
 
 export default async function FeaturedCommunities() {
 
+
   const communities = await prisma.community.findMany({
+
     take: 4,
+
     orderBy: {
       createdAt: "desc",
     },
+
   });
 
 
+
   return (
-    <section className="py-24 px-6">
 
-      <div className="max-w-6xl mx-auto">
-
-
-        <h2 className="text-4xl font-bold text-white text-center">
-          Featured <span className="text-purple-500">
-            Communities
-          </span>
-        </h2>
+    <section className="
+      py-24
+      px-6
+    ">
 
 
-        <p className="text-gray-400 text-center mt-4">
-          Discover the communities that make Nexus.
-        </p>
+      <div className="
+        max-w-6xl
+        mx-auto
+      ">
 
 
 
-        <div className="grid md:grid-cols-2 gap-8 mt-12">
+        <div className="
+          text-center
+          mb-14
+        ">
+
+
+          <h2 className="
+            text-4xl
+            md:text-5xl
+            font-extrabold
+            text-white
+          ">
+
+            Featured{" "}
+
+            <span className="
+              bg-linear-to-r
+              from-purple-400
+              to-blue-400
+              bg-clip-text
+              text-transparent
+            ">
+              Communities
+            </span>
+
+          </h2>
+
+
+
+          <p className="
+            text-gray-400
+            mt-4
+            text-lg
+          ">
+            Discover the communities that make Nexus.
+          </p>
+
+
+        </div>
+
+
+
+
+
+        <div className="
+          grid
+          md:grid-cols-2
+          gap-8
+        ">
+
 
 
           {communities.map((community) => (
 
+
             <div
               key={community.id}
-              className="bg-white/5 border border-white/10 rounded-2xl p-8 hover:border-purple-500 hover:-translate-y-2 transition duration-300"
+              className="
+                glass
+                card-hover
+                p-8
+              "
             >
 
 
-              <div className="flex items-center justify-between">
+
+              <div className="
+                flex
+                items-center
+                justify-between
+              ">
 
 
-                <div className="text-5xl">
+
+                <div className="
+                  w-16
+                  h-16
+                  rounded-2xl
+                  bg-white/5
+                  border
+                  border-white/10
+                  flex
+                  items-center
+                  justify-center
+                  text-4xl
+                ">
                   {community.icon}
                 </div>
 
 
-                <span className="text-green-400 text-sm">
-                  ● Online
+
+
+
+                <span className="
+                  flex
+                  items-center
+                  gap-2
+                  text-sm
+                  text-green-400
+                  bg-green-400/10
+                  px-3
+                  py-1
+                  rounded-full
+                ">
+
+                  <span>
+                    ●
+                  </span>
+
+                  Online
+
                 </span>
+
 
 
               </div>
 
 
 
-              <span className="text-purple-400 text-sm block mt-6">
+
+
+              <span className="
+                block
+                mt-7
+                text-purple-400
+                text-sm
+                font-medium
+              ">
                 {community.type}
               </span>
 
 
 
-              <h3 className="text-2xl font-bold text-white mt-3">
+
+
+              <h3 className="
+                mt-3
+                text-3xl
+                font-bold
+                text-white
+              ">
                 {community.name}
               </h3>
 
 
 
-              <p className="text-gray-400 mt-4">
+
+
+              <p className="
+                mt-4
+                text-gray-400
+                leading-relaxed
+              ">
                 {community.description}
               </p>
 
 
 
-              <p className="text-gray-300 mt-4">
-                Members: {community.members}
-              </p>
+
+
+              <div className="
+                mt-5
+                flex
+                items-center
+                gap-2
+                text-gray-300
+              ">
+
+                👥
+
+                <span>
+                  {community.members} Members
+                </span>
+
+              </div>
+
+
 
 
 
               <Link
+
                 href={`/communities/${community.slug}`}
-                className="inline-block mt-6 px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 transition font-bold"
+
+                className="
+                  inline-flex
+                  mt-7
+                  px-6
+                  py-3
+                  rounded-xl
+                  bg-linear-to-r
+                  from-purple-600
+                  to-blue-600
+                  font-bold
+                  text-white
+                  hover:scale-105
+                  transition
+                "
+
               >
                 View Community
+
               </Link>
 
 
+
             </div>
+
 
           ))}
 
@@ -99,8 +247,12 @@ export default async function FeaturedCommunities() {
         </div>
 
 
+
       </div>
 
+
     </section>
+
   );
+
 }

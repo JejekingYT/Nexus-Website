@@ -1,17 +1,29 @@
 import Navbar from "@/components/layout/NavbarWrapper";
 import Footer from "@/components/layout/Footer";
+
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
+
 import Image from "next/image";
 
 
+
 export default async function EventPage({
+
   params,
+
 }: {
+
   params: Promise<{ slug: string }>;
+
 }) {
 
+
+
   const { slug } = await params;
+
+
+
 
 
   const event = await prisma.event.findUnique({
@@ -24,34 +36,81 @@ export default async function EventPage({
 
 
 
+
+
   if (!event || !event.published) {
+
     notFound();
+
   }
+
+
 
 
 
   return (
 
-    <main className="min-h-screen bg-[#09090B] text-white">
+    <main className="
+      min-h-screen
+      text-white
+    ">
+
+
 
       <Navbar />
 
 
-      <section className="pt-32 pb-24 px-6">
 
-        <div className="max-w-5xl mx-auto text-center">
+
+
+
+      <section className="
+        pt-32
+        pb-24
+        px-6
+      ">
+
+
+
+
+        <article className="
+          max-w-5xl
+          mx-auto
+        ">
+
+
+
+
 
 
           {event.image && (
 
-            <div className="w-full h-72 relative rounded-2xl overflow-hidden mb-10">
+            <div className="
+              relative
+              w-full
+              h-80
+              rounded-3xl
+              overflow-hidden
+              border
+              border-white/10
+              mb-12
+            ">
+
 
               <Image
+
                 src={event.image}
+
                 alt={event.title}
+
                 fill
-                className="object-cover"
+
+                className="
+                  object-cover
+                "
+
               />
+
 
             </div>
 
@@ -59,54 +118,164 @@ export default async function EventPage({
 
 
 
-          <h1 className="text-6xl font-extrabold">
-
-            {event.title}
-
-          </h1>
 
 
 
-          <p className="text-purple-400 text-xl mt-6">
-
-            📅 {event.date} • {event.time}
-
-          </p>
 
 
-
-          <p className="text-gray-400 text-lg mt-8">
-
-            {event.description}
-
-          </p>
+          <div className="
+            glass
+            p-8
+            md:p-12
+            text-center
+          ">
 
 
 
-          {event.discord && (
-
-            <a
-              href={event.discord}
-              target="_blank"
-              className="inline-block mt-10 bg-purple-600 hover:bg-purple-700 px-8 py-4 rounded-xl font-bold"
-            >
-
-              Join Discord Event
-
-            </a>
-
-          )}
 
 
 
-        </div>
+            <div className="
+              w-20
+              h-20
+              mx-auto
+              rounded-3xl
+              bg-white/5
+              border
+              border-white/10
+              flex
+              items-center
+              justify-center
+              text-5xl
+            ">
+              🎉
+            </div>
+
+
+
+
+
+
+
+
+            <h1 className="
+              mt-8
+              text-4xl
+              md:text-6xl
+              font-extrabold
+            ">
+
+              {event.title}
+
+            </h1>
+
+
+
+
+
+
+
+
+            <div className="
+              inline-flex
+              mt-6
+              px-5
+              py-3
+              rounded-full
+              bg-purple-500/10
+              text-purple-400
+            ">
+
+              📅 {event.date} • {event.time}
+
+            </div>
+
+
+
+
+
+
+
+
+            <p className="
+              mt-8
+              text-gray-400
+              text-lg
+              leading-relaxed
+              max-w-3xl
+              mx-auto
+            ">
+
+              {event.description}
+
+            </p>
+
+
+
+
+
+
+
+
+            {event.discord && (
+
+              <a
+
+                href={event.discord}
+
+                target="_blank"
+
+                rel="noopener noreferrer"
+
+                className="
+                  inline-flex
+                  mt-10
+                  px-8
+                  py-4
+                  rounded-xl
+                  bg-linear-to-r
+                  from-purple-600
+                  to-blue-600
+                  font-bold
+                  hover:scale-105
+                  transition
+                "
+
+              >
+
+                Join Discord Event
+
+              </a>
+
+            )}
+
+
+
+
+          </div>
+
+
+
+
+
+        </article>
+
+
+
+
 
       </section>
 
 
+
+
+
       <Footer />
+
+
 
     </main>
 
   );
+
 }

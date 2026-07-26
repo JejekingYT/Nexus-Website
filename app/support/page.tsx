@@ -5,7 +5,9 @@ import { getCurrentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
+
 export default async function SupportPage() {
+
 
   const user = await getCurrentUser();
 
@@ -13,6 +15,8 @@ export default async function SupportPage() {
   if (!user) {
     redirect("/api/auth/signin");
   }
+
+
 
 
 
@@ -31,13 +35,22 @@ export default async function SupportPage() {
 
 
 
+
+
+
   async function createTicket(formData: FormData) {
+
     "use server";
 
 
+
     const subject = formData.get("subject") as string;
+
     const category = formData.get("category") as string;
+
     const message = formData.get("message") as string;
+
+
 
 
 
@@ -70,14 +83,17 @@ export default async function SupportPage() {
 
 
 
-    // Discord Support Log
+
+
 
     const webhook =
       process.env.DISCORD_SUPPORT_LOG_WEBHOOK;
 
 
 
+
     if (webhook) {
+
 
       await fetch(webhook, {
 
@@ -151,95 +167,152 @@ ${process.env.NEXTAUTH_URL}/admin/support/${ticket.id}
 
 
 
+
+
+
   return (
 
-    <main className="min-h-screen bg-[#09090B] text-white">
+
+    <main className="min-h-screen text-white">
+
 
 
       <Navbar />
 
 
-      <section className="pt-32 pb-24 px-6">
-
-
-        <div className="max-w-4xl mx-auto">
 
 
 
-          <h1 className="text-5xl font-extrabold">
-
-            Nexus <span className="text-purple-500">
-              Support
-            </span>
-
-          </h1>
 
 
+      <section className="
+        pt-32
+        pb-24
+        px-6
+      ">
 
-          <p className="text-gray-400 mt-4">
-            Need help? Create a ticket and our staff will assist you.
-          </p>
+
+
+        <div className="
+          max-w-5xl
+          mx-auto
+        ">
+
+
+
+
+
+
+          <div className="text-center">
+
+
+
+            <h1 className="
+              text-5xl
+              md:text-6xl
+              font-extrabold
+            ">
+
+              Nexus{" "}
+
+              <span className="
+                bg-linear-to-r
+                from-purple-400
+                to-blue-400
+                bg-clip-text
+                text-transparent
+              ">
+
+                Support
+
+              </span>
+
+
+            </h1>
+
+
+
+
+
+            <p className="
+              text-gray-400
+              mt-5
+              text-lg
+            ">
+
+              Need help? Create a ticket and our team will assist you.
+
+            </p>
+
+
+
+
+          </div>
+
+
+
 
 
 
 
 
           <form
+
             action={createTicket}
+
             className="
-            mt-12
-            space-y-6
-            bg-white/5
-            border
-            border-white/10
-            rounded-2xl
-            p-8
+              glass
+              mt-14
+              p-8
+              space-y-6
             "
+
           >
 
 
 
+
+
             <input
+
               name="subject"
+
               required
-              placeholder="Subject"
-              className="
-              w-full
-              bg-black/30
-              border
-              border-white/10
-              rounded-xl
-              px-5
-              py-4
-              "
+
+              placeholder="Ticket subject"
+
+              className="input"
+
             />
 
 
 
+
+
+
             <select
+
               name="category"
-              className="
-              w-full
-              bg-black/30
-              border
-              border-white/10
-              rounded-xl
-              px-5
-              py-4
-              "
+
+              className="input"
+
             >
+
 
               <option>
                 Technical Issue
               </option>
 
+
               <option>
                 Account Help
               </option>
 
+
               <option>
                 Community Question
               </option>
+
 
               <option>
                 Report
@@ -252,40 +325,54 @@ ${process.env.NEXTAUTH_URL}/admin/support/${ticket.id}
 
 
 
+
+
+
             <textarea
+
               name="message"
+
               required
+
               placeholder="Describe your problem..."
+
               className="
-              w-full
-              h-40
-              bg-black/30
-              border
-              border-white/10
-              rounded-xl
-              px-5
-              py-4
+                input
+                h-40
+                resize-none
               "
+
             />
 
 
 
 
 
+
+
+
             <button
+
               className="
-              bg-purple-600
-              hover:bg-purple-700
-              px-8
-              py-4
-              rounded-xl
-              font-bold
+                px-8
+                py-4
+                rounded-xl
+                bg-linear-to-r
+                from-purple-600
+                to-blue-600
+                font-bold
+                hover:scale-105
+                transition
               "
+
             >
 
               Create Ticket
 
             </button>
+
+
+
 
 
           </form>
@@ -295,21 +382,46 @@ ${process.env.NEXTAUTH_URL}/admin/support/${ticket.id}
 
 
 
-          <h2 className="text-3xl font-bold mt-16">
-            Your Tickets
-          </h2>
+
+
+
+          <div className="mt-16">
+
+
+
+            <h2 className="
+              text-3xl
+              font-bold
+              mb-8
+            ">
+
+              Your Tickets
+
+            </h2>
 
 
 
 
-          <div className="mt-8 space-y-5">
+
 
 
             {tickets.length === 0 && (
 
-              <p className="text-gray-400">
-                You have no support tickets yet.
-              </p>
+              <div className="
+                glass
+                p-8
+                text-center
+              ">
+
+
+                <p className="text-gray-400">
+
+                  You have no support tickets yet.
+
+                </p>
+
+
+              </div>
 
             )}
 
@@ -318,86 +430,171 @@ ${process.env.NEXTAUTH_URL}/admin/support/${ticket.id}
 
 
 
-            {tickets.map((ticket) => (
-
-              <div
-                key={ticket.id}
-                className="
-                bg-white/5
-                border
-                border-white/10
-                rounded-2xl
-                p-6
-                "
-              >
 
 
-
-                <h3 className="text-xl font-bold">
-                  {ticket.subject}
-                </h3>
-
-
-
-                <p className="text-purple-400 mt-2">
-                  {ticket.category}
-                </p>
+            <div className="
+              space-y-5
+            ">
 
 
 
 
-                <p
-                  className={
-                    ticket.status === "OPEN"
-                    ? "text-green-400 mt-2"
-                    : "text-red-400 mt-2"
-                  }
-                >
-
-                  {ticket.status}
-
-                </p>
+              {tickets.map((ticket)=>(
 
 
 
+                <div
 
-                <Link
-                  href={`/support/${ticket.id}`}
+                  key={ticket.id}
+
                   className="
-                  inline-block
-                  mt-5
-                  bg-purple-600
-                  hover:bg-purple-700
-                  px-5
-                  py-3
-                  rounded-xl
-                  font-bold
+                    glass
+                    card-hover
+                    p-6
                   "
+
                 >
 
-                  Open Ticket
-
-                </Link>
 
 
 
-              </div>
+
+                  <div className="
+                    flex
+                    justify-between
+                    items-start
+                    gap-4
+                    flex-wrap
+                  ">
 
 
-            ))}
+
+                    <div>
+
+
+                      <h3 className="
+                        text-xl
+                        font-bold
+                      ">
+
+                        {ticket.subject}
+
+                      </h3>
+
+
+
+                      <p className="
+                        text-purple-400
+                        mt-2
+                      ">
+
+                        {ticket.category}
+
+                      </p>
+
+
+                    </div>
+
+
+
+
+
+                    <span
+
+                      className={`
+                        px-4
+                        py-2
+                        rounded-full
+                        text-sm
+                        font-bold
+                        ${
+                          ticket.status === "OPEN"
+                          ? "bg-green-500/20 text-green-400"
+                          : "bg-red-500/20 text-red-400"
+                        }
+                      `}
+
+                    >
+
+                      {ticket.status}
+
+                    </span>
+
+
+
+
+
+                  </div>
+
+
+
+
+
+
+
+                  <Link
+
+                    href={`/support/${ticket.id}`}
+
+                    className="
+                      inline-block
+                      mt-6
+                      px-6
+                      py-3
+                      rounded-xl
+                      bg-purple-600
+                      hover:bg-purple-700
+                      font-bold
+                      transition
+                    "
+
+                  >
+
+                    Open Ticket →
+
+                  </Link>
+
+
+
+
+
+                </div>
+
+
+
+              ))}
+
+
+
+            </div>
+
+
+
+
 
 
           </div>
 
 
 
+
+
+
         </div>
+
+
+
 
 
       </section>
 
 
+
+
+
+
       <Footer />
+
 
 
     </main>

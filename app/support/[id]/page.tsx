@@ -36,6 +36,7 @@ export default async function SupportTicketPage({
       id: Number(id),
     },
 
+
     include: {
 
       messages: {
@@ -56,9 +57,12 @@ export default async function SupportTicketPage({
 
 
 
+
+
   if (!ticket) {
     notFound();
   }
+
 
 
 
@@ -82,10 +86,10 @@ export default async function SupportTicketPage({
 
 
 
+
   async function sendMessage(formData: FormData) {
 
     "use server";
-
 
 
     const message =
@@ -96,6 +100,8 @@ export default async function SupportTicketPage({
     if (!message.trim()) {
       return;
     }
+
+
 
 
 
@@ -112,6 +118,7 @@ export default async function SupportTicketPage({
 
         },
 
+
         include: {
 
           sender: true,
@@ -119,6 +126,8 @@ export default async function SupportTicketPage({
         },
 
       });
+
+
 
 
 
@@ -164,113 +173,305 @@ export default async function SupportTicketPage({
 
 
 
+
   return (
 
-    <main className="min-h-screen bg-[#09090B] text-white">
+    <main className="min-h-screen text-white">
 
 
       <Navbar />
 
 
 
-      <section className="pt-32 pb-24 px-6">
+
+      <section className="
+        pt-32
+        pb-24
+        px-6
+      ">
 
 
-        <div className="max-w-4xl mx-auto">
-
-
-
-          <h1 className="text-4xl font-bold">
-
-            {currentTicket.subject}
-
-          </h1>
-
-
-
-
-          <p className="text-purple-400 mt-2">
-
-            {currentTicket.category} • {currentTicket.status}
-
-          </p>
+        <div className="
+          max-w-5xl
+          mx-auto
+        ">
 
 
 
 
 
+          {/* Header */}
 
 
-          <TicketChat
-
-            ticketId={currentTicket.id}
-
-            initialMessages={currentTicket.messages}
-
-            currentUserId={currentUser.id}
-
-          />
+          <div className="
+            text-center
+            mb-10
+          ">
 
 
 
+            <h1 className="
+              text-4xl
+              md:text-5xl
+              font-extrabold
+            ">
+
+
+              Support{" "}
+
+              <span className="
+                bg-linear-to-r
+                from-purple-400
+                to-blue-400
+                bg-clip-text
+                text-transparent
+              ">
+
+                Ticket
+
+              </span>
+
+
+            </h1>
+
+
+
+            <p className="
+              text-gray-400
+              mt-4
+              text-lg
+            ">
+
+              Get help from the Nexus support team.
+
+            </p>
+
+
+
+          </div>
 
 
 
 
 
-          {currentTicket.status !== "CLOSED" && (
 
 
-            <form
+          {/* Ticket Info */}
 
-              action={sendMessage}
 
-              className="
-              mt-8
+          <div className="
+            glass
+            rounded-3xl
+            p-8
+            mb-8
+          ">
+
+
+
+            <div className="
               flex
-              gap-4
-              "
-
-            >
-
-
-              <TicketInput
-
-                ticketId={currentTicket.id}
-
-                userId={currentUser.id}
-
-                username={currentUser.username}
-
-                role={currentUser.role}
-
-              />
+              flex-col
+              md:flex-row
+              md:items-center
+              md:justify-between
+              gap-5
+            ">
 
 
 
+              <div>
 
-              <button
+
+                <h2 className="
+                  text-2xl
+                  font-bold
+                ">
+
+                  {currentTicket.subject}
+
+                </h2>
+
+
+
+                <p className="
+                  text-gray-400
+                  mt-2
+                ">
+
+                  Ticket #{currentTicket.id}
+
+                </p>
+
+
+              </div>
+
+
+
+
+
+
+              <div className="
+                flex
+                flex-wrap
+                gap-3
+              ">
+
+
+
+                <span className="
+                  px-4
+                  py-2
+                  rounded-full
+                  bg-purple-500/20
+                  border
+                  border-purple-500/30
+                  text-purple-400
+                  font-semibold
+                  text-sm
+                ">
+
+                  {currentTicket.category}
+
+                </span>
+
+
+
+
+
+                <span className="
+                  px-4
+                  py-2
+                  rounded-full
+                  bg-blue-500/20
+                  border
+                  border-blue-500/30
+                  text-blue-400
+                  font-semibold
+                  text-sm
+                ">
+
+                  {currentTicket.status}
+
+                </span>
+
+
+              </div>
+
+
+            </div>
+
+
+
+          </div>
+
+
+
+
+
+
+
+
+
+          {/* Chat */}
+
+
+          <div className="
+            glass
+            rounded-3xl
+            p-6
+            md:p-8
+          ">
+
+
+
+            <TicketChat
+
+              ticketId={currentTicket.id}
+
+              initialMessages={currentTicket.messages}
+
+              currentUserId={currentUser.id}
+
+            />
+
+
+
+
+
+
+            {currentTicket.status !== "CLOSED" && (
+
+
+              <form
+
+                action={sendMessage}
 
                 className="
-                bg-purple-600
-                hover:bg-purple-700
-                px-6
-                rounded-xl
-                font-bold
+                  mt-8
+                  flex
+                  gap-4
+                  items-center
                 "
 
               >
 
-                Send
-
-              </button>
 
 
+                <div className="flex-1">
 
-            </form>
+
+                  <TicketInput
+
+                    ticketId={currentTicket.id}
+
+                    userId={currentUser.id}
+
+                    username={currentUser.username}
+
+                    role={currentUser.role}
+
+                  />
 
 
-          )}
+                </div>
+
+
+
+
+
+                <button
+
+                  className="
+                    h-full
+                    px-7
+                    py-4
+                    rounded-xl
+                    bg-linear-to-r
+                    from-purple-600
+                    to-blue-600
+                    font-bold
+                    hover:scale-105
+                    transition
+                  "
+
+                >
+
+                  Send
+
+                </button>
+
+
+
+              </form>
+
+
+            )}
+
+
+
+          </div>
+
+
 
 
 
@@ -278,6 +479,7 @@ export default async function SupportTicketPage({
 
 
       </section>
+
 
 
 

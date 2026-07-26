@@ -1,17 +1,26 @@
 import Navbar from "@/components/layout/NavbarWrapper";
 import Footer from "@/components/layout/Footer";
+
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
+
 import Image from "next/image";
 
 
+
 export default async function CommunityPage({
+
   params,
+
 }: {
+
   params: Promise<{ slug: string }>;
+
 }) {
 
+
   const { slug } = await params;
+
 
 
   const community = await prisma.community.findUnique({
@@ -28,6 +37,8 @@ export default async function CommunityPage({
 
 
 
+
+
   if (!community) {
 
     notFound();
@@ -36,27 +47,54 @@ export default async function CommunityPage({
 
 
 
+
+
   return (
 
-    <main className="min-h-screen bg-[#09090B] text-white">
+    <main className="
+      min-h-screen
+      text-white
+    ">
+
 
 
       <Navbar />
 
 
 
-      <section className="pt-32 pb-24 px-6">
 
 
-        <div className="max-w-5xl mx-auto text-center">
+      <section className="
+        pt-32
+        pb-24
+        px-6
+      ">
 
 
 
-          {/* Banner */}
+
+        <div className="
+          max-w-5xl
+          mx-auto
+        ">
+
+
+
+
 
           {community.image && (
 
-            <div className="w-full h-64 relative rounded-2xl overflow-hidden mb-10">
+            <div className="
+              relative
+              w-full
+              h-72
+              rounded-3xl
+              overflow-hidden
+              border
+              border-white/10
+              mb-12
+            ">
+
 
               <Image
 
@@ -66,9 +104,12 @@ export default async function CommunityPage({
 
                 fill
 
-                className="object-cover"
+                className="
+                  object-cover
+                "
 
               />
+
 
             </div>
 
@@ -79,164 +120,209 @@ export default async function CommunityPage({
 
 
 
-          {/* Icon */}
 
-          <div className="text-7xl">
-
-            {community.icon}
-
-          </div>
-
-
-
-
-
-
-          {/* Name */}
-
-          <h1 className="text-6xl font-extrabold mt-6">
-
-            {community.name}
-
-          </h1>
-
-
-
-
-
-
-          {/* Type */}
-
-          <p className="text-purple-400 mt-4 text-xl">
-
-            {community.type}
-
-          </p>
-
-
-
-
-
-
-          {/* Description */}
-
-          <p className="text-gray-400 mt-6 text-lg">
-
-            {community.description}
-
-          </p>
-
-
-
-
-
-
-          {/* Buttons */}
-
-          <div className="mt-8">
-
-
-            {community.discord && (
-
-              <a
-
-                href={community.discord}
-
-                target="_blank"
-
-                rel="noopener noreferrer"
-
-                className="
-                inline-block
-                px-8
-                py-4
-                rounded-xl
-                bg-purple-600
-                hover:bg-purple-700
-                transition
-                font-bold
-                "
-
-              >
-
-                Join Discord
-
-              </a>
-
-            )}
-
-
-
-
-
-
-            {community.roblox && (
-
-              <a
-
-                href={community.roblox}
-
-                target="_blank"
-
-                rel="noopener noreferrer"
-
-                className="
-                inline-block
-                ml-4
-                px-8
-                py-4
-                rounded-xl
-                border
-                border-purple-500
-                hover:bg-purple-500/10
-                transition
-                font-bold
-                "
-
-              >
-
-                Roblox Group
-
-              </a>
-
-            )}
-
-
-
-          </div>
-
-
-
-
-
-
-          {/* Stats */}
-
-          <div className="grid md:grid-cols-2 gap-6 mt-16">
+          <div className="
+            text-center
+          ">
 
 
 
             <div className="
+              w-28
+              h-28
+              mx-auto
+              rounded-3xl
               bg-white/5
               border
               border-white/10
-              rounded-2xl
-              p-6
+              flex
+              items-center
+              justify-center
+              text-7xl
+            ">
+
+              {community.icon}
+
+            </div>
+
+
+
+
+
+
+
+            <h1 className="
+              mt-8
+              text-5xl
+              md:text-6xl
+              font-extrabold
+            ">
+
+              {community.name}
+
+            </h1>
+
+
+
+
+
+
+
+            <p className="
+              mt-4
+              text-purple-400
+              text-xl
+            ">
+
+              {community.type}
+
+            </p>
+
+
+
+
+
+
+
+            <p className="
+              mt-6
+              text-gray-400
+              text-lg
+              max-w-3xl
+              mx-auto
+            ">
+
+              {community.description}
+
+            </p>
+
+
+
+
+
+
+
+
+            <div className="
+              mt-10
+              flex
+              justify-center
+              gap-4
+              flex-wrap
             ">
 
 
-              <h2 className="text-2xl font-bold">
 
+              {community.discord && (
+
+                <a
+
+                  href={community.discord}
+
+                  target="_blank"
+
+                  rel="noopener noreferrer"
+
+                  className="
+                    px-8
+                    py-4
+                    rounded-xl
+                    bg-linear-to-r
+                    from-purple-600
+                    to-blue-600
+                    font-bold
+                    hover:scale-105
+                    transition
+                  "
+
+                >
+
+                  Join Discord
+
+                </a>
+
+              )}
+
+
+
+
+
+
+
+              {community.roblox && (
+
+                <a
+
+                  href={community.roblox}
+
+                  target="_blank"
+
+                  rel="noopener noreferrer"
+
+                  className="
+                    px-8
+                    py-4
+                    rounded-xl
+                    border
+                    border-white/20
+                    bg-white/5
+                    hover:bg-white/10
+                    transition
+                    font-bold
+                  "
+
+                >
+
+                  Roblox Group
+
+                </a>
+
+              )}
+
+
+
+            </div>
+
+
+
+          </div>
+
+
+
+
+
+
+
+          <div className="
+            grid
+            md:grid-cols-2
+            gap-6
+            mt-20
+          ">
+
+
+
+
+            <div className="
+              glass
+              p-8
+              text-center
+            ">
+
+              <h2 className="
+                text-2xl
+                font-bold
+              ">
                 👥 Members
-
               </h2>
 
 
-
-              <p className="text-4xl font-bold mt-3">
-
+              <p className="
+                mt-4
+                text-5xl
+                font-extrabold
+              ">
                 {community.members.toLocaleString()}
-
               </p>
 
 
@@ -247,27 +333,28 @@ export default async function CommunityPage({
 
 
 
+
             <div className="
-              bg-white/5
-              border
-              border-white/10
-              rounded-2xl
-              p-6
+              glass
+              p-8
+              text-center
             ">
 
 
-              <h2 className="text-2xl font-bold">
-
+              <h2 className="
+                text-2xl
+                font-bold
+              ">
                 🌐 Platform
-
               </h2>
 
 
-
-              <p className="text-gray-400 mt-2">
-
+              <p className="
+                mt-4
+                text-gray-400
+                text-xl
+              ">
                 Discord
-
               </p>
 
 
@@ -279,7 +366,50 @@ export default async function CommunityPage({
 
 
 
-        </div>
+
+
+
+
+
+          <div className="
+            mt-24
+          ">
+
+
+            <h2 className="
+              text-4xl
+              font-bold
+            ">
+
+              About{" "}
+
+              <span className="
+                bg-linear-to-r
+                from-purple-400
+                to-blue-400
+                bg-clip-text
+                text-transparent
+              ">
+                {community.name}
+              </span>
+
+            </h2>
+
+
+
+            <p className="
+              mt-6
+              text-gray-400
+              text-lg
+              leading-relaxed
+            ">
+
+              {community.about}
+
+            </p>
+
+
+          </div>
 
 
 
@@ -287,47 +417,154 @@ export default async function CommunityPage({
 
 
 
-        {/* About */}
+
+          {community.games.length > 0 && (
+
+            <div className="
+              mt-24
+            ">
 
 
-        <div className="max-w-5xl mx-auto mt-20 text-left">
+              <h2 className="
+                text-4xl
+                font-bold
+                text-center
+              ">
 
+                🎮 Community{" "}
 
-          <h2 className="text-4xl font-bold">
+                <span className="
+                  text-purple-400
+                ">
+                  Games
+                </span>
 
-            About <span className="text-purple-500">{community.name}</span>
-
-          </h2>
-
-
-
-          <p className="text-gray-400 mt-6 text-lg">
-
-            {community.about}
-
-          </p>
-
-
-        </div>
-
-
-
-
+              </h2>
 
 
 
 
-        {/* Community Games */}
+              <div className="
+                grid
+                md:grid-cols-2
+                gap-6
+                mt-10
+              ">
 
 
-        {community.games.length > 0 && (
 
-          <div className="max-w-5xl mx-auto mt-20">
+                {community.games.map((game)=>(
 
 
-            <h2 className="text-4xl font-bold text-center">
+                  <div
 
-              🎮 Community <span className="text-purple-500">Games</span>
+                    key={game.id}
+
+                    className="
+                      glass
+                      card-hover
+                      p-7
+                    "
+
+                  >
+
+
+                    <h3 className="
+                      text-3xl
+                      font-bold
+                    ">
+                      {game.name}
+                    </h3>
+
+
+                    <p className="
+                      text-purple-400
+                      mt-2
+                    ">
+                      {game.platform}
+                    </p>
+
+
+                    <p className="
+                      text-gray-400
+                      mt-4
+                    ">
+                      {game.description}
+                    </p>
+
+
+
+
+                    {game.link && (
+
+                      <a
+
+                        href={game.link}
+
+                        target="_blank"
+
+                        rel="noopener noreferrer"
+
+                        className="
+                          inline-flex
+                          mt-6
+                          px-6
+                          py-3
+                          rounded-xl
+                          bg-linear-to-r
+                          from-purple-600
+                          to-blue-600
+                          font-bold
+                        "
+
+                      >
+                        Play Game
+                      </a>
+
+                    )}
+
+
+                  </div>
+
+
+                ))}
+
+
+
+              </div>
+
+
+
+            </div>
+
+          )}
+
+
+
+
+
+
+
+
+
+          <div className="
+            mt-24
+          ">
+
+
+
+            <h2 className="
+              text-4xl
+              font-bold
+              text-center
+            ">
+              Staff{" "}
+
+              <span className="
+                text-purple-400
+              ">
+                Team
+              </span>
 
             </h2>
 
@@ -335,91 +572,67 @@ export default async function CommunityPage({
 
 
 
-            <div className="grid md:grid-cols-2 gap-6 mt-10">
+            <div className="
+              grid
+              md:grid-cols-3
+              gap-6
+              mt-10
+            ">
 
 
-              {community.games.map((game)=>(
+              {Array.isArray(community.staff) &&
+
+                (community.staff as Array<{
+
+                  name:string;
+                  role:string;
+                  icon:string;
+
+                }>).map((member)=>(
 
 
-                <div
+                  <div
 
-                  key={game.id}
+                    key={member.role}
 
-                  className="
-                  bg-white/5
-                  border
-                  border-white/10
-                  rounded-2xl
-                  p-6
-                  hover:border-purple-500
-                  transition
-                  "
+                    className="
+                      glass
+                      card-hover
+                      p-6
+                      text-center
+                    "
 
-                >
+                  >
 
 
-                  <h3 className="text-3xl font-bold">
-
-                    {game.name}
-
-                  </h3>
+                    <div className="text-5xl">
+                      {member.icon}
+                    </div>
 
 
-
-                  <p className="text-purple-400 mt-2">
-
-                    {game.platform}
-
-                  </p>
-
-
-
-                  <p className="text-gray-400 mt-4">
-
-                    {game.description}
-
-                  </p>
-
-
-
-
-
-                  {game.link && (
-
-                    <a
-
-                      href={game.link}
-
-                      target="_blank"
-
-                      rel="noopener noreferrer"
-
-                      className="
-                      inline-block
-                      mt-6
-                      bg-purple-600
-                      hover:bg-purple-700
-                      px-6
-                      py-3
-                      rounded-xl
+                    <h3 className="
+                      mt-4
+                      text-xl
                       font-bold
-                      transition
-                      "
-
-                    >
-
-                      Play Game
-
-                    </a>
-
-                  )}
+                    ">
+                      {member.name}
+                    </h3>
 
 
+                    <p className="
+                      mt-2
+                      text-purple-400
+                    ">
+                      {member.role}
+                    </p>
 
-                </div>
+
+                  </div>
 
 
-              ))}
+                ))
+
+              }
 
 
             </div>
@@ -427,98 +640,8 @@ export default async function CommunityPage({
 
           </div>
 
-        )}
 
 
-
-
-
-
-
-
-
-        {/* Staff Team */}
-
-
-        <div className="max-w-5xl mx-auto mt-20">
-
-
-          <h2 className="text-4xl font-bold text-center">
-
-            Staff <span className="text-purple-500">Team</span>
-
-          </h2>
-
-
-
-
-
-          <div className="grid md:grid-cols-3 gap-6 mt-10">
-
-
-
-            {Array.isArray(community.staff) &&
-
-              (community.staff as Array<{
-
-                name: string;
-
-                role: string;
-
-                icon: string;
-
-              }>).map((member)=>(
-
-
-                <div
-
-                  key={member.role}
-
-                  className="
-                  bg-white/5
-                  border
-                  border-white/10
-                  rounded-2xl
-                  p-6
-                  text-center
-                  hover:border-purple-500
-                  transition
-                  "
-
-                >
-
-
-                  <div className="text-5xl">
-
-                    {member.icon}
-
-                  </div>
-
-
-
-                  <h3 className="text-xl font-bold mt-4">
-
-                    {member.name}
-
-                  </h3>
-
-
-
-                  <p className="text-purple-400 mt-2">
-
-                    {member.role}
-
-                  </p>
-
-
-
-                </div>
-
-
-              ))}
-
-
-          </div>
 
 
         </div>
@@ -526,6 +649,7 @@ export default async function CommunityPage({
 
 
       </section>
+
 
 
 
