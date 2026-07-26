@@ -36,7 +36,7 @@ export default async function Footer() {
           <h3 className="
             text-2xl
             font-bold
-            bg-gradient-to-r
+            bg-linear-to-r
             from-purple-400
             to-blue-400
             bg-clip-text

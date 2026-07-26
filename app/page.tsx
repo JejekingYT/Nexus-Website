@@ -1,9 +1,11 @@
 import Navbar from "@/components/layout/NavbarWrapper";
 import Footer from "@/components/layout/Footer";
+
 import Hero from "@/components/home/Hero";
 import FeaturedCommunities from "@/components/home/FeaturedCommunities";
 import FeaturedProjects from "@/components/home/FeaturedProjects";
 import LatestNews from "@/components/home/LatestNews";
+
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
@@ -11,109 +13,221 @@ import { prisma } from "@/lib/prisma";
 export default async function Home() {
 
   const events = await prisma.event.findMany({
+
     where: {
       published: true,
     },
+
     orderBy: {
       createdAt: "desc",
     },
+
     take: 3,
+
   });
 
 
+
   return (
-    <main className="min-h-screen bg-[#09090B] text-white">
+
+    <main className="
+      min-h-screen
+      text-white
+      overflow-hidden
+    ">
+
 
       <Navbar />
 
-      <Hero />
-
-      <FeaturedCommunities />
-
-      <FeaturedProjects />
-
-      <LatestNews />
 
 
-      {/* Latest Events */}
-
-      <section className="py-24 px-6">
-
-        <div className="max-w-6xl mx-auto">
+      <div className="fade-in">
 
 
-          <h2 className="text-5xl font-extrabold text-center">
-            Latest <span className="text-purple-500">
-              Events
-            </span>
-          </h2>
+        <Hero />
 
 
-          <p className="text-gray-400 text-center mt-4">
-            Join the newest Nexus community events.
-          </p>
+        <FeaturedCommunities />
+
+
+        <FeaturedProjects />
+
+
+        <LatestNews />
 
 
 
-          <div className="grid md:grid-cols-3 gap-6 mt-12">
+        {/* Latest Events */}
+
+        <section className="
+          py-24
+          px-6
+        ">
 
 
-            {events.map((event) => (
-
-              <div
-                key={event.id}
-                className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-purple-500 transition"
-              >
+          <div className="
+            max-w-6xl
+            mx-auto
+          ">
 
 
-                <h3 className="text-2xl font-bold">
-                  {event.title}
-                </h3>
+
+            <div className="text-center mb-14">
 
 
-                <p className="text-purple-400 mt-3">
-                  📅 {event.date} • {event.time}
-                </p>
+              <h2 className="
+                text-4xl
+                md:text-5xl
+                font-extrabold
+              ">
+
+                Latest{" "}
+
+                <span className="
+                  bg-linear-to-r
+                  from-purple-400
+                  to-blue-400
+                  bg-clip-text
+                  text-transparent
+                ">
+                  Events
+                </span>
+
+              </h2>
 
 
-                <p className="text-gray-400 mt-4">
-                  {event.description}
-                </p>
+
+              <p className="
+                text-gray-400
+                mt-4
+                text-lg
+              ">
+                Join the newest Nexus community events.
+              </p>
 
 
-                <Link
-                  href={`/events/${event.slug}`}
-                  className="inline-block mt-6 bg-purple-600 hover:bg-purple-700 px-5 py-3 rounded-xl font-bold"
+            </div>
+
+
+
+
+
+            <div className="
+              grid
+              md:grid-cols-3
+              gap-6
+            ">
+
+
+
+              {events.map((event) => (
+
+                <div
+                  key={event.id}
+                  className="
+                    glass
+                    card-hover
+                    p-6
+                  "
                 >
-                  View Event
-                </Link>
 
 
-              </div>
 
-            ))}
+                  <h3 className="
+                    text-2xl
+                    font-bold
+                  ">
+                    {event.title}
+                  </h3>
+
+
+
+
+                  <p className="
+                    text-purple-400
+                    mt-3
+                    font-medium
+                  ">
+                    📅 {event.date} • {event.time}
+                  </p>
+
+
+
+
+                  <p className="
+                    text-gray-400
+                    mt-4
+                    leading-relaxed
+                  ">
+                    {event.description}
+                  </p>
+
+
+
+
+                  <Link
+                    href={`/events/${event.slug}`}
+                    className="
+                      inline-flex
+                      mt-6
+                      px-5
+                      py-3
+                      rounded-xl
+                      bg-linear-to-r
+                      from-purple-600
+                      to-blue-600
+                      font-bold
+                      hover:scale-105
+                      transition
+                    "
+                  >
+                    View Event
+                  </Link>
+
+
+
+                </div>
+
+              ))}
+
+
+
+            </div>
+
+
+
+
+
+
+            {events.length === 0 && (
+
+              <p className="
+                text-gray-400
+                text-center
+                mt-10
+              ">
+                No upcoming events.
+              </p>
+
+            )}
+
 
 
           </div>
 
 
-
-          {events.length === 0 && (
-
-            <p className="text-gray-400 text-center mt-10">
-              No upcoming events.
-            </p>
-
-          )}
+        </section>
 
 
-        </div>
+      </div>
 
-      </section>
 
 
       <Footer />
 
+
     </main>
+
   );
+
 }
