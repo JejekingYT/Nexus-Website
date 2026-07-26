@@ -19,40 +19,53 @@ async function sendDiscordLog(
 
 
 
-  await fetch(webhook, {
+  try {
 
-    method: "POST",
+    await fetch(webhook, {
 
-    headers: {
-      "Content-Type": "application/json",
-    },
+      method: "POST",
 
-    body: JSON.stringify({
+      headers: {
+        "Content-Type": "application/json",
+      },
 
-      embeds: [
+      body: JSON.stringify({
 
-        {
-          title,
+        embeds: [
 
-          description,
+          {
+            title,
 
-          color,
+            description,
 
-          timestamp: new Date().toISOString(),
+            color,
 
-          footer: {
-            text: "Nexus Support System",
+            timestamp: new Date().toISOString(),
+
+            footer: {
+              text: "Nexus Support System",
+            },
+
           },
 
-        },
+        ],
 
-      ],
+      }),
 
-    }),
+    });
 
-  });
+  } catch (error) {
+
+    console.error(
+      "Discord support log error:",
+      error
+    );
+
+  }
 
 }
+
+
 
 
 
@@ -72,51 +85,12 @@ export async function updateTicketStatus(
         id,
       },
 
-      include: {
-        user: true,
-      },
-
     });
 
 
 
   if (!ticket) return;
 
-
-
-  const website =
-    process.env.NEXT_PUBLIC_SITE_URL ??
-    "https://nexus-community-web.vercel.app";
-
-
-
-
-  if (status === "CLOSED") {
-
-
-    await sendDiscordLog(
-
-      "🎫 Ticket Closed",
-
-      `
-**Ticket:** #${ticket.id}
-
-**Subject:** ${ticket.subject}
-
-**User:** ${ticket.user?.username ?? "Unknown"}
-
-**Closed By:** Nexus Support
-
-
-**Transcript:**
-${website}/admin/support/transcript/${ticket.id}
-      `,
-
-      15158332
-
-    );
-
-  }
 
 
 
@@ -179,9 +153,13 @@ export async function deleteTicket(
 
 
 
+
+
   const website =
     process.env.NEXT_PUBLIC_SITE_URL ??
     "https://nexus-community-web.vercel.app";
+
+
 
 
 
@@ -216,6 +194,8 @@ ${website}/admin/support/transcript/${ticket.id}
 
 
 
+
+
   await prisma.supportTicket.update({
 
     where: {
@@ -235,6 +215,7 @@ ${website}/admin/support/transcript/${ticket.id}
     },
 
   });
+
 
 
 
