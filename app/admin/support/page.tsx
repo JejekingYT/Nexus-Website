@@ -1,6 +1,6 @@
 import Navbar from "@/components/layout/NavbarWrapper";
 import Footer from "@/components/layout/Footer";
-import { updateTicketStatus, deleteTicket } from "./actions";
+import { deleteTicket } from "./actions";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth";
@@ -17,21 +17,21 @@ export default async function AdminSupportPage() {
 
 
 
-  const canManageStatus =
+  const canDelete =
     currentUser.role === "OWNER" ||
+    currentUser.role === "CO-OWNER" ||
     currentUser.role === "ADMIN" ||
     currentUser.role === "SUPPORT";
 
 
 
-  const canDelete =
-    currentUser.role === "OWNER" ||
-    currentUser.role === "ADMIN";
-
-
 
 
   const tickets = await prisma.supportTicket.findMany({
+
+    where: {
+      deleted: false,
+    },
 
     include: {
 
@@ -48,6 +48,8 @@ export default async function AdminSupportPage() {
     },
 
   });
+
+
 
 
 
@@ -186,84 +188,6 @@ export default async function AdminSupportPage() {
 
                   </Link>
 
-
-
-
-
-                  {canManageStatus && (
-
-                    ticket.status !== "CLOSED" ? (
-
-
-                      <form
-                        action={async () => {
-                          "use server";
-
-                          await updateTicketStatus(
-                            ticket.id,
-                            "CLOSED"
-                          );
-
-                        }}
-                      >
-
-                        <button
-                          className="
-                          bg-red-600
-                          hover:bg-red-700
-                          px-5
-                          py-3
-                          rounded-xl
-                          font-bold
-                          "
-                        >
-
-                          Close
-
-                        </button>
-
-
-                      </form>
-
-
-                    ) : (
-
-
-                      <form
-                        action={async () => {
-                          "use server";
-
-                          await updateTicketStatus(
-                            ticket.id,
-                            "OPEN"
-                          );
-
-                        }}
-                      >
-
-
-                        <button
-                          className="
-                          bg-green-600
-                          hover:bg-green-700
-                          px-5
-                          py-3
-                          rounded-xl
-                          font-bold
-                          "
-                        >
-
-                          Reopen
-
-                        </button>
-
-
-                      </form>
-
-
-                    )
-
-                  )}
 
 
 

@@ -30,7 +30,7 @@ export default async function SupportTicketPage({
 
 
 
-  const ticket = await prisma.supportTicket.findUnique({
+    const ticket = await prisma.supportTicket.findUnique({
 
     where: {
       id: Number(id),
@@ -65,6 +65,30 @@ export default async function SupportTicketPage({
 
 
 
+  const isStaff =
+    currentUser.role === "ADMIN" ||
+    currentUser.role === "OWNER" ||
+    currentUser.role === "SUPPORT";
+
+
+
+
+
+  // Normal users cannot access closed/deleted tickets
+  if (
+    !isStaff &&
+    (
+      ticket.status === "CLOSED" ||
+      ticket.status === "DELETED" ||
+      ticket.deleted
+    )
+  ) {
+    redirect("/support");
+  }
+
+
+
+
 
   const currentTicket = ticket;
 
@@ -72,9 +96,7 @@ export default async function SupportTicketPage({
 
   if (
     currentTicket.userId !== currentUser.id &&
-    currentUser.role !== "ADMIN" &&
-    currentUser.role !== "OWNER" &&
-    currentUser.role !== "SUPPORT"
+    !isStaff
   ) {
 
     redirect("/support");
@@ -89,17 +111,26 @@ export default async function SupportTicketPage({
 
   async function sendMessage(formData: FormData) {
 
-    "use server";
+  "use server";
 
 
-    const message =
-      formData.get("message") as string;
+  if (
+    currentTicket.status === "CLOSED" ||
+    currentTicket.status === "DELETED" ||
+    currentTicket.deleted
+  ) {
+    return;
+  }
+
+
+  const message =
+    formData.get("message") as string;
 
 
 
-    if (!message.trim()) {
-      return;
-    }
+  if (!message.trim()) {
+    return;
+  }
 
 
 
@@ -399,7 +430,9 @@ export default async function SupportTicketPage({
 
 
 
-            {currentTicket.status !== "CLOSED" && (
+            {currentTicket.status !== "CLOSED" &&
+              currentTicket.status !== "DELETED" &&
+              !currentTicket.deleted && (
 
 
               <form

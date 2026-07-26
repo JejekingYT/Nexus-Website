@@ -72,62 +72,9 @@ async function sendDiscordLog(
 
 
 
-export async function updateTicketStatus(
-  id: number,
-  status: string
-) {
-
-
-  const ticket =
-    await prisma.supportTicket.findUnique({
-
-      where: {
-        id,
-      },
-
-    });
-
-
-
-  if (!ticket) return;
-
-
-
-
-
-  await prisma.supportTicket.update({
-
-    where: {
-      id,
-    },
-
-    data: {
-      status,
-    },
-
-  });
-
-
-
-  revalidatePath("/admin/support");
-
-
-  redirect("/admin/support");
-
-}
-
-
-
-
-
-
-
-
-
 export async function deleteTicket(
   id: number
 ) {
-
 
 
   const ticket =
@@ -215,6 +162,7 @@ ${website}/admin/support/transcript/${ticket.id}
     },
 
   });
+
 
 
 
