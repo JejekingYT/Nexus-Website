@@ -78,7 +78,14 @@ export default function TicketChat({
     );
 
 
+     channel.bind(
+      "ticket-closed",
+      () => {
 
+        window.location.href = "/support";
+
+      }
+    );
 
     channel.bind(
       "ticket-deleted",

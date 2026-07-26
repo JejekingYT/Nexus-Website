@@ -74,7 +74,6 @@ async function sendDiscordLog(
 
 
 
-
 export async function updateTicketStatus(
   id: number,
   status: string
@@ -97,7 +96,6 @@ export async function updateTicketStatus(
 
 
 
-
   await prisma.supportTicket.update({
 
     where: {
@@ -105,20 +103,27 @@ export async function updateTicketStatus(
     },
 
     data: {
-
       status,
-
     },
 
   });
 
+
+
+
+
+  // Instantly redirect users inside the ticket
   await pusher.trigger(
-  `ticket-${id}`,
-  "ticket-deleted",
-  {
-    deleted: true,
-  }
-);
+
+    `ticket-${id}`,
+
+    "ticket-closed",
+
+    {
+      status,
+    }
+
+  );
 
 
 
@@ -134,14 +139,9 @@ export async function updateTicketStatus(
 
 
 
-
-
   redirect("/admin/support");
 
 }
-
-
-
 
 
 
@@ -176,7 +176,6 @@ export async function deleteTicket(
 
 
   if (!ticket) return;
-
 
 
 
@@ -250,11 +249,31 @@ ${website}/admin/support/transcript/${ticket.id}
 
 
 
+  // Instantly remove user from ticket page
+  await pusher.trigger(
+
+    `ticket-${id}`,
+
+    "ticket-deleted",
+
+    {
+      deleted: true,
+    }
+
+  );
+
+
+
+
+
+
+
   revalidatePath("/admin/support");
 
   revalidatePath("/support");
 
   revalidatePath(`/support/${id}`);
+
 
 
 
