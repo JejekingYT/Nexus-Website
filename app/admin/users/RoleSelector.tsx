@@ -98,6 +98,16 @@ export default function RoleSelector({
       </option>
 
 
+      <option value="MANAGER">
+        MANAGER
+      </option>
+
+
+      <option value="CO-OWNER">
+        CO-OWNER
+      </option>
+
+
       <option value="OWNER">
         OWNER
       </option>

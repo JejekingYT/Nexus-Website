@@ -21,7 +21,7 @@ export default function AdminSidebar({ role }: Props) {
     {
       name: "📊 Dashboard",
       href: "/admin",
-      roles: ["OWNER", "ADMIN", "MODERATOR", "SUPPORT"],
+      roles: ["OWNER","CO-OWNER","MANAGER", "ADMIN", "MODERATOR", "SUPPORT"],
     },
 
     {
@@ -39,61 +39,61 @@ export default function AdminSidebar({ role }: Props) {
     {
       name: "📜 Activity Logs",
       href: "/admin/logs",
-      roles: ["OWNER", "ADMIN"],
+      roles: ["OWNER","CO-OWNER","MANAGER", "ADMIN"],
     },
 
     {
       name: "🌐 Communities",
       href: "/admin/communities",
-      roles: ["OWNER"],
+      roles: ["OWNER","CO-OWNER"],
     },
 
     {
       name: "🤝 Partners",
       href: "/admin/partners",
-      roles: ["OWNER"],
+      roles: ["OWNER","CO-OWNER"],
     },
 
     {
       name: "📰 News",
       href: "/admin/news",
-      roles: ["OWNER", "ADMIN", "MODERATOR"],
+      roles: ["OWNER","CO-OWNER","MANAGER", "ADMIN", "MODERATOR"],
     },
 
     {
       name: "🎉 Events",
       href: "/admin/events",
-      roles: ["OWNER", "ADMIN", "MODERATOR"],
+      roles: ["OWNER","CO-OWNER","MANAGER", "ADMIN", "MODERATOR"],
     },
 
     {
       name: "🎮 Games",
       href: "/admin/games",
-      roles: ["OWNER"],
+      roles: ["OWNER","CO-OWNER","MANAGER"],
     },
 
     {
       name: "📦 Projects",
       href: "/admin/projects",
-      roles: ["OWNER"],
+      roles: ["OWNER","CO-OWNER","MANAGER"],
     },
 
     {
       name: "🎫 Support",
       href: "/admin/support",
-      roles: ["OWNER", "ADMIN", "SUPPORT"],
+      roles: ["OWNER","CO-OWNER","MANAGER", "ADMIN", "SUPPORT"],
     },
 
     {
       name: "👨‍💻 Developers",
       href: "/admin/developers",
-      roles: ["OWNER"],
+      roles: ["OWNER","CO-OWNER"],
     },
 
     {
       name: "🏆 Hall of Fame",
       href: "/admin/hall-of-fame",
-      roles: ["OWNER"],
+      roles: ["OWNER","CO-OWNER"],
     },
 
     {

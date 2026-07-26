@@ -137,6 +137,10 @@ export default async function PublicProfilePage({
                     <p className="text-purple-400 mt-2 font-semibold">
                     {user.role === "OWNER"
                         ? "👑 Founder"
+                    : user.role === "CO-OWNER"
+                        ? "👑 CO-OWNER"
+                    : user.role === "MANAGER"
+                        ? "⚙️ MANAGER"
                     : user.role === "ADMIN"
                         ? "🛡️ Administrator"
                     : user.role === "MODERATOR"

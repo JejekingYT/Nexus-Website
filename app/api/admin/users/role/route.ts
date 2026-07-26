@@ -65,8 +65,11 @@ export async function POST(req: Request) {
 
     const allowedRoles = [
       "USER",
+      "SUPPORT",
       "MODERATOR",
       "ADMIN",
+      "MANAGER",
+      "CO-OWNER",
       "OWNER",
     ];
 

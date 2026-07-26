@@ -37,8 +37,11 @@ export default async function AdminLayout({
     !user ||
     ![
       "OWNER",
+      "CO-OWNER",
+      "MANAGER",
       "ADMIN",
       "MODERATOR",
+      "SUPPORT",
     ].includes(user.role)
   ) {
 
