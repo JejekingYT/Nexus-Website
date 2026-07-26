@@ -41,29 +41,120 @@ export async function getDiscordMemberCount(
 
 
 
-export async function sendSupportLog(
-  message: string
-) {
 
-  if (!process.env.DISCORD_SUPPORT_WEBHOOK)
+
+
+
+export async function sendSupportLog(data: {
+
+  id: number;
+
+  username: string;
+
+  category: string;
+
+  subject: string;
+
+  message: string;
+
+}) {
+
+
+  const webhook =
+    process.env.DISCORD_SUPPORT_WEBHOOK;
+
+
+
+  if (!webhook) {
     return;
+  }
 
 
-  await fetch(
-    process.env.DISCORD_SUPPORT_WEBHOOK,
-    {
 
-      method: "POST",
 
-      headers: {
-        "Content-Type": "application/json",
-      },
+  try {
 
-      body: JSON.stringify({
-        content: message,
-      }),
 
-    }
-  );
+    await fetch(
+      webhook,
+      {
+
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+
+        body: JSON.stringify({
+
+          embeds: [
+
+            {
+
+              title: "🎫 New Support Ticket",
+
+
+              description: `
+
+**Ticket:** #${data.id}
+
+
+**User:** ${data.username}
+
+
+**Category:** ${data.category}
+
+
+**Subject:** ${data.subject}
+
+
+
+**Message:**
+
+${data.message}
+
+
+
+**Open Ticket:**
+
+${process.env.NEXTAUTH_URL}/admin/support/${data.id}
+
+              `,
+
+
+              color: 10181046,
+
+
+              timestamp: new Date().toISOString(),
+
+
+              footer: {
+
+                text: "Nexus Support System",
+
+              },
+
+            },
+
+          ],
+
+        }),
+
+      }
+    );
+
+
+  } catch (error) {
+
+
+    console.error(
+      "Discord support log error:",
+      error
+    );
+
+
+  }
+
 
 }
