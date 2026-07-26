@@ -45,19 +45,10 @@ export async function getDiscordMemberCount(
 
 
 
-export async function sendSupportLog(data: {
 
-  id: number;
-
-  username: string;
-
-  category: string;
-
-  subject: string;
-
-  message: string;
-
-}) {
+export async function sendSupportLog(
+  message: string
+) {
 
 
   const webhook =
@@ -92,35 +83,10 @@ export async function sendSupportLog(data: {
 
             {
 
-              title: "🎫 New Support Ticket",
+              title: "🎫 Support Ticket Log",
 
 
-              description: `
-
-**Ticket:** #${data.id}
-
-
-**User:** ${data.username}
-
-
-**Category:** ${data.category}
-
-
-**Subject:** ${data.subject}
-
-
-
-**Message:**
-
-${data.message}
-
-
-
-**Open Ticket:**
-
-${process.env.NEXTAUTH_URL}/admin/support/${data.id}
-
-              `,
+              description: message,
 
 
               color: 10181046,
@@ -143,6 +109,7 @@ ${process.env.NEXTAUTH_URL}/admin/support/${data.id}
 
       }
     );
+
 
 
   } catch (error) {
