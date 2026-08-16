@@ -317,8 +317,6 @@ export default async function CommunityPage({
 
 
 
-
-
           <div className="
             grid
             md:grid-cols-2
@@ -402,8 +400,6 @@ export default async function CommunityPage({
 
 
 
-
-
           <div className="
             mt-24
           ">
@@ -443,8 +439,6 @@ export default async function CommunityPage({
 
 
           </div>
-
-
 
 
 
@@ -595,226 +589,12 @@ export default async function CommunityPage({
             mt-24
           ">
 
-
-
-            <div className="
-              text-center
-              mb-10
-            ">
-
-              <h2 className="
-                text-4xl
-                font-bold
-              ">
-
-                💬 Community{" "}
-
-                <span className="
-                  text-purple-400
-                ">
-                  Reviews
-                </span>
-
-              </h2>
-
-
-              <p className="
-                mt-4
-                text-gray-400
-                text-lg
-                max-w-2xl
-                mx-auto
-              ">
-
-                See what members of the Nexus community think about{" "}
-                {community.name}.
-
-              </p>
-
-            </div>
-
             <CommunityReviews
               reviews={reviews}
               communityId={community.id}
             />
 
-
-
-
-
-          
-
-            ) : (
-
-              <div className="
-                grid
-                md:grid-cols-2
-                gap-6
-              ">
-
-                {reviews.map((review: {
-                  id: number;
-                  rating: number;
-                  comment: string;
-                  createdAt: Date;
-                  user: {
-                    username: string;
-                    image: string | null;
-                  };
-                }) => (
-
-                  <div
-
-                    key={review.id}
-
-                    className="
-                      glass
-                      card-hover
-                      p-7
-                    "
-
-                  >
-
-                    <div className="
-                      flex
-                      items-center
-                      justify-between
-                      gap-4
-                    ">
-
-                      <div className="
-                        flex
-                        items-center
-                        gap-4
-                      ">
-
-                        {review.user.image ? (
-
-                          <Image
-
-                            src={review.user.image}
-
-                            alt={review.user.username}
-
-                            width={48}
-
-                            height={48}
-
-                            className="
-                              w-12
-                              h-12
-                              rounded-full
-                              object-cover
-                              border
-                              border-white/10
-                            "
-
-                          />
-
-                        ) : (
-
-                          <div className="
-                            w-12
-                            h-12
-                            rounded-full
-                            bg-purple-500/20
-                            border
-                            border-purple-500/30
-                            flex
-                            items-center
-                            justify-center
-                            font-bold
-                            text-purple-400
-                          ">
-
-                            {review.user.username
-                              .charAt(0)
-                              .toUpperCase()}
-
-                          </div>
-
-                        )}
-
-
-                        <div>
-
-                          <p className="
-                            font-bold
-                          ">
-                            {review.user.username}
-                          </p>
-
-                          <p className="
-                            text-gray-500
-                            text-sm
-                          ">
-                            Community Member
-                          </p>
-
-                        </div>
-
-                      </div>
-
-
-
-
-
-                      <div className="
-                        flex
-                        gap-1
-                        text-yellow-400
-                      ">
-
-                        {"★".repeat(review.rating)}
-
-                        {"☆".repeat(5 - review.rating)}
-
-                      </div>
-
-
-                    </div>
-
-
-
-
-
-                    <p className="
-                      mt-6
-                      text-gray-300
-                      leading-relaxed
-                    ">
-
-                      "{review.comment}"
-
-                    </p>
-
-
-
-
-
-                    <p className="
-                      mt-5
-                      text-gray-500
-                      text-sm
-                    ">
-
-                      {new Date(review.createdAt).toLocaleDateString()}
-
-                    </p>
-
-                  </div>
-
-                ))}
-
-              </div>
-
-            )
-
-
-
           </div>
-
-
 
 
 
