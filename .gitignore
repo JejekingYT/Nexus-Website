@@ -52,3 +52,5 @@ next-env.d.ts
 # local databases
 *.db
 *.sqlite
+.vercel
+.env*

@@ -8,21 +8,39 @@ datasource db {
 }
 
 model Community {
-  id          Int      @id @default(autoincrement())
-  slug        String   @unique
+  id          Int               @id @default(autoincrement())
+  slug        String            @unique
   name        String
   type        String
   icon        String
   image       String
   description String
-  members     Int      @default(0)
+  members     Int               @default(0)
   discord     String
   roblox      String?
   about       String
   staff       Json?
-  createdAt   DateTime @default(now())
+  createdAt   DateTime          @default(now())
   discordId   String?
   games       Game[]
+  reviews     CommunityReview[]
+}
+
+model CommunityReview {
+  id          Int      @id @default(autoincrement())
+  communityId Int
+  userId      Int
+  rating      Int
+  comment     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  community Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([communityId, userId])
+  @@index([communityId])
+  @@index([userId])
 }
 
 model News {
@@ -89,21 +107,20 @@ model Developer {
 }
 
 model User {
-  id              Int              @id @default(autoincrement())
-  discordId       String           @unique
-  username        String
-  image           String?
-  bio             String?
-  role            String           @default("USER")
-  createdAt       DateTime         @default(now())
-
-  logs            AuditLog[]
-  news            News[]
-  supportMessages SupportMessage[]
-  supportTickets  SupportTicket[]
-
-  badges          UserBadge[]      @relation("UserBadges")
-  awardedBadges   UserBadge[]      @relation("AwardedBadges")
+  id               Int               @id @default(autoincrement())
+  discordId        String            @unique
+  username         String
+  image            String?
+  bio              String?
+  role             String            @default("USER")
+  createdAt        DateTime          @default(now())
+  logs             AuditLog[]
+  news             News[]
+  supportMessages  SupportMessage[]
+  supportTickets   SupportTicket[]
+  awardedBadges    UserBadge[]       @relation("AwardedBadges")
+  badges           UserBadge[]       @relation("UserBadges")
+  communityReviews CommunityReview[]
 }
 
 model Badge {
@@ -112,24 +129,19 @@ model Badge {
   slug        String      @unique
   icon        String
   description String
-
   createdAt   DateTime    @default(now())
-
   users       UserBadge[]
 }
 
 model UserBadge {
   id          Int      @id @default(autoincrement())
-
   userId      Int
   badgeId     Int
-
   awardedById Int?
   awardedAt   DateTime @default(now())
-
-  user        User     @relation("UserBadges", fields: [userId], references: [id], onDelete: Cascade)
+  awardedBy   User?    @relation("AwardedBadges", fields: [awardedById], references: [id])
   badge       Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
-  awardedBy   User?    @relation("AwardedBadges", fields: [awardedById], references: [id], onDelete: SetNull)
+  user        User     @relation("UserBadges", fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, badgeId])
   @@index([userId])
@@ -187,7 +199,7 @@ model SupportMessage {
 
 model Partner {
   id          Int           @id @default(autoincrement())
-  name        String
+  name        String        @unique
   slug        String        @unique
   logo        String
   banner      String?

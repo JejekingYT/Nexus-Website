@@ -1,5 +1,6 @@
 import Navbar from "@/components/layout/NavbarWrapper";
 import Footer from "@/components/layout/Footer";
+import CommunityReviews from "@/components/community/CommunityReviews";
 
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
@@ -44,6 +45,26 @@ export default async function CommunityPage({
     notFound();
 
   }
+
+
+
+
+
+  const reviews = await prisma.communityReview.findMany({
+
+    where: {
+      communityId: community.id,
+    },
+
+    include: {
+      user: true,
+    },
+
+    orderBy: {
+      createdAt: "desc",
+    },
+
+  });
 
 
 
@@ -203,6 +224,7 @@ export default async function CommunityPage({
 
 
 
+
             <div className="
               mt-10
               flex
@@ -293,6 +315,10 @@ export default async function CommunityPage({
 
 
 
+
+
+
+
           <div className="
             grid
             md:grid-cols-2
@@ -334,6 +360,10 @@ export default async function CommunityPage({
 
 
 
+
+
+
+
             <div className="
               glass
               p-8
@@ -363,6 +393,9 @@ export default async function CommunityPage({
 
 
           </div>
+
+
+
 
 
 
@@ -418,6 +451,9 @@ export default async function CommunityPage({
 
 
 
+
+
+
           {community.games.length > 0 && (
 
             <div className="
@@ -453,7 +489,13 @@ export default async function CommunityPage({
 
 
 
-                {community.games.map((game)=>(
+                {community.games.map((game: {
+                  id: number;
+                  name: string;
+                  description: string;
+                  platform: string;
+                  link: string | null;
+                }) => (
 
 
                   <div
@@ -538,6 +580,270 @@ export default async function CommunityPage({
             </div>
 
           )}
+
+
+
+
+
+
+
+
+
+          {/* COMMUNITY REVIEWS */}
+
+          <div className="
+            mt-24
+          ">
+
+
+
+            <div className="
+              text-center
+              mb-10
+            ">
+
+              <h2 className="
+                text-4xl
+                font-bold
+              ">
+
+                💬 Community{" "}
+
+                <span className="
+                  text-purple-400
+                ">
+                  Reviews
+                </span>
+
+              </h2>
+
+
+              <p className="
+                mt-4
+                text-gray-400
+                text-lg
+                max-w-2xl
+                mx-auto
+              ">
+
+                See what members of the Nexus community think about{" "}
+                {community.name}.
+
+              </p>
+
+            </div>
+
+            <CommunityReviews
+              reviews={reviews}
+              communityId={community.id}
+            />
+
+
+
+
+
+            {reviews.length === 0 ? (
+
+              <div className="
+                glass
+                p-10
+                text-center
+              ">
+
+                <div className="
+                  text-5xl
+                  mb-5
+                ">
+                  💭
+                </div>
+
+                <h3 className="
+                  text-2xl
+                  font-bold
+                ">
+                  No Reviews Yet
+                </h3>
+
+                <p className="
+                  mt-3
+                  text-gray-400
+                ">
+                  Be the first person to review this community.
+                </p>
+
+              </div>
+
+            ) : (
+
+              <div className="
+                grid
+                md:grid-cols-2
+                gap-6
+              ">
+
+                {reviews.map((review: {
+                  id: number;
+                  rating: number;
+                  content: string;
+                  createdAt: Date;
+                  user: {
+                    username: string;
+                    image: string | null;
+                  };
+                }) => (
+
+                  <div
+
+                    key={review.id}
+
+                    className="
+                      glass
+                      card-hover
+                      p-7
+                    "
+
+                  >
+
+                    <div className="
+                      flex
+                      items-center
+                      justify-between
+                      gap-4
+                    ">
+
+                      <div className="
+                        flex
+                        items-center
+                        gap-4
+                      ">
+
+                        {review.user.image ? (
+
+                          <Image
+
+                            src={review.user.image}
+
+                            alt={review.user.username}
+
+                            width={48}
+
+                            height={48}
+
+                            className="
+                              w-12
+                              h-12
+                              rounded-full
+                              object-cover
+                              border
+                              border-white/10
+                            "
+
+                          />
+
+                        ) : (
+
+                          <div className="
+                            w-12
+                            h-12
+                            rounded-full
+                            bg-purple-500/20
+                            border
+                            border-purple-500/30
+                            flex
+                            items-center
+                            justify-center
+                            font-bold
+                            text-purple-400
+                          ">
+
+                            {review.user.username
+                              .charAt(0)
+                              .toUpperCase()}
+
+                          </div>
+
+                        )}
+
+
+                        <div>
+
+                          <p className="
+                            font-bold
+                          ">
+                            {review.user.username}
+                          </p>
+
+                          <p className="
+                            text-gray-500
+                            text-sm
+                          ">
+                            Community Member
+                          </p>
+
+                        </div>
+
+                      </div>
+
+
+
+
+
+                      <div className="
+                        flex
+                        gap-1
+                        text-yellow-400
+                      ">
+
+                        {"★".repeat(review.rating)}
+
+                        {"☆".repeat(5 - review.rating)}
+
+                      </div>
+
+
+                    </div>
+
+
+
+
+
+                    <p className="
+                      mt-6
+                      text-gray-300
+                      leading-relaxed
+                    ">
+
+                      "{review.content}"
+
+                    </p>
+
+
+
+
+
+                    <p className="
+                      mt-5
+                      text-gray-500
+                      text-sm
+                    ">
+
+                      {new Date(review.createdAt).toLocaleDateString()}
+
+                    </p>
+
+                  </div>
+
+                ))}
+
+              </div>
+
+            )}
+
+
+
+          </div>
+
+
 
 
 
