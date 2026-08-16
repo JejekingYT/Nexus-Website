@@ -73,11 +73,11 @@ export async function createCommunityReview(
 
   await prisma.communityReview.create({
     data: {
-      communityId,
-      userId: user.id,
-      rating,
-      content: cleanedContent,
-    },
+        communityId: community.id,
+        userId: user.id,
+        rating,
+        comment: cleanedContent,
+},
   });
 
   revalidatePath(`/communities/${community.slug}`);

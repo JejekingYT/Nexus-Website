@@ -3,7 +3,7 @@ import Image from "next/image";
 interface Review {
   id: number;
   rating: number;
-  content: string;
+  comment: string;
   createdAt: Date;
   user: {
     username: string;
@@ -182,7 +182,7 @@ export default function CommunityReviews({
                 text-gray-300
                 leading-relaxed
               ">
-                "{review.content}"
+                "{review.comment}"
               </p>
 
 

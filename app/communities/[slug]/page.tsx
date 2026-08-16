@@ -684,7 +684,7 @@ export default async function CommunityPage({
                 {reviews.map((review: {
                   id: number;
                   rating: number;
-                  content: string;
+                  comment: string;
                   createdAt: Date;
                   user: {
                     username: string;
@@ -813,7 +813,7 @@ export default async function CommunityPage({
                       leading-relaxed
                     ">
 
-                      "{review.content}"
+                      "{review.comment}"
 
                     </p>
 
