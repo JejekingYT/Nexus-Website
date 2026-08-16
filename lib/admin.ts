@@ -1,0 +1,1 @@
+export const ADMIN_DISCORD_ID = process.env.ADMIN_DISCORD_ID;

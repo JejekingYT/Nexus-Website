@@ -1,0 +1,178 @@
+@import "tailwindcss";
+
+:root {
+  --background: #070711;
+  --foreground: #f8fafc;
+
+  --primary: #8b5cf6;
+  --primary-hover: #a78bfa;
+  --secondary: #3b82f6;
+
+  --card: rgba(255, 255, 255, 0.05);
+  --border: rgba(255, 255, 255, 0.1);
+  --muted: #94a3b8;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+
+* {
+  border-color: var(--border);
+}
+
+
+html {
+  scroll-behavior: smooth;
+}
+
+
+body {
+  background:
+    radial-gradient(
+      circle at top,
+      rgba(139, 92, 246, 0.15),
+      transparent 40%
+    ),
+    var(--background);
+
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+
+  min-height: 100vh;
+}
+
+
+/* Text Selection */
+
+::selection {
+  background: rgba(139, 92, 246, 0.5);
+  color: white;
+}
+
+
+/* Scrollbar */
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #070711;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.6);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(167, 139, 250, 0.8);
+}
+
+
+/* Glass Cards */
+
+.glass {
+  background: var(--card);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+
+/* Card Hover */
+
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+  border-color: rgba(139, 92, 246, 0.5);
+}
+
+
+/* Buttons */
+
+.btn-primary {
+  background: linear-gradient(
+    135deg,
+    var(--primary),
+    var(--secondary)
+  );
+
+  color: white;
+
+  padding: 12px 24px;
+  border-radius: 12px;
+
+  font-weight: 600;
+
+  transition: all .3s ease;
+}
+
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.15);
+}
+
+
+/* Animations */
+
+.fade-in {
+  animation: fadeIn .5s ease forwards;
+}
+
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* Nexus Form Inputs */
+
+.input {
+  width: 100%;
+
+  background: rgba(255,255,255,0.05);
+
+  border: 1px solid rgba(255,255,255,0.1);
+
+  border-radius: 12px;
+
+  padding: 16px 20px;
+
+  outline: none;
+
+  color: white;
+
+  transition: all .25s ease;
+}
+
+
+.input::placeholder {
+  color: #94a3b8;
+}
+
+
+.input:focus {
+  border-color: var(--primary);
+
+  box-shadow:
+    0 0 0 3px rgba(139,92,246,.2);
+}

@@ -1,0 +1,285 @@
+"use server";
+
+import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
+import { pusher } from "@/lib/pusher";
+
+
+
+async function sendDiscordLog(
+  title: string,
+  description: string,
+  color: number
+) {
+
+  const webhook =
+    process.env.DISCORD_SUPPORT_LOG_WEBHOOK;
+
+
+  if (!webhook) return;
+
+
+
+  try {
+
+    await fetch(webhook, {
+
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+
+        embeds: [
+
+          {
+            title,
+
+            description,
+
+            color,
+
+            timestamp: new Date().toISOString(),
+
+            footer: {
+              text: "Nexus Support System",
+            },
+
+          },
+
+        ],
+
+      }),
+
+    });
+
+
+  } catch (error) {
+
+    console.error(
+      "Discord support log error:",
+      error
+    );
+
+  }
+
+}
+
+
+
+
+
+
+
+export async function updateTicketStatus(
+  id: number,
+  status: string
+) {
+
+
+  const ticket =
+    await prisma.supportTicket.findUnique({
+
+      where: {
+        id,
+      },
+
+    });
+
+
+
+  if (!ticket) return;
+
+
+
+
+  await prisma.supportTicket.update({
+
+    where: {
+      id,
+    },
+
+    data: {
+      status,
+    },
+
+  });
+
+
+
+
+
+  // Instantly redirect users inside the ticket
+  await pusher.trigger(
+
+    `ticket-${id}`,
+
+    "ticket-closed",
+
+    {
+      status,
+    }
+
+  );
+
+
+
+
+
+
+  revalidatePath("/admin/support");
+
+  revalidatePath("/support");
+
+  revalidatePath(`/support/${id}`);
+
+
+
+
+  redirect("/admin/support");
+
+}
+
+
+
+
+
+
+
+
+
+export async function deleteTicket(
+  id: number
+) {
+
+
+  const ticket =
+    await prisma.supportTicket.findUnique({
+
+      where: {
+        id,
+      },
+
+      include: {
+
+        user: true,
+
+        messages: true,
+
+      },
+
+    });
+
+
+
+  if (!ticket) return;
+
+
+
+
+
+
+  const website =
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    "https://nexus-community-web.vercel.app";
+
+
+
+
+
+
+
+  await sendDiscordLog(
+
+    "🗑️ Ticket Deleted",
+
+    `
+**Ticket:** #${ticket.id}
+
+**Subject:** ${ticket.subject}
+
+**User:** ${ticket.user?.username ?? "Unknown"}
+
+**Messages:** ${ticket.messages.length}
+
+**Deleted By:** Nexus Support
+
+
+**Transcript:**
+${website}/admin/support/transcript/${ticket.id}
+    `,
+
+    16711680
+
+  );
+
+
+
+
+
+
+
+
+  await prisma.supportTicket.update({
+
+    where: {
+      id,
+    },
+
+    data: {
+
+      deleted: true,
+
+      deletedAt: new Date(),
+
+      deletedBy: "Nexus Support",
+
+      status: "DELETED",
+
+    },
+
+  });
+
+
+
+
+
+
+
+  // Instantly remove user from ticket page
+  await pusher.trigger(
+
+    `ticket-${id}`,
+
+    "ticket-deleted",
+
+    {
+      deleted: true,
+    }
+
+  );
+
+
+
+
+
+
+
+  revalidatePath("/admin/support");
+
+  revalidatePath("/support");
+
+  revalidatePath(`/support/${id}`);
+
+
+
+
+
+
+
+  redirect("/admin/support");
+
+}

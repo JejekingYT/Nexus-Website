@@ -1,0 +1,142 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+
+export async function POST(request: Request) {
+
+  try {
+
+    const session = await getServerSession(authOptions);
+
+
+    if (!session?.user?.id) {
+
+      return NextResponse.json(
+        {
+          error: "Unauthorized",
+        },
+        {
+          status: 401,
+        }
+      );
+
+    }
+
+
+
+    const currentUser = await prisma.user.findUnique({
+
+      where: {
+        discordId: session.user.id,
+      },
+
+    });
+
+
+
+    if (
+      !currentUser ||
+      (
+        currentUser.role !== "OWNER" &&
+        currentUser.role !== "ADMIN"
+      )
+    ) {
+
+      return NextResponse.json(
+        {
+          error: "No permission",
+        },
+        {
+          status: 403,
+        }
+      );
+
+    }
+
+
+
+    const body = await request.json();
+
+
+
+    const community = await prisma.community.create({
+
+      data: {
+
+        slug: body.slug,
+
+        name: body.name,
+
+        type: body.type,
+
+        icon: body.icon,
+
+        image: body.image || "/placeholder.png",
+
+        description: body.description,
+
+        members: 0,
+
+        discord: body.discord,
+
+        roblox: body.roblox || null,
+
+        about: body.about,
+
+      },
+
+    });
+
+
+
+    await prisma.auditLog.create({
+
+      data: {
+
+        action: "CREATE_COMMUNITY",
+
+        target: community.name,
+
+        details: `Created community "${community.name}"`,
+
+        userId: currentUser.id,
+
+      },
+
+    });
+
+
+
+    return NextResponse.json({
+
+      success: true,
+
+      community,
+
+    });
+
+
+
+  } catch (error) {
+
+    console.error(error);
+
+
+
+    return NextResponse.json(
+
+      {
+        success: false,
+        error: "Failed to create community.",
+      },
+
+      {
+        status: 500,
+      }
+
+    );
+
+  }
+
+}
