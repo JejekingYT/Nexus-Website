@@ -642,36 +642,7 @@ export default async function CommunityPage({
 
 
 
-            {reviews.length === 0 ? (
-
-              <div className="
-                glass
-                p-10
-                text-center
-              ">
-
-                <div className="
-                  text-5xl
-                  mb-5
-                ">
-                  💭
-                </div>
-
-                <h3 className="
-                  text-2xl
-                  font-bold
-                ">
-                  No Reviews Yet
-                </h3>
-
-                <p className="
-                  mt-3
-                  text-gray-400
-                ">
-                  Be the first person to review this community.
-                </p>
-
-              </div>
+          
 
             ) : (
 
@@ -837,7 +808,7 @@ export default async function CommunityPage({
 
               </div>
 
-            )}
+            )
 
 
 
