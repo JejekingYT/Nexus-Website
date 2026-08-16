@@ -1,4 +1,5 @@
 import Image from "next/image";
+import CommunityReviewForm from "@/components/community/CommunityReviewForm";
 
 interface Review {
   id: number;
@@ -46,8 +47,10 @@ export default function CommunityReviews({
 
 
       <div className="mb-10">
-        {/* Review form will go here */}
-      </div>
+        <CommunityReviewForm
+            communityId={communityId}
+        />
+    </div>
 
 
       {reviews.length === 0 ? (
