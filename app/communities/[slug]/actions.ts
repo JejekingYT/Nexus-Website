@@ -66,20 +66,47 @@ export async function createCommunityReview(
     });
 
   if (existingReview) {
-    throw new Error(
-      "You have already reviewed this community."
-    );
+    if (existingReview.status === "PENDING") {
+      throw new Error(
+        "Your review is already waiting for approval."
+      );
+    }
+
+    if (existingReview.status === "APPROVED") {
+      throw new Error(
+        "You have already reviewed this community."
+      );
+    }
+
+    if (existingReview.status === "REJECTED") {
+      await prisma.communityReview.update({
+        where: {
+          id: existingReview.id,
+        },
+        data: {
+          rating,
+          comment: cleanedContent,
+          status: "PENDING",
+        },
+      });
+
+      revalidatePath(`/communities/${community.slug}`);
+
+      return {
+        success: true,
+      };
+    }
   }
 
   await prisma.communityReview.create({
-  data: {
-    communityId: community.id,
-    userId: user.id,
-    rating,
-    comment: cleanedContent,
-    status: "PENDING",
-  },
-});
+    data: {
+      communityId: community.id,
+      userId: user.id,
+      rating,
+      comment: cleanedContent,
+      status: "PENDING",
+    },
+  });
 
   revalidatePath(`/communities/${community.slug}`);
 
