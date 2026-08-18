@@ -144,7 +144,7 @@ export default function CommunityReviewForm({
 
         {success && (
           <div className="mt-4 rounded-xl border border-green-500/20 bg-green-500/10 p-4 text-green-400">
-            Review submitted successfully!
+            Your review has been submitted and is waiting for approval.
           </div>
         )}
 

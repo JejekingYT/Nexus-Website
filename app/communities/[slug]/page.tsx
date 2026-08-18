@@ -51,20 +51,19 @@ export default async function CommunityPage({
 
 
   const reviews = await prisma.communityReview.findMany({
+  where: {
+    communityId: community.id,
+    status: "APPROVED",
+  },
 
-    where: {
-      communityId: community.id,
-    },
+  include: {
+    user: true,
+  },
 
-    include: {
-      user: true,
-    },
-
-    orderBy: {
-      createdAt: "desc",
-    },
-
-  });
+  orderBy: {
+    createdAt: "desc",
+  },
+});
 
 
 
