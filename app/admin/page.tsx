@@ -9,17 +9,12 @@ import PageHeader from "@/components/admin/PageHeader";
 import StatCard from "@/components/admin/StatCard";
 import AdminCard from "@/components/admin/AdminCard";
 
-
 export default async function AdminPage() {
-
   const session = await getServerSession(authOptions);
-
 
   if (!session?.user?.id) {
     redirect("/api/auth/signin");
   }
-
-
 
   const currentUser = await prisma.user.findUnique({
     where: {
@@ -27,17 +22,12 @@ export default async function AdminPage() {
     },
   });
 
-
-
   const isSupport = currentUser?.role === "SUPPORT";
-
 
   // Support users only access support panel
   if (isSupport) {
     redirect("/admin/support");
   }
-
-
 
   const [
     communityCount,
@@ -48,8 +38,8 @@ export default async function AdminPage() {
     userCount,
     projectCount,
     supportCount,
+    pendingReviewCount,
   ] = await Promise.all([
-
     prisma.community.count(),
 
     prisma.news.count(),
@@ -66,14 +56,14 @@ export default async function AdminPage() {
 
     prisma.supportTicket.count(),
 
+    prisma.communityReview.count({
+      where: {
+        status: "PENDING",
+      },
+    }),
   ]);
 
-
-
-
-
   const cards = [
-
     {
       title: "🌐 Communities",
       desc: "Add and manage communities.",
@@ -130,57 +120,40 @@ export default async function AdminPage() {
       button: "Manage Support",
     },
 
+    {
+      title: "💬 Reviews",
+      desc: `${pendingReviewCount} review${
+        pendingReviewCount === 1 ? "" : "s"
+      } waiting for approval.`,
+      link: "/admin/reviews",
+      button: "Manage Reviews",
+    },
   ];
 
-
-
   return (
-
     <main className="min-h-screen bg-[#09090B] text-white">
-
-
       <Navbar />
 
-
-
       <section className="pt-32 pb-24 px-6">
-
-
         <div className="max-w-7xl mx-auto">
-
-
-
           <PageHeader
-
             title="Nexus Admin"
-
             description={
               <>
-                Welcome back, {session.user.name}.
-                {" "}
-                Role:
-                {" "}
+                Welcome back, {session.user.name}. Role:{" "}
                 <span className="text-purple-400">
                   {currentUser?.role}
                 </span>
               </>
             }
-
           />
 
-
-
-
-
           <div className="grid md:grid-cols-4 gap-6 mt-12">
-
-
             <StatCard
               title="Users"
               value={userCount}
               icon="👥"
             />
-
 
             <StatCard
               title="Communities"
@@ -188,13 +161,11 @@ export default async function AdminPage() {
               icon="🌐"
             />
 
-
             <StatCard
               title="Games"
               value={gameCount}
               icon="🎮"
             />
-
 
             <StatCard
               title="Projects"
@@ -202,13 +173,11 @@ export default async function AdminPage() {
               icon="📦"
             />
 
-
             <StatCard
               title="News"
               value={newsCount}
               icon="📰"
             />
-
 
             <StatCard
               title="Events"
@@ -216,13 +185,11 @@ export default async function AdminPage() {
               icon="🎉"
             />
 
-
             <StatCard
               title="Developers"
               value={developerCount}
               icon="👨‍💻"
             />
-
 
             <StatCard
               title="Support Tickets"
@@ -230,113 +197,74 @@ export default async function AdminPage() {
               icon="🎫"
             />
 
-
+            <StatCard
+              title="Pending Reviews"
+              value={pendingReviewCount}
+              icon="💬"
+            />
           </div>
-
-
-
-
 
           <h2 className="text-3xl font-bold mt-16">
             Management
           </h2>
 
-
-
-
           <div className="grid md:grid-cols-3 gap-6 mt-8">
-
-
-            {cards.map((item)=>(
-
+            {cards.map((item) => (
               <div
                 key={item.title}
                 className="
-                bg-white/5
-                border
-                border-white/10
-                rounded-2xl
-                p-6
-                hover:border-purple-500
-                transition
+                  bg-white/5
+                  border
+                  border-white/10
+                  rounded-2xl
+                  p-6
+                  hover:border-purple-500
+                  transition
                 "
               >
-
-
                 <h2 className="text-2xl font-bold">
                   {item.title}
                 </h2>
-
 
                 <p className="text-gray-400 mt-3">
                   {item.desc}
                 </p>
 
-
                 <Link
                   href={item.link}
                   className="
-                  inline-block
-                  mt-6
-                  bg-purple-600
-                  hover:bg-purple-700
-                  px-6
-                  py-3
-                  rounded-xl
-                  font-bold
+                    inline-block
+                    mt-6
+                    bg-purple-600
+                    hover:bg-purple-700
+                    px-6
+                    py-3
+                    rounded-xl
+                    font-bold
                   "
                 >
-
                   {item.button}
-
                 </Link>
-
-
               </div>
-
             ))}
-
-
           </div>
 
-
-
-
-
           <div className="grid md:grid-cols-2 gap-6 mt-10">
-
-
             <AdminCard title="Quick Actions">
-
               <p className="text-gray-400">
-                Create projects, communities, games, news, events and manage support tickets.
+                Create projects, communities, games, news, events and manage
+                support tickets.
               </p>
-
             </AdminCard>
 
-
-
             <AdminCard title="System Status">
-
               <p className="text-green-400">
                 ● Database Connected
               </p>
-
             </AdminCard>
-
-
           </div>
-
-
-
         </div>
-
-
       </section>
-
-
     </main>
-
   );
-
 }
