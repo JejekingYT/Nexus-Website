@@ -1,10 +1,7 @@
-import { notFound, redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
+import Navbar from "@/components/layout/NavbarWrapper";
+import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import EditCommunityForm from "./EditCommunityForm";
-
-export const dynamic = "force-dynamic";
 
 export default async function EditCommunityPage({
   params,
@@ -12,29 +9,6 @@ export default async function EditCommunityPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user?.id) {
-    redirect("/");
-  }
-
-  const currentUser = await prisma.user.findUnique({
-    where: {
-      discordId: session.user.id,
-    },
-    select: {
-      role: true,
-    },
-  });
-
-  if (
-    !currentUser ||
-    (currentUser.role !== "OWNER" &&
-      currentUser.role !== "ADMIN")
-  ) {
-    redirect("/");
-  }
 
   const community = await prisma.community.findUnique({
     where: {
@@ -46,5 +20,15 @@ export default async function EditCommunityPage({
     notFound();
   }
 
-  return <EditCommunityForm community={community} />;
+  return (
+    <main className="min-h-screen bg-[#09090B] text-white">
+      <Navbar />
+
+      <section className="pt-32 px-6 pb-24">
+        <div className="max-w-3xl mx-auto">
+          <EditCommunityForm community={community} />
+        </div>
+      </section>
+    </main>
+  );
 }
