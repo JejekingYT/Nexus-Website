@@ -137,6 +137,7 @@ model Badge {
   slug        String      @unique
   icon        String
   description String
+  category    String      @default("Special/Role")
   createdAt   DateTime    @default(now())
   users       UserBadge[]
 }

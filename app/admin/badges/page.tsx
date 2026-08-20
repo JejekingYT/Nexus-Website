@@ -2,14 +2,49 @@ import Navbar from "@/components/layout/NavbarWrapper";
 import Footer from "@/components/layout/Footer";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth";
+import Link from "next/link";
 import {
   createBadge,
   awardBadge,
   removeBadge,
+  deleteBadge,
 } from "./actions";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+const badgeCategories = [
+  {
+    name: "Special/Role",
+    icon: "👑",
+    description: "Special awards and official Nexus roles.",
+  },
+  {
+    name: "Events",
+    icon: "🎉",
+    description: "Badges earned through Nexus events and competitions.",
+  },
+  {
+    name: "Contribution",
+    icon: "🛠️",
+    description: "Badges for helping improve and build Nexus.",
+  },
+  {
+    name: "Membership",
+    icon: "🕰️",
+    description: "Badges celebrating long-term Nexus members.",
+  },
+  {
+    name: "Community",
+    icon: "🌐",
+    description: "Badges related to communities and partnerships.",
+  },
+  {
+    name: "Secret",
+    icon: "🔮",
+    description: "Hidden badges discovered through special achievements.",
+  },
+];
 
 export default async function BadgesAdminPage() {
   await requireRole(["OWNER"]);
@@ -119,6 +154,41 @@ export default async function BadgesAdminPage() {
                 "
               />
 
+              {/* Category */}
+              <div>
+                <label className="block text-sm text-gray-400 mb-2">
+                  Badge Category
+                </label>
+
+                <select
+                  name="category"
+                  required
+                  defaultValue="Special/Role"
+                  className="
+                    w-full
+                    bg-black/30
+                    border
+                    border-white/10
+                    rounded-xl
+                    px-5
+                    py-4
+                    outline-none
+                    focus:border-purple-500
+                    transition
+                  "
+                >
+                  {badgeCategories.map((category) => (
+                    <option
+                      key={category.name}
+                      value={category.name}
+                      className="bg-[#09090B]"
+                    >
+                      {category.icon} {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <textarea
                 name="description"
                 required
@@ -170,53 +240,325 @@ export default async function BadgesAdminPage() {
 
             {badges.length === 0 ? (
 
-              <div className="
-                mt-6
-                bg-white/5
-                border
-                border-white/10
-                rounded-2xl
-                p-8
-                text-center
-                text-gray-400
-              ">
+              <div
+                className="
+                  mt-6
+                  bg-white/5
+                  border
+                  border-white/10
+                  rounded-2xl
+                  p-8
+                  text-center
+                  text-gray-400
+                "
+              >
                 No badges have been created yet.
               </div>
 
             ) : (
 
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
+              <div className="mt-10 space-y-12">
 
-                {badges.map((badge) => (
+                {badgeCategories.map((category) => {
 
-                  <div
-                    key={badge.id}
-                    className="
-                      bg-white/5
-                      border
-                      border-white/10
-                      rounded-2xl
-                      p-6
-                      hover:border-purple-500/50
-                      transition
-                    "
-                  >
+                  const categoryBadges = badges.filter(
+                    (badge) =>
+                      badge.category === category.name
+                  );
 
-                    <div className="text-4xl">
-                      {badge.icon}
+                  if (categoryBadges.length === 0) {
+                    return null;
+                  }
+
+                  return (
+                    <div key={category.name}>
+
+                      <div className="mb-6">
+
+                        <div className="flex items-center gap-3">
+
+                          <span className="text-3xl">
+                            {category.icon}
+                          </span>
+
+                          <h3 className="text-2xl font-bold">
+                            {category.name}
+                          </h3>
+
+                        </div>
+
+                        <p className="text-gray-500 mt-2">
+                          {category.description}
+                        </p>
+
+                      </div>
+
+                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+                        {categoryBadges.map((badge) => (
+
+                          <div
+                            key={badge.id}
+                            className="
+                              bg-white/5
+                              border
+                              border-white/10
+                              rounded-2xl
+                              p-6
+                              hover:border-purple-500/50
+                              transition
+                            "
+                          >
+
+                            <div className="flex items-start justify-between gap-4">
+
+                              <div className="text-4xl">
+                                {badge.icon}
+                              </div>
+
+                              <span
+                                className="
+                                  rounded-full
+                                  border
+                                  border-purple-500/20
+                                  bg-purple-500/10
+                                  px-3
+                                  py-1
+                                  text-xs
+                                  font-semibold
+                                  text-purple-400
+                                "
+                              >
+                                {badge.category}
+                              </span>
+
+                            </div>
+
+                            <h3 className="text-xl font-bold mt-5">
+                              {badge.name}
+                            </h3>
+
+                            <p className="text-gray-400 text-sm mt-2 min-h-[40px]">
+                              {badge.description}
+                            </p>
+
+                            {/* Badge Actions */}
+                            <div className="flex gap-3 mt-6">
+
+                              <Link
+                                href={`/admin/badges/${badge.id}/edit`}
+                                className="
+                                  flex-1
+                                  text-center
+                                  bg-purple-500/10
+                                  text-purple-400
+                                  hover:bg-purple-500/20
+                                  border
+                                  border-purple-500/20
+                                  px-4
+                                  py-2.5
+                                  rounded-xl
+                                  font-bold
+                                  transition
+                                "
+                              >
+                                Edit
+                              </Link>
+
+                              <form
+                                action={deleteBadge}
+                                className="flex-1"
+                              >
+                                <input
+                                  type="hidden"
+                                  name="badgeId"
+                                  value={badge.id}
+                                />
+
+                                <button
+                                  type="submit"
+                                  className="
+                                    w-full
+                                    bg-red-500/10
+                                    text-red-400
+                                    hover:bg-red-500/20
+                                    border
+                                    border-red-500/20
+                                    px-4
+                                    py-2.5
+                                    rounded-xl
+                                    font-bold
+                                    transition
+                                  "
+                                >
+                                  Delete
+                                </button>
+                              </form>
+
+                            </div>
+
+                          </div>
+
+                        ))}
+
+                      </div>
+
+                    </div>
+                  );
+                })}
+
+                {/* Uncategorized / Older Badges */}
+                {badges.some(
+                  (badge) =>
+                    !badgeCategories.some(
+                      (category) =>
+                        category.name === badge.category
+                    )
+                ) && (
+
+                  <div>
+
+                    <div className="mb-6">
+
+                      <div className="flex items-center gap-3">
+
+                        <span className="text-3xl">
+                          📦
+                        </span>
+
+                        <h3 className="text-2xl font-bold">
+                          Other
+                        </h3>
+
+                      </div>
+
+                      <p className="text-gray-500 mt-2">
+                        Badges that do not currently belong to a category.
+                      </p>
+
                     </div>
 
-                    <h3 className="text-xl font-bold mt-4">
-                      {badge.name}
-                    </h3>
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
 
-                    <p className="text-gray-400 text-sm mt-2">
-                      {badge.description}
-                    </p>
+                      {badges
+                        .filter(
+                          (badge) =>
+                            !badgeCategories.some(
+                              (category) =>
+                                category.name === badge.category
+                            )
+                        )
+                        .map((badge) => (
+
+                          <div
+                            key={badge.id}
+                            className="
+                              bg-white/5
+                              border
+                              border-white/10
+                              rounded-2xl
+                              p-6
+                              hover:border-purple-500/50
+                              transition
+                            "
+                          >
+
+                            <div className="flex items-start justify-between gap-4">
+
+                              <div className="text-4xl">
+                                {badge.icon}
+                              </div>
+
+                              <span
+                                className="
+                                  rounded-full
+                                  border
+                                  border-white/10
+                                  bg-white/5
+                                  px-3
+                                  py-1
+                                  text-xs
+                                  font-semibold
+                                  text-gray-400
+                                "
+                              >
+                                Other
+                              </span>
+
+                            </div>
+
+                            <h3 className="text-xl font-bold mt-5">
+                              {badge.name}
+                            </h3>
+
+                            <p className="text-gray-400 text-sm mt-2 min-h-[40px]">
+                              {badge.description}
+                            </p>
+
+                            {/* Badge Actions */}
+                            <div className="flex gap-3 mt-6">
+
+                              <Link
+                                href={`/admin/badges/${badge.id}/edit`}
+                                className="
+                                  flex-1
+                                  text-center
+                                  bg-purple-500/10
+                                  text-purple-400
+                                  hover:bg-purple-500/20
+                                  border
+                                  border-purple-500/20
+                                  px-4
+                                  py-2.5
+                                  rounded-xl
+                                  font-bold
+                                  transition
+                                "
+                              >
+                                Edit
+                              </Link>
+
+                              <form
+                                action={deleteBadge}
+                                className="flex-1"
+                              >
+                                <input
+                                  type="hidden"
+                                  name="badgeId"
+                                  value={badge.id}
+                                />
+
+                                <button
+                                  type="submit"
+                                  className="
+                                    w-full
+                                    bg-red-500/10
+                                    text-red-400
+                                    hover:bg-red-500/20
+                                    border
+                                    border-red-500/20
+                                    px-4
+                                    py-2.5
+                                    rounded-xl
+                                    font-bold
+                                    transition
+                                  "
+                                >
+                                  Delete
+                                </button>
+                              </form>
+
+                            </div>
+
+                          </div>
+
+                        ))}
+
+                    </div>
 
                   </div>
 
-                ))}
+                )}
 
               </div>
 
@@ -237,29 +579,33 @@ export default async function BadgesAdminPage() {
 
             {users.length === 0 ? (
 
-              <div className="
-                mt-8
-                rounded-xl
-                bg-black/20
-                border
-                border-white/10
-                p-6
-                text-gray-400
-              ">
+              <div
+                className="
+                  mt-8
+                  rounded-xl
+                  bg-black/20
+                  border
+                  border-white/10
+                  p-6
+                  text-gray-400
+                "
+              >
                 No users are available yet.
               </div>
 
             ) : badges.length === 0 ? (
 
-              <div className="
-                mt-8
-                rounded-xl
-                bg-black/20
-                border
-                border-white/10
-                p-6
-                text-gray-400
-              ">
+              <div
+                className="
+                  mt-8
+                  rounded-xl
+                  bg-black/20
+                  border
+                  border-white/10
+                  p-6
+                  text-gray-400
+                "
+              >
                 Create a badge first before awarding one.
               </div>
 
@@ -371,15 +717,17 @@ export default async function BadgesAdminPage() {
 
             {awardedBadges.length === 0 ? (
 
-              <div className="
-                mt-6
-                bg-white/5
-                border
-                border-white/10
-                rounded-2xl
-                p-10
-                text-center
-              ">
+              <div
+                className="
+                  mt-6
+                  bg-white/5
+                  border
+                  border-white/10
+                  rounded-2xl
+                  p-10
+                  text-center
+                "
+              >
 
                 <div className="text-5xl">
                   🏆
@@ -420,18 +768,20 @@ export default async function BadgesAdminPage() {
 
                     <div className="flex items-center gap-4">
 
-                      <div className="
-                        w-14
-                        h-14
-                        rounded-xl
-                        bg-purple-500/10
-                        border
-                        border-purple-500/20
-                        flex
-                        items-center
-                        justify-center
-                        text-3xl
-                      ">
+                      <div
+                        className="
+                          w-14
+                          h-14
+                          rounded-xl
+                          bg-purple-500/10
+                          border
+                          border-purple-500/20
+                          flex
+                          items-center
+                          justify-center
+                          text-3xl
+                        "
+                      >
                         {assignment.badge.icon}
                       </div>
 
