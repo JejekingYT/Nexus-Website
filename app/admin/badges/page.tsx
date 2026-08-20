@@ -117,42 +117,56 @@ export default async function BadgesAdminPage() {
               className="mt-8 space-y-5"
             >
 
-              <input
-                name="name"
-                required
-                placeholder="Badge name"
-                className="
-                  w-full
-                  bg-black/30
-                  border
-                  border-white/10
-                  rounded-xl
-                  px-5
-                  py-4
-                  outline-none
-                  focus:border-purple-500
-                  transition
-                "
-              />
+              {/* Name */}
+              <div>
+                <label className="block text-sm text-gray-400 mb-2">
+                  Badge Name
+                </label>
 
-              <input
-                name="icon"
-                required
-                placeholder="Badge icon e.g. 🏆"
-                maxLength={10}
-                className="
-                  w-full
-                  bg-black/30
-                  border
-                  border-white/10
-                  rounded-xl
-                  px-5
-                  py-4
-                  outline-none
-                  focus:border-purple-500
-                  transition
-                "
-              />
+                <input
+                  name="name"
+                  required
+                  placeholder="Badge name"
+                  className="
+                    w-full
+                    bg-black/30
+                    border
+                    border-white/10
+                    rounded-xl
+                    px-5
+                    py-4
+                    outline-none
+                    focus:border-purple-500
+                    transition
+                  "
+                />
+              </div>
+
+              {/* Icon */}
+              <div>
+                <label className="block text-sm text-gray-400 mb-2">
+                  Badge Icon
+                </label>
+
+                <input
+                  name="icon"
+                  required
+                  placeholder="Badge icon e.g. 🏆"
+                  maxLength={10}
+                  className="
+                    w-full
+                    bg-black/30
+                    border
+                    border-white/10
+                    rounded-xl
+                    px-5
+                    py-4
+                    outline-none
+                    focus:border-purple-500
+                    transition
+                  "
+                />
+              </div>
 
               {/* Category */}
               <div>
@@ -189,26 +203,131 @@ export default async function BadgesAdminPage() {
                 </select>
               </div>
 
-              <textarea
-                name="description"
-                required
-                placeholder="Describe what this badge represents..."
+              {/* Description */}
+              <div>
+                <label className="block text-sm text-gray-400 mb-2">
+                  Description
+                </label>
+
+                <textarea
+                  name="description"
+                  required
+                  placeholder="Describe what this badge represents..."
+                  className="
+                    w-full
+                    min-h-32
+                    bg-black/30
+                    border
+                    border-white/10
+                    rounded-xl
+                    px-5
+                    py-4
+                    outline-none
+                    focus:border-purple-500
+                    transition
+                    resize-y
+                  "
+                />
+              </div>
+
+              {/* Requirement */}
+              <div>
+                <label className="block text-sm text-gray-400 mb-2">
+                  Badge Requirement
+                </label>
+
+                <input
+                  name="requirement"
+                  placeholder="e.g. Attend 5 Nexus events"
+                  className="
+                    w-full
+                    bg-black/30
+                    border
+                    border-white/10
+                    rounded-xl
+                    px-5
+                    py-4
+                    outline-none
+                    focus:border-purple-500
+                    transition
+                  "
+                />
+
+                <p className="text-xs text-gray-500 mt-2">
+                  Explain what a member needs to do to earn this badge.
+                </p>
+              </div>
+
+              {/* Target */}
+              <div>
+                <label className="block text-sm text-gray-400 mb-2">
+                  Target
+                </label>
+
+                <input
+                  name="target"
+                  type="number"
+                  min="1"
+                  placeholder="e.g. 5"
+                  className="
+                    w-full
+                    bg-black/30
+                    border
+                    border-white/10
+                    rounded-xl
+                    px-5
+                    py-4
+                    outline-none
+                    focus:border-purple-500
+                    transition
+                  "
+                />
+
+                <p className="text-xs text-gray-500 mt-2">
+                  Optional. Use this for requirements that have a number,
+                  such as 5 events, 100 messages, or 30 days.
+                </p>
+              </div>
+
+              {/* Secret */}
+              <label
                 className="
-                  w-full
-                  min-h-32
-                  bg-black/30
+                  flex
+                  items-center
+                  gap-4
+                  rounded-xl
+                  bg-black/20
                   border
                   border-white/10
-                  rounded-xl
                   px-5
                   py-4
-                  outline-none
-                  focus:border-purple-500
+                  cursor-pointer
+                  hover:border-purple-500/30
                   transition
-                  resize-y
                 "
-              />
+              >
+                <input
+                  type="checkbox"
+                  name="isSecret"
+                  className="
+                    w-5
+                    h-5
+                    accent-purple-600
+                  "
+                />
 
+                <div>
+                  <p className="font-semibold">
+                    Secret Badge
+                  </p>
+
+                  <p className="text-xs text-gray-500 mt-1">
+                    Mark this badge as a hidden/secret achievement.
+                  </p>
+                </div>
+              </label>
+
+              {/* Create */}
               <button
                 type="submit"
                 className="
@@ -310,6 +429,7 @@ export default async function BadgesAdminPage() {
                             "
                           >
 
+                            {/* Badge Header */}
                             <div className="flex items-start justify-between gap-4">
 
                               <div className="text-4xl">
@@ -334,13 +454,92 @@ export default async function BadgesAdminPage() {
 
                             </div>
 
+                            {/* Name */}
                             <h3 className="text-xl font-bold mt-5">
                               {badge.name}
                             </h3>
 
-                            <p className="text-gray-400 text-sm mt-2 min-h-[40px]">
+                            {/* Description */}
+                            <p className="text-gray-400 text-sm mt-2">
                               {badge.description}
                             </p>
+
+                            {/* Requirement Preview */}
+                            <div
+                              className="
+                                mt-5
+                                rounded-xl
+                                bg-black/20
+                                border
+                                border-white/10
+                                p-4
+                              "
+                            >
+
+                              <div className="flex items-center justify-between gap-3">
+
+                                <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
+                                  Requirement
+                                </span>
+
+                                {badge.requirement ? (
+                                  <span className="text-xs text-green-400 font-semibold">
+                                    ✓ Configured
+                                  </span>
+                                ) : (
+                                  <span className="text-xs text-gray-500 font-semibold">
+                                    Not set
+                                  </span>
+                                )}
+
+                              </div>
+
+                              {badge.requirement ? (
+
+                                <>
+                                  <p className="text-sm text-gray-200 mt-2">
+                                    {badge.requirement}
+                                  </p>
+
+                                  {badge.target !== null && (
+                                    <p className="text-xs text-purple-400 mt-2">
+                                      Target: {badge.target}
+                                    </p>
+                                  )}
+                                </>
+
+                              ) : (
+
+                                <p className="text-sm text-gray-500 mt-2">
+                                  No requirement configured.
+                                </p>
+
+                              )}
+
+                            </div>
+
+                            {/* Secret Status */}
+                            {badge.isSecret && (
+                              <div
+                                className="
+                                  mt-4
+                                  inline-flex
+                                  items-center
+                                  gap-2
+                                  rounded-full
+                                  bg-purple-500/10
+                                  border
+                                  border-purple-500/20
+                                  px-3
+                                  py-1.5
+                                  text-xs
+                                  font-semibold
+                                  text-purple-400
+                                "
+                              >
+                                🔒 Secret Badge
+                              </div>
+                            )}
 
                             {/* Badge Actions */}
                             <div className="flex gap-3 mt-6">
@@ -369,6 +568,7 @@ export default async function BadgesAdminPage() {
                                 action={deleteBadge}
                                 className="flex-1"
                               >
+
                                 <input
                                   type="hidden"
                                   name="badgeId"
@@ -393,6 +593,7 @@ export default async function BadgesAdminPage() {
                                 >
                                   Delete
                                 </button>
+
                               </form>
 
                             </div>
@@ -491,9 +692,85 @@ export default async function BadgesAdminPage() {
                               {badge.name}
                             </h3>
 
-                            <p className="text-gray-400 text-sm mt-2 min-h-[40px]">
+                            <p className="text-gray-400 text-sm mt-2">
                               {badge.description}
                             </p>
+
+                            {/* Requirement Preview */}
+                            <div
+                              className="
+                                mt-5
+                                rounded-xl
+                                bg-black/20
+                                border
+                                border-white/10
+                                p-4
+                              "
+                            >
+
+                              <div className="flex items-center justify-between gap-3">
+
+                                <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
+                                  Requirement
+                                </span>
+
+                                {badge.requirement ? (
+                                  <span className="text-xs text-green-400 font-semibold">
+                                    ✓ Configured
+                                  </span>
+                                ) : (
+                                  <span className="text-xs text-gray-500 font-semibold">
+                                    Not set
+                                  </span>
+                                )}
+
+                              </div>
+
+                              {badge.requirement ? (
+
+                                <>
+                                  <p className="text-sm text-gray-200 mt-2">
+                                    {badge.requirement}
+                                  </p>
+
+                                  {badge.target !== null && (
+                                    <p className="text-xs text-purple-400 mt-2">
+                                      Target: {badge.target}
+                                    </p>
+                                  )}
+                                </>
+
+                              ) : (
+
+                                <p className="text-sm text-gray-500 mt-2">
+                                  No requirement configured.
+                                </p>
+
+                              )}
+
+                            </div>
+
+                            {badge.isSecret && (
+                              <div
+                                className="
+                                  mt-4
+                                  inline-flex
+                                  items-center
+                                  gap-2
+                                  rounded-full
+                                  bg-purple-500/10
+                                  border
+                                  border-purple-500/20
+                                  px-3
+                                  py-1.5
+                                  text-xs
+                                  font-semibold
+                                  text-purple-400
+                                "
+                              >
+                                🔒 Secret Badge
+                              </div>
+                            )}
 
                             {/* Badge Actions */}
                             <div className="flex gap-3 mt-6">
@@ -522,6 +799,7 @@ export default async function BadgesAdminPage() {
                                 action={deleteBadge}
                                 className="flex-1"
                               >
+
                                 <input
                                   type="hidden"
                                   name="badgeId"
@@ -546,6 +824,7 @@ export default async function BadgesAdminPage() {
                                 >
                                   Delete
                                 </button>
+
                               </form>
 
                             </div>

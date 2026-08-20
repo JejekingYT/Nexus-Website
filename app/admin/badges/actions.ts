@@ -16,8 +16,13 @@ function createSlug(value: string) {
 export async function createBadge(formData: FormData) {
   await requireRole(["OWNER"]);
 
-  const name = String(formData.get("name") || "").trim();
-  const icon = String(formData.get("icon") || "").trim();
+  const name = String(
+    formData.get("name") || ""
+  ).trim();
+
+  const icon = String(
+    formData.get("icon") || ""
+  ).trim();
 
   const description = String(
     formData.get("description") || ""
@@ -27,17 +32,45 @@ export async function createBadge(formData: FormData) {
     formData.get("category") || "Special/Role"
   ).trim();
 
+  const requirement = String(
+    formData.get("requirement") || ""
+  ).trim();
+
+  const targetValue = String(
+    formData.get("target") || ""
+  ).trim();
+
+  const isSecret =
+    formData.get("isSecret") === "on";
+
+  const target =
+    targetValue !== ""
+      ? Number(targetValue)
+      : null;
+
   if (!name || !icon || !description || !category) {
-    throw new Error("All badge fields are required.");
+    throw new Error(
+      "Name, icon, description, and category are required."
+    );
+  }
+
+  if (
+    target !== null &&
+    (!Number.isInteger(target) || target < 1)
+  ) {
+    throw new Error(
+      "Target must be a positive whole number."
+    );
   }
 
   const slug = createSlug(name);
 
-  const existingBadge = await prisma.badge.findUnique({
-    where: {
-      slug,
-    },
-  });
+  const existingBadge =
+    await prisma.badge.findUnique({
+      where: {
+        slug,
+      },
+    });
 
   if (existingBadge) {
     throw new Error(
@@ -52,10 +85,18 @@ export async function createBadge(formData: FormData) {
       icon,
       description,
       category,
+
+      requirement:
+        requirement || null,
+
+      target,
+
+      isSecret,
     },
   });
 
   revalidatePath("/admin/badges");
+  revalidatePath("/badges");
 }
 
 export async function updateBadge(formData: FormData) {
@@ -81,19 +122,49 @@ export async function updateBadge(formData: FormData) {
     formData.get("category") || "Special/Role"
   ).trim();
 
+  const requirement = String(
+    formData.get("requirement") || ""
+  ).trim();
+
+  const targetValue = String(
+    formData.get("target") || ""
+  ).trim();
+
+  const isSecret =
+    formData.get("isSecret") === "on";
+
+  const target =
+    targetValue !== ""
+      ? Number(targetValue)
+      : null;
+
   if (!badgeId) {
-    throw new Error("Badge ID is required.");
+    throw new Error(
+      "Badge ID is required."
+    );
   }
 
   if (!name || !icon || !description || !category) {
-    throw new Error("All badge fields are required.");
+    throw new Error(
+      "Name, icon, description, and category are required."
+    );
   }
 
-  const existingBadge = await prisma.badge.findUnique({
-    where: {
-      id: badgeId,
-    },
-  });
+  if (
+    target !== null &&
+    (!Number.isInteger(target) || target < 1)
+  ) {
+    throw new Error(
+      "Target must be a positive whole number."
+    );
+  }
+
+  const existingBadge =
+    await prisma.badge.findUnique({
+      where: {
+        id: badgeId,
+      },
+    });
 
   if (!existingBadge) {
     throw new Error("Badge not found.");
@@ -101,14 +172,15 @@ export async function updateBadge(formData: FormData) {
 
   const slug = createSlug(name);
 
-  const duplicate = await prisma.badge.findFirst({
-    where: {
-      slug,
-      NOT: {
-        id: badgeId,
+  const duplicate =
+    await prisma.badge.findFirst({
+      where: {
+        slug,
+        NOT: {
+          id: badgeId,
+        },
       },
-    },
-  });
+    });
 
   if (duplicate) {
     throw new Error(
@@ -126,11 +198,20 @@ export async function updateBadge(formData: FormData) {
       icon,
       description,
       category,
+
+      requirement:
+        requirement || null,
+
+      target,
+
+      isSecret,
     },
   });
 
   revalidatePath("/admin/badges");
   revalidatePath(`/admin/badges/${badgeId}/edit`);
+  revalidatePath(`/badges/${slug}`);
+  revalidatePath("/badges");
   revalidatePath("/profile");
 
   redirect("/admin/badges");
@@ -144,17 +225,22 @@ export async function deleteBadge(formData: FormData) {
   );
 
   if (!badgeId) {
-    throw new Error("Badge ID is required.");
+    throw new Error(
+      "Badge ID is required."
+    );
   }
 
-  const badge = await prisma.badge.findUnique({
-    where: {
-      id: badgeId,
-    },
-  });
+  const badge =
+    await prisma.badge.findUnique({
+      where: {
+        id: badgeId,
+      },
+    });
 
   if (!badge) {
-    throw new Error("Badge not found.");
+    throw new Error(
+      "Badge not found."
+    );
   }
 
   // Remove all awards using this badge first.
@@ -171,11 +257,13 @@ export async function deleteBadge(formData: FormData) {
   });
 
   revalidatePath("/admin/badges");
+  revalidatePath("/badges");
   revalidatePath("/profile");
 }
 
 export async function awardBadge(formData: FormData) {
-  const owner = await requireRole(["OWNER"]);
+  const owner =
+    await requireRole(["OWNER"]);
 
   const userId = Number(
     formData.get("userId")
@@ -191,14 +279,15 @@ export async function awardBadge(formData: FormData) {
     );
   }
 
-  const existing = await prisma.userBadge.findUnique({
-    where: {
-      userId_badgeId: {
-        userId,
-        badgeId,
+  const existing =
+    await prisma.userBadge.findUnique({
+      where: {
+        userId_badgeId: {
+          userId,
+          badgeId,
+        },
       },
-    },
-  });
+    });
 
   if (existing) {
     throw new Error(
