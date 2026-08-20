@@ -37,6 +37,9 @@ export default async function BadgePage({
     },
     include: {
       users: {
+        orderBy: {
+          awardedAt: "desc",
+        },
         select: {
           id: true,
           userId: true,
@@ -45,11 +48,9 @@ export default async function BadgePage({
             select: {
               username: true,
               image: true,
+              role: true,
             },
           },
-        },
-        orderBy: {
-          awardedAt: "desc",
         },
       },
     },
@@ -85,84 +86,84 @@ export default async function BadgePage({
             ← Back to Badges
           </Link>
 
-          {/* Hero */}
+          {/* Hero Card */}
           <div
             className="
+              relative
+              overflow-hidden
               glass
               rounded-3xl
               border
               border-white/10
-              overflow-hidden
+              p-8
+              md:p-12
             "
           >
 
-            {/* Header */}
+            {/* Background Glow */}
             <div
               className="
-                relative
-                px-6
-                py-12
-                md:px-12
-                md:py-16
-                bg-linear-to-br
-                from-purple-500/10
-                via-transparent
-                to-blue-500/10
+                absolute
+                -top-32
+                -right-32
+                w-80
+                h-80
+                rounded-full
+                bg-purple-600/10
+                blur-3xl
+                pointer-events-none
               "
-            >
+            />
 
-              <div
-                className="
-                  absolute
-                  inset-0
-                  bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.12),transparent_60%)]
-                  pointer-events-none
-                "
-              />
+            <div
+              className="
+                absolute
+                -bottom-32
+                -left-32
+                w-80
+                h-80
+                rounded-full
+                bg-blue-600/10
+                blur-3xl
+                pointer-events-none
+              "
+            />
 
-              <div
-                className="
-                  relative
-                  flex
-                  flex-col
-                  md:flex-row
-                  items-center
-                  gap-8
-                "
-              >
+            <div className="relative">
 
-                {/* Badge Icon */}
+              {/* Badge Icon + Info */}
+              <div className="flex flex-col md:flex-row md:items-center gap-7">
+
+                {/* Icon */}
                 <div
                   className="
-                    w-32
-                    h-32
-                    md:w-40
-                    md:h-40
+                    w-28
+                    h-28
                     shrink-0
                     rounded-3xl
                     bg-purple-500/10
                     border
-                    border-purple-500/30
+                    border-purple-500/20
                     flex
                     items-center
                     justify-center
                     text-6xl
-                    md:text-7xl
-                    shadow-2xl
+                    shadow-lg
                     shadow-purple-500/10
                   "
                 >
                   {badge.icon}
                 </div>
 
-                {/* Badge Info */}
-                <div className="text-center md:text-left">
+                {/* Text */}
+                <div>
 
+                  {/* Category */}
                   <div
                     className="
                       inline-flex
                       items-center
-                      gap-2
+                      gap-1.5
                       px-3
                       py-1.5
                       rounded-full
@@ -178,27 +179,11 @@ export default async function BadgePage({
                     {badge.category}
                   </div>
 
-                  <h1
-                    className="
-                      text-4xl
-                      md:text-5xl
-                      font-extrabold
-                      mt-4
-                    "
-                  >
+                  <h1 className="text-4xl md:text-5xl font-extrabold mt-4">
                     {badge.name}
                   </h1>
 
-                  <p
-                    className="
-                      text-gray-400
-                      text-base
-                      md:text-lg
-                      mt-4
-                      max-w-2xl
-                      leading-relaxed
-                    "
-                  >
+                  <p className="text-gray-400 text-lg mt-4 max-w-2xl">
                     {badge.description}
                   </p>
 
@@ -206,93 +191,111 @@ export default async function BadgePage({
 
               </div>
 
-            </div>
-
-            {/* Stats */}
-            <div
-              className="
-                grid
-                grid-cols-2
-                border-t
-                border-white/10
-              "
-            >
-
+              {/* Stats */}
               <div
                 className="
-                  p-6
-                  text-center
-                  border-r
-                  border-white/10
+                  grid
+                  grid-cols-2
+                  md:grid-cols-3
+                  gap-4
+                  mt-10
                 "
               >
-                <p className="text-3xl font-extrabold">
-                  {badge.users.length}
-                </p>
 
-                <p className="text-gray-500 text-sm mt-1">
-                  {badge.users.length === 1
-                    ? "Person Awarded"
-                    : "People Awarded"}
-                </p>
-              </div>
+                <div
+                  className="
+                    rounded-2xl
+                    bg-white/[0.03]
+                    border
+                    border-white/10
+                    p-5
+                  "
+                >
+                  <p className="text-2xl font-extrabold">
+                    {badge.users.length}
+                  </p>
 
-              <div className="p-6 text-center">
-                <p className="text-3xl font-extrabold">
-                  {badge.users.length > 0
-                    ? new Date(
-                        badge.users[0].awardedAt
-                      ).toLocaleDateString()
-                    : "—"}
-                </p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {badge.users.length === 1
+                      ? "Recipient"
+                      : "Recipients"}
+                  </p>
+                </div>
 
-                <p className="text-gray-500 text-sm mt-1">
-                  Latest Award
-                </p>
+                <div
+                  className="
+                    rounded-2xl
+                    bg-white/[0.03]
+                    border
+                    border-white/10
+                    p-5
+                  "
+                >
+                  <p className="text-2xl font-extrabold">
+                    {badge.category}
+                  </p>
+
+                  <p className="text-sm text-gray-500 mt-1">
+                    Category
+                  </p>
+                </div>
+
+                <div
+                  className="
+                    col-span-2
+                    md:col-span-1
+                    rounded-2xl
+                    bg-white/[0.03]
+                    border
+                    border-white/10
+                    p-5
+                  "
+                >
+                  <p className="text-2xl font-extrabold">
+                    #{badge.id}
+                  </p>
+
+                  <p className="text-sm text-gray-500 mt-1">
+                    Badge ID
+                  </p>
+                </div>
+
               </div>
 
             </div>
-
           </div>
 
           {/* Recipients */}
           <div className="mt-10">
 
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-end justify-between gap-4 mb-6">
 
               <div>
-                <h2 className="text-2xl md:text-3xl font-bold">
+                <p className="text-purple-400 text-sm font-semibold uppercase tracking-wider">
                   Badge Holders
+                </p>
+
+                <h2 className="text-3xl font-bold mt-2">
+                  Recipients
                 </h2>
 
-                <p className="text-gray-500 text-sm mt-1">
-                  Everyone who has earned this badge.
+                <p className="text-gray-500 mt-2">
+                  Members who have earned the {badge.name} badge.
                 </p>
               </div>
 
-              <div
-                className="
-                  px-4
-                  py-2
-                  rounded-xl
-                  bg-white/5
-                  border
-                  border-white/10
-                  text-sm
-                  text-gray-400
-                "
-              >
+              <div className="hidden sm:block text-gray-500 text-sm">
                 {badge.users.length}{" "}
                 {badge.users.length === 1
-                  ? "holder"
-                  : "holders"}
+                  ? "member"
+                  : "members"}
               </div>
 
             </div>
 
             {badge.users.length > 0 ? (
 
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid sm:grid-cols-2 gap-4">
 
                 {badge.users.map((award) => (
 
@@ -307,8 +310,8 @@ export default async function BadgePage({
                       border
                       border-white/10
                       hover:border-purple-500/40
-                      hover:bg-white/[0.06]
-                      hover:-translate-y-1
+                      hover:bg-white/[0.05]
+                      hover:-translate-y-0.5
                       transition-all
                       duration-300
                     "
@@ -328,8 +331,8 @@ export default async function BadgePage({
                             rounded-full
                             object-cover
                             border-2
-                            border-purple-500/20
-                            group-hover:border-purple-500/60
+                            border-white/10
+                            group-hover:border-purple-500/50
                             transition
                           "
                         />
@@ -341,14 +344,15 @@ export default async function BadgePage({
                             w-12
                             h-12
                             rounded-full
-                            bg-purple-600
+                            bg-purple-600/80
                             border-2
-                            border-purple-500/20
+                            border-white/10
                             flex
                             items-center
                             justify-center
                             font-bold
-                            group-hover:border-purple-500/60
+                            text-lg
+                            group-hover:border-purple-500/50
                             transition
                           "
                         >
@@ -359,17 +363,44 @@ export default async function BadgePage({
 
                       )}
 
+                      {/* User */}
                       <div className="min-w-0 flex-1">
 
-                        <p className="font-bold truncate">
-                          {award.user.username}
-                        </p>
+                        <div className="flex items-center gap-2">
+
+                          <p className="font-bold truncate group-hover:text-purple-400 transition">
+                            {award.user.username}
+                          </p>
+
+                          {award.user.role !== "USER" && (
+                            <span
+                              className="
+                                text-[10px]
+                                px-2
+                                py-0.5
+                                rounded-full
+                                bg-purple-500/10
+                                text-purple-400
+                                border
+                                border-purple-500/20
+                              "
+                            >
+                              {award.user.role}
+                            </span>
+                          )}
+
+                        </div>
 
                         <p className="text-xs text-gray-500 mt-1">
                           Awarded{" "}
-                          {new Date(
-                            award.awardedAt
-                          ).toLocaleDateString()}
+                          {award.awardedAt.toLocaleDateString(
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            }
+                          )}
                         </p>
 
                       </div>
@@ -379,7 +410,8 @@ export default async function BadgePage({
                           text-gray-600
                           group-hover:text-purple-400
                           group-hover:translate-x-1
-                          transition
+                          transition-all
+                          text-xl
                         "
                       >
                         →
@@ -398,7 +430,7 @@ export default async function BadgePage({
               <div
                 className="
                   glass
-                  rounded-2xl
+                  rounded-3xl
                   border
                   border-white/10
                   p-12
@@ -410,12 +442,12 @@ export default async function BadgePage({
                   🏆
                 </div>
 
-                <h3 className="text-xl font-bold mt-4">
+                <h3 className="text-xl font-bold mt-5">
                   Nobody has earned this badge yet
                 </h3>
 
                 <p className="text-gray-500 mt-2">
-                  Be the first person to earn it.
+                  Be the first Nexus member to earn it.
                 </p>
 
               </div>
@@ -429,92 +461,73 @@ export default async function BadgePage({
             className="
               mt-10
               glass
-              rounded-2xl
+              rounded-3xl
               border
               border-white/10
-              p-6
-              md:p-8
+              p-7
+              md:p-9
             "
           >
 
-            <h2 className="text-xl font-bold">
+            <h2 className="text-2xl font-bold">
               About this badge
             </h2>
 
-            <div className="grid sm:grid-cols-2 gap-4 mt-5">
+            <div className="grid md:grid-cols-2 gap-6 mt-6">
 
-              <div
-                className="
-                  rounded-xl
-                  bg-white/[0.03]
-                  border
-                  border-white/10
-                  p-4
-                "
-              >
-                <p className="text-xs text-gray-500 uppercase tracking-wider">
+              <div>
+
+                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
+                  Badge Name
+                </p>
+
+                <p className="text-gray-200 font-semibold mt-2">
+                  {badge.name}
+                </p>
+
+              </div>
+
+              <div>
+
+                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
                   Category
                 </p>
 
-                <p className="font-semibold mt-1">
+                <p className="text-gray-200 font-semibold mt-2">
                   {categoryIcon} {badge.category}
                 </p>
+
               </div>
 
-              <div
-                className="
-                  rounded-xl
-                  bg-white/[0.03]
-                  border
-                  border-white/10
-                  p-4
-                "
-              >
-                <p className="text-xs text-gray-500 uppercase tracking-wider">
-                  Total Awards
-                </p>
+              <div>
 
-                <p className="font-semibold mt-1">
-                  {badge.users.length}
-                </p>
-              </div>
-
-              <div
-                className="
-                  rounded-xl
-                  bg-white/[0.03]
-                  border
-                  border-white/10
-                  p-4
-                "
-              >
-                <p className="text-xs text-gray-500 uppercase tracking-wider">
-                  Badge Slug
-                </p>
-
-                <p className="font-mono text-sm text-purple-400 mt-1">
-                  {badge.slug}
-                </p>
-              </div>
-
-              <div
-                className="
-                  rounded-xl
-                  bg-white/[0.03]
-                  border
-                  border-white/10
-                  p-4
-                "
-              >
-                <p className="text-xs text-gray-500 uppercase tracking-wider">
+                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
                   Created
                 </p>
 
-                <p className="font-semibold mt-1">
-                  {new Date(
-                    badge.createdAt
-                  ).toLocaleDateString()}
+                <p className="text-gray-200 font-semibold mt-2">
+                  {badge.createdAt.toLocaleDateString(
+                    "en-US",
+                    {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    }
+                  )}
                 </p>
+
+              </div>
+
+              <div>
+
+                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
+                  Total Awards
+                </p>
+
+                <p className="text-gray-200 font-semibold mt-2">
+                  {badge.users.length}
+                </p>
+
               </div>
 
             </div>
@@ -525,23 +538,21 @@ export default async function BadgePage({
           <div
             className="
               mt-10
+              glass
               rounded-3xl
-              border
-              border-purple-500/20
-              bg-linear-to-r
-              from-purple-500/10
-              to-blue-500/10
               p-8
-              md:p-10
+              md:p-12
               text-center
+              border
+              border-purple-500/10
             "
           >
 
             <div className="text-4xl">
-              🏆
+              🎯
             </div>
 
-            <h2 className="text-2xl md:text-3xl font-bold mt-4">
+            <h2 className="text-3xl font-bold mt-4">
               Want to earn this badge?
             </h2>
 
@@ -554,7 +565,7 @@ export default async function BadgePage({
               href="/events"
               className="
                 inline-flex
-                mt-6
+                mt-7
                 px-7
                 py-3
                 rounded-xl
