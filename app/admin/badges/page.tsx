@@ -6,6 +6,7 @@ import Link from "next/link";
 import {
   createBadge,
   awardBadge,
+  awardBadgeToEveryone,
   removeBadge,
   deleteBadge,
 } from "./actions";
@@ -78,134 +79,237 @@ export default async function BadgesAdminPage() {
     }),
   ]);
 
+  const categorizedBadges = badgeCategories.map((category) => ({
+    ...category,
+    badges: badges.filter((badge) => badge.category === category.name),
+  }));
+
+  const uncategorizedBadges = badges.filter(
+    (badge) =>
+      !badgeCategories.some(
+        (category) => category.name === badge.category
+      )
+  );
+
+  const totalAwards = awardedBadges.length;
+  const secretBadges = badges.filter((badge) => badge.isSecret).length;
+  const configuredBadges = badges.filter(
+    (badge) => badge.requirement
+  ).length;
+
   return (
-    <main className="min-h-screen bg-[#09090B] text-white">
+    <main className="min-h-screen bg-[#07070A] text-white">
       <Navbar />
 
-      <section className="pt-32 pb-24 px-6">
-        <div className="max-w-7xl mx-auto">
+      <section className="px-6 pt-32 pb-24">
+        <div className="mx-auto max-w-7xl">
 
-          {/* Header */}
-          <div>
-            <h1 className="text-5xl font-extrabold">
-              Badge{" "}
-              <span className="text-purple-500">
-                Management
-              </span>
-            </h1>
+          {/* ===================================================== */}
+          {/* HEADER */}
+          {/* ===================================================== */}
 
-            <p className="text-gray-400 mt-4">
-              Create and manage badges for Nexus members.
-            </p>
+          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-purple-500/10 via-white/[0.03] to-transparent p-8 md:p-10">
+
+            <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-purple-600/10 blur-3xl" />
+
+            <div className="relative">
+
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-purple-500/20 bg-purple-500/10 px-3 py-1.5 text-xs font-semibold text-purple-400">
+                <span>🏆</span>
+                Nexus Administration
+              </div>
+
+              <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl">
+                Badge{" "}
+                <span className="text-purple-500">
+                  Management
+                </span>
+              </h1>
+
+              <p className="mt-4 max-w-2xl text-gray-400">
+                Create, configure, award, and manage achievements
+                for Nexus members.
+              </p>
+
+            </div>
           </div>
 
-          {/* Create Badge */}
-          <div className="mt-12 bg-white/5 border border-white/10 rounded-3xl p-8">
+          {/* ===================================================== */}
+          {/* STATS */}
+          {/* ===================================================== */}
 
-            <div>
-              <h2 className="text-3xl font-bold">
-                Create Badge
-              </h2>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
-              <p className="text-gray-400 mt-2">
-                Create a badge that can be awarded to Nexus members.
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+              <p className="text-sm text-gray-500">
+                Total Badges
               </p>
+
+              <p className="mt-2 text-3xl font-bold">
+                {badges.length}
+              </p>
+
+              <p className="mt-1 text-xs text-gray-500">
+                Available achievements
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+              <p className="text-sm text-gray-500">
+                Total Awards
+              </p>
+
+              <p className="mt-2 text-3xl font-bold text-green-400">
+                {totalAwards}
+              </p>
+
+              <p className="mt-1 text-xs text-gray-500">
+                Badges awarded to members
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+              <p className="text-sm text-gray-500">
+                Configured
+              </p>
+
+              <p className="mt-2 text-3xl font-bold text-purple-400">
+                {configuredBadges}
+              </p>
+
+              <p className="mt-1 text-xs text-gray-500">
+                Badges with requirements
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+              <p className="text-sm text-gray-500">
+                Secret Badges
+              </p>
+
+              <p className="mt-2 text-3xl font-bold text-yellow-400">
+                {secretBadges}
+              </p>
+
+              <p className="mt-1 text-xs text-gray-500">
+                Hidden achievements
+              </p>
+            </div>
+
+          </div>
+
+          {/* ===================================================== */}
+          {/* CREATE BADGE */}
+          {/* ===================================================== */}
+
+          <div className="mt-8 overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04]">
+
+            <div className="border-b border-white/10 bg-white/[0.02] px-8 py-6">
+
+              <div className="flex items-center gap-4">
+
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-purple-500/20 bg-purple-500/10 text-2xl">
+                  ✨
+                </div>
+
+                <div>
+                  <h2 className="text-2xl font-bold">
+                    Create Badge
+                  </h2>
+
+                  <p className="mt-1 text-sm text-gray-500">
+                    Create a new achievement for Nexus members.
+                  </p>
+                </div>
+
+              </div>
+
             </div>
 
             <form
               action={createBadge}
-              className="mt-8 space-y-5"
+              className="space-y-6 p-8"
             >
 
-              {/* Name */}
-              <div>
-                <label className="block text-sm text-gray-400 mb-2">
-                  Badge Name
-                </label>
+              <div className="grid gap-6 md:grid-cols-2">
 
-                <input
-                  name="name"
-                  required
-                  placeholder="Badge name"
-                  className="
-                    w-full
-                    bg-black/30
-                    border
-                    border-white/10
-                    rounded-xl
-                    px-5
-                    py-4
-                    outline-none
-                    focus:border-purple-500
-                    transition
-                  "
-                />
-              </div>
+                {/* Name */}
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-gray-400">
+                    Badge Name
+                  </label>
 
-              {/* Icon */}
-              <div>
-                <label className="block text-sm text-gray-400 mb-2">
-                  Badge Icon
-                </label>
+                  <input
+                    name="name"
+                    required
+                    placeholder="e.g. Event Champion"
+                    className="w-full rounded-xl border border-white/10 bg-black/30 px-5 py-3.5 text-white outline-none transition placeholder:text-gray-600 focus:border-purple-500/60 focus:ring-2 focus:ring-purple-500/10"
+                  />
+                </div>
 
-                <input
-                  name="icon"
-                  required
-                  placeholder="Badge icon e.g. 🏆"
-                  maxLength={10}
-                  className="
-                    w-full
-                    bg-black/30
-                    border
-                    border-white/10
-                    rounded-xl
-                    px-5
-                    py-4
-                    outline-none
-                    focus:border-purple-500
-                    transition
-                  "
-                />
-              </div>
+                {/* Icon */}
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-gray-400">
+                    Badge Icon
+                  </label>
 
-              {/* Category */}
-              <div>
-                <label className="block text-sm text-gray-400 mb-2">
-                  Badge Category
-                </label>
+                  <input
+                    name="icon"
+                    required
+                    maxLength={10}
+                    placeholder="🏆"
+                    className="w-full rounded-xl border border-white/10 bg-black/30 px-5 py-3.5 text-white outline-none transition placeholder:text-gray-600 focus:border-purple-500/60 focus:ring-2 focus:ring-purple-500/10"
+                  />
+                </div>
 
-                <select
-                  name="category"
-                  required
-                  defaultValue="Special/Role"
-                  className="
-                    w-full
-                    bg-black/30
-                    border
-                    border-white/10
-                    rounded-xl
-                    px-5
-                    py-4
-                    outline-none
-                    focus:border-purple-500
-                    transition
-                  "
-                >
-                  {badgeCategories.map((category) => (
-                    <option
-                      key={category.name}
-                      value={category.name}
-                      className="bg-[#09090B]"
-                    >
-                      {category.icon} {category.name}
-                    </option>
-                  ))}
-                </select>
+                {/* Category */}
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-gray-400">
+                    Category
+                  </label>
+
+                  <select
+                    name="category"
+                    required
+                    defaultValue="Special/Role"
+                    className="w-full rounded-xl border border-white/10 bg-[#0D0D11] px-5 py-3.5 text-white outline-none transition focus:border-purple-500/60 focus:ring-2 focus:ring-purple-500/10"
+                  >
+                    {badgeCategories.map((category) => (
+                      <option
+                        key={category.name}
+                        value={category.name}
+                      >
+                        {category.icon} {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Target */}
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-gray-400">
+                    Target
+                  </label>
+
+                  <input
+                    name="target"
+                    type="number"
+                    min="1"
+                    placeholder="e.g. 5"
+                    className="w-full rounded-xl border border-white/10 bg-black/30 px-5 py-3.5 text-white outline-none transition placeholder:text-gray-600 focus:border-purple-500/60 focus:ring-2 focus:ring-purple-500/10"
+                  />
+
+                  <p className="mt-2 text-xs text-gray-600">
+                    Optional numeric goal such as events, messages,
+                    or days.
+                  </p>
+                </div>
+
               </div>
 
               {/* Description */}
               <div>
-                <label className="block text-sm text-gray-400 mb-2">
+                <label className="mb-2 block text-sm font-medium text-gray-400">
                   Description
                 </label>
 
@@ -213,107 +317,35 @@ export default async function BadgesAdminPage() {
                   name="description"
                   required
                   placeholder="Describe what this badge represents..."
-                  className="
-                    w-full
-                    min-h-32
-                    bg-black/30
-                    border
-                    border-white/10
-                    rounded-xl
-                    px-5
-                    py-4
-                    outline-none
-                    focus:border-purple-500
-                    transition
-                    resize-y
-                  "
+                  className="min-h-32 w-full resize-y rounded-xl border border-white/10 bg-black/30 px-5 py-4 text-white outline-none transition placeholder:text-gray-600 focus:border-purple-500/60 focus:ring-2 focus:ring-purple-500/10"
                 />
               </div>
 
               {/* Requirement */}
               <div>
-                <label className="block text-sm text-gray-400 mb-2">
-                  Badge Requirement
+                <label className="mb-2 block text-sm font-medium text-gray-400">
+                  Requirement
                 </label>
 
                 <input
                   name="requirement"
                   placeholder="e.g. Attend 5 Nexus events"
-                  className="
-                    w-full
-                    bg-black/30
-                    border
-                    border-white/10
-                    rounded-xl
-                    px-5
-                    py-4
-                    outline-none
-                    focus:border-purple-500
-                    transition
-                  "
+                  className="w-full rounded-xl border border-white/10 bg-black/30 px-5 py-3.5 text-white outline-none transition placeholder:text-gray-600 focus:border-purple-500/60 focus:ring-2 focus:ring-purple-500/10"
                 />
 
-                <p className="text-xs text-gray-500 mt-2">
-                  Explain what a member needs to do to earn this badge.
-                </p>
-              </div>
-
-              {/* Target */}
-              <div>
-                <label className="block text-sm text-gray-400 mb-2">
-                  Target
-                </label>
-
-                <input
-                  name="target"
-                  type="number"
-                  min="1"
-                  placeholder="e.g. 5"
-                  className="
-                    w-full
-                    bg-black/30
-                    border
-                    border-white/10
-                    rounded-xl
-                    px-5
-                    py-4
-                    outline-none
-                    focus:border-purple-500
-                    transition
-                  "
-                />
-
-                <p className="text-xs text-gray-500 mt-2">
-                  Optional. Use this for requirements that have a number,
-                  such as 5 events, 100 messages, or 30 days.
+                <p className="mt-2 text-xs text-gray-600">
+                  Explain what a member needs to do to earn this
+                  badge.
                 </p>
               </div>
 
               {/* Secret */}
-              <label
-                className="
-                  flex
-                  items-center
-                  gap-4
-                  rounded-xl
-                  bg-black/20
-                  border
-                  border-white/10
-                  px-5
-                  py-4
-                  cursor-pointer
-                  hover:border-purple-500/30
-                  transition
-                "
-              >
+              <label className="flex cursor-pointer items-center gap-4 rounded-2xl border border-white/10 bg-black/20 p-5 transition hover:border-purple-500/30 hover:bg-purple-500/[0.03]">
+
                 <input
                   type="checkbox"
                   name="isSecret"
-                  className="
-                    w-5
-                    h-5
-                    accent-purple-600
-                  "
+                  className="h-5 w-5 accent-purple-600"
                 />
 
                 <div>
@@ -321,173 +353,158 @@ export default async function BadgesAdminPage() {
                     Secret Badge
                   </p>
 
-                  <p className="text-xs text-gray-500 mt-1">
-                    Mark this badge as a hidden/secret achievement.
+                  <p className="mt-1 text-xs text-gray-500">
+                    Hide this achievement until a member discovers
+                    or earns it.
                   </p>
                 </div>
+
               </label>
 
-              {/* Create */}
-              <button
-                type="submit"
-                className="
-                  bg-purple-600
-                  hover:bg-purple-700
-                  px-6
-                  py-3
-                  rounded-xl
-                  font-bold
-                  transition
-                "
-              >
-                Create Badge
-              </button>
+              <div className="flex justify-end">
+
+                <button
+                  type="submit"
+                  className="rounded-xl bg-purple-600 px-7 py-3.5 font-bold transition hover:bg-purple-500 hover:shadow-lg hover:shadow-purple-600/20"
+                >
+                  + Create Badge
+                </button>
+
+              </div>
 
             </form>
           </div>
 
-          {/* Available Badges */}
-          <div className="mt-10">
+          {/* ===================================================== */}
+          {/* AVAILABLE BADGES */}
+          {/* ===================================================== */}
 
-            <h2 className="text-3xl font-bold">
-              Available Badges
-            </h2>
+          <div className="mt-14">
 
-            <p className="text-gray-400 mt-2">
-              Badges currently available to award.
-            </p>
+            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+
+              <div>
+                <h2 className="text-3xl font-bold">
+                  Available Badges
+                </h2>
+
+                <p className="mt-2 text-gray-500">
+                  Manage all achievements currently available
+                  within Nexus.
+                </p>
+              </div>
+
+              <div className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-gray-400">
+                {badges.length}{" "}
+                {badges.length === 1 ? "badge" : "badges"}
+              </div>
+
+            </div>
 
             {badges.length === 0 ? (
 
-              <div
-                className="
-                  mt-6
-                  bg-white/5
-                  border
-                  border-white/10
-                  rounded-2xl
-                  p-8
-                  text-center
-                  text-gray-400
-                "
-              >
-                No badges have been created yet.
+              <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-12 text-center">
+
+                <div className="text-5xl">
+                  🏆
+                </div>
+
+                <h3 className="mt-4 text-xl font-bold">
+                  No badges yet
+                </h3>
+
+                <p className="mt-2 text-gray-500">
+                  Create your first badge above.
+                </p>
+
               </div>
 
             ) : (
 
               <div className="mt-10 space-y-12">
 
-                {badgeCategories.map((category) => {
+                {categorizedBadges.map((category) => {
 
-                  const categoryBadges = badges.filter(
-                    (badge) =>
-                      badge.category === category.name
-                  );
-
-                  if (categoryBadges.length === 0) {
+                  if (category.badges.length === 0) {
                     return null;
                   }
 
                   return (
                     <div key={category.name}>
 
-                      <div className="mb-6">
+                      <div className="mb-5 flex items-start justify-between gap-4">
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-start gap-3">
 
-                          <span className="text-3xl">
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-2xl">
                             {category.icon}
-                          </span>
+                          </div>
 
-                          <h3 className="text-2xl font-bold">
-                            {category.name}
-                          </h3>
+                          <div>
+                            <h3 className="text-xl font-bold">
+                              {category.name}
+                            </h3>
+
+                            <p className="mt-1 text-sm text-gray-500">
+                              {category.description}
+                            </p>
+                          </div>
 
                         </div>
 
-                        <p className="text-gray-500 mt-2">
-                          {category.description}
-                        </p>
+                        <span className="hidden rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs text-gray-500 sm:block">
+                          {category.badges.length}
+                        </span>
 
                       </div>
 
-                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
 
-                        {categoryBadges.map((badge) => (
+                        {category.badges.map((badge) => (
 
                           <div
                             key={badge.id}
-                            className="
-                              bg-white/5
-                              border
-                              border-white/10
-                              rounded-2xl
-                              p-6
-                              hover:border-purple-500/50
-                              transition
-                            "
+                            className="group rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition duration-300 hover:-translate-y-1 hover:border-purple-500/30 hover:bg-white/[0.06]"
                           >
 
                             {/* Badge Header */}
                             <div className="flex items-start justify-between gap-4">
 
-                              <div className="text-4xl">
+                              <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-purple-500/20 bg-purple-500/10 text-4xl transition group-hover:scale-105">
                                 {badge.icon}
                               </div>
 
-                              <span
-                                className="
-                                  rounded-full
-                                  border
-                                  border-purple-500/20
-                                  bg-purple-500/10
-                                  px-3
-                                  py-1
-                                  text-xs
-                                  font-semibold
-                                  text-purple-400
-                                "
-                              >
-                                {badge.category}
-                              </span>
+                              {badge.isSecret && (
+                                <span className="rounded-full border border-purple-500/20 bg-purple-500/10 px-3 py-1 text-xs font-semibold text-purple-400">
+                                  🔒 Secret
+                                </span>
+                              )}
 
                             </div>
 
-                            {/* Name */}
-                            <h3 className="text-xl font-bold mt-5">
+                            <h3 className="mt-5 text-xl font-bold">
                               {badge.name}
                             </h3>
 
-                            {/* Description */}
-                            <p className="text-gray-400 text-sm mt-2">
+                            <p className="mt-2 min-h-[48px] text-sm leading-6 text-gray-400">
                               {badge.description}
                             </p>
 
-                            {/* Requirement Preview */}
-                            <div
-                              className="
-                                mt-5
-                                rounded-xl
-                                bg-black/20
-                                border
-                                border-white/10
-                                p-4
-                              "
-                            >
+                            {/* Requirement */}
+                            <div className="mt-5 rounded-xl border border-white/10 bg-black/20 p-4">
 
                               <div className="flex items-center justify-between gap-3">
 
-                                <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
+                                <span className="text-[11px] font-bold uppercase tracking-wider text-gray-600">
                                   Requirement
                                 </span>
 
                                 {badge.requirement ? (
-                                  <span className="text-xs text-green-400 font-semibold">
+                                  <span className="text-xs font-semibold text-green-400">
                                     ✓ Configured
                                   </span>
                                 ) : (
-                                  <span className="text-xs text-gray-500 font-semibold">
+                                  <span className="text-xs font-semibold text-gray-600">
                                     Not set
                                   </span>
                                 )}
@@ -497,20 +514,20 @@ export default async function BadgesAdminPage() {
                               {badge.requirement ? (
 
                                 <>
-                                  <p className="text-sm text-gray-200 mt-2">
+                                  <p className="mt-2 text-sm text-gray-300">
                                     {badge.requirement}
                                   </p>
 
                                   {badge.target !== null && (
-                                    <p className="text-xs text-purple-400 mt-2">
+                                    <div className="mt-3 inline-flex rounded-lg bg-purple-500/10 px-2.5 py-1 text-xs font-semibold text-purple-400">
                                       Target: {badge.target}
-                                    </p>
+                                    </div>
                                   )}
                                 </>
 
                               ) : (
 
-                                <p className="text-sm text-gray-500 mt-2">
+                                <p className="mt-2 text-sm text-gray-600">
                                   No requirement configured.
                                 </p>
 
@@ -518,56 +535,36 @@ export default async function BadgesAdminPage() {
 
                             </div>
 
-                            {/* Secret Status */}
-                            {badge.isSecret && (
-                              <div
-                                className="
-                                  mt-4
-                                  inline-flex
-                                  items-center
-                                  gap-2
-                                  rounded-full
-                                  bg-purple-500/10
-                                  border
-                                  border-purple-500/20
-                                  px-3
-                                  py-1.5
-                                  text-xs
-                                  font-semibold
-                                  text-purple-400
-                                "
-                              >
-                                🔒 Secret Badge
+                            {/* Actions */}
+                            <div className="mt-5 space-y-2.5">
+
+                              <div className="grid grid-cols-2 gap-2.5">
+
+                                <Link
+                                  href={`/admin/badges/${badge.id}/edit`}
+                                  className="rounded-xl border border-purple-500/20 bg-purple-500/10 px-4 py-2.5 text-center text-sm font-bold text-purple-400 transition hover:bg-purple-500/20"
+                                >
+                                  Edit
+                                </Link>
+
+                                <form action={deleteBadge}>
+                                  <input
+                                    type="hidden"
+                                    name="badgeId"
+                                    value={badge.id}
+                                  />
+
+                                  <button
+                                    type="submit"
+                                    className="w-full rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-2.5 text-sm font-bold text-red-400 transition hover:bg-red-500/20"
+                                  >
+                                    Delete
+                                  </button>
+                                </form>
+
                               </div>
-                            )}
 
-                            {/* Badge Actions */}
-                            <div className="flex gap-3 mt-6">
-
-                              <Link
-                                href={`/admin/badges/${badge.id}/edit`}
-                                className="
-                                  flex-1
-                                  text-center
-                                  bg-purple-500/10
-                                  text-purple-400
-                                  hover:bg-purple-500/20
-                                  border
-                                  border-purple-500/20
-                                  px-4
-                                  py-2.5
-                                  rounded-xl
-                                  font-bold
-                                  transition
-                                "
-                              >
-                                Edit
-                              </Link>
-
-                              <form
-                                action={deleteBadge}
-                                className="flex-1"
-                              >
+                              <form action={awardBadgeToEveryone}>
 
                                 <input
                                   type="hidden"
@@ -577,21 +574,9 @@ export default async function BadgesAdminPage() {
 
                                 <button
                                   type="submit"
-                                  className="
-                                    w-full
-                                    bg-red-500/10
-                                    text-red-400
-                                    hover:bg-red-500/20
-                                    border
-                                    border-red-500/20
-                                    px-4
-                                    py-2.5
-                                    rounded-xl
-                                    font-bold
-                                    transition
-                                  "
+                                  className="w-full rounded-xl border border-green-500/20 bg-green-500/10 px-4 py-2.5 text-sm font-bold text-green-400 transition hover:bg-green-500/20"
                                 >
-                                  Delete
+                                  👥 Award to Everyone
                                 </button>
 
                               </form>
@@ -608,283 +593,166 @@ export default async function BadgesAdminPage() {
                   );
                 })}
 
-                {/* Uncategorized / Older Badges */}
-                {badges.some(
-                  (badge) =>
-                    !badgeCategories.some(
-                      (category) =>
-                        category.name === badge.category
-                    )
-                ) && (
-
+                {/* Other */}
+                {uncategorizedBadges.length > 0 && (
                   <div>
 
-                    <div className="mb-6">
+                    <div className="mb-5 flex items-start gap-3">
 
-                      <div className="flex items-center gap-3">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-2xl">
+                        📦
+                      </div>
 
-                        <span className="text-3xl">
-                          📦
-                        </span>
-
-                        <h3 className="text-2xl font-bold">
+                      <div>
+                        <h3 className="text-xl font-bold">
                           Other
                         </h3>
 
+                        <p className="mt-1 text-sm text-gray-500">
+                          Badges that do not currently belong to a
+                          category.
+                        </p>
                       </div>
-
-                      <p className="text-gray-500 mt-2">
-                        Badges that do not currently belong to a category.
-                      </p>
 
                     </div>
 
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
 
-                      {badges
-                        .filter(
-                          (badge) =>
-                            !badgeCategories.some(
-                              (category) =>
-                                category.name === badge.category
-                            )
-                        )
-                        .map((badge) => (
+                      {uncategorizedBadges.map((badge) => (
 
-                          <div
-                            key={badge.id}
-                            className="
-                              bg-white/5
-                              border
-                              border-white/10
-                              rounded-2xl
-                              p-6
-                              hover:border-purple-500/50
-                              transition
-                            "
-                          >
+                        <div
+                          key={badge.id}
+                          className="group rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition hover:-translate-y-1 hover:border-white/20"
+                        >
 
-                            <div className="flex items-start justify-between gap-4">
+                          <div className="flex items-start justify-between">
 
-                              <div className="text-4xl">
-                                {badge.icon}
-                              </div>
-
-                              <span
-                                className="
-                                  rounded-full
-                                  border
-                                  border-white/10
-                                  bg-white/5
-                                  px-3
-                                  py-1
-                                  text-xs
-                                  font-semibold
-                                  text-gray-400
-                                "
-                              >
-                                Other
-                              </span>
-
-                            </div>
-
-                            <h3 className="text-xl font-bold mt-5">
-                              {badge.name}
-                            </h3>
-
-                            <p className="text-gray-400 text-sm mt-2">
-                              {badge.description}
-                            </p>
-
-                            {/* Requirement Preview */}
-                            <div
-                              className="
-                                mt-5
-                                rounded-xl
-                                bg-black/20
-                                border
-                                border-white/10
-                                p-4
-                              "
-                            >
-
-                              <div className="flex items-center justify-between gap-3">
-
-                                <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
-                                  Requirement
-                                </span>
-
-                                {badge.requirement ? (
-                                  <span className="text-xs text-green-400 font-semibold">
-                                    ✓ Configured
-                                  </span>
-                                ) : (
-                                  <span className="text-xs text-gray-500 font-semibold">
-                                    Not set
-                                  </span>
-                                )}
-
-                              </div>
-
-                              {badge.requirement ? (
-
-                                <>
-                                  <p className="text-sm text-gray-200 mt-2">
-                                    {badge.requirement}
-                                  </p>
-
-                                  {badge.target !== null && (
-                                    <p className="text-xs text-purple-400 mt-2">
-                                      Target: {badge.target}
-                                    </p>
-                                  )}
-                                </>
-
-                              ) : (
-
-                                <p className="text-sm text-gray-500 mt-2">
-                                  No requirement configured.
-                                </p>
-
-                              )}
-
+                            <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-4xl">
+                              {badge.icon}
                             </div>
 
                             {badge.isSecret && (
-                              <div
-                                className="
-                                  mt-4
-                                  inline-flex
-                                  items-center
-                                  gap-2
-                                  rounded-full
-                                  bg-purple-500/10
-                                  border
-                                  border-purple-500/20
-                                  px-3
-                                  py-1.5
-                                  text-xs
-                                  font-semibold
-                                  text-purple-400
-                                "
-                              >
-                                🔒 Secret Badge
-                              </div>
+                              <span className="rounded-full border border-purple-500/20 bg-purple-500/10 px-3 py-1 text-xs font-semibold text-purple-400">
+                                🔒 Secret
+                              </span>
                             )}
-
-                            {/* Badge Actions */}
-                            <div className="flex gap-3 mt-6">
-
-                              <Link
-                                href={`/admin/badges/${badge.id}/edit`}
-                                className="
-                                  flex-1
-                                  text-center
-                                  bg-purple-500/10
-                                  text-purple-400
-                                  hover:bg-purple-500/20
-                                  border
-                                  border-purple-500/20
-                                  px-4
-                                  py-2.5
-                                  rounded-xl
-                                  font-bold
-                                  transition
-                                "
-                              >
-                                Edit
-                              </Link>
-
-                              <form
-                                action={deleteBadge}
-                                className="flex-1"
-                              >
-
-                                <input
-                                  type="hidden"
-                                  name="badgeId"
-                                  value={badge.id}
-                                />
-
-                                <button
-                                  type="submit"
-                                  className="
-                                    w-full
-                                    bg-red-500/10
-                                    text-red-400
-                                    hover:bg-red-500/20
-                                    border
-                                    border-red-500/20
-                                    px-4
-                                    py-2.5
-                                    rounded-xl
-                                    font-bold
-                                    transition
-                                  "
-                                >
-                                  Delete
-                                </button>
-
-                              </form>
-
-                            </div>
 
                           </div>
 
-                        ))}
+                          <h3 className="mt-5 text-xl font-bold">
+                            {badge.name}
+                          </h3>
+
+                          <p className="mt-2 text-sm leading-6 text-gray-400">
+                            {badge.description}
+                          </p>
+
+                          <div className="mt-5 rounded-xl border border-white/10 bg-black/20 p-4">
+
+                            <span className="text-[11px] font-bold uppercase tracking-wider text-gray-600">
+                              Requirement
+                            </span>
+
+                            {badge.requirement ? (
+                              <>
+                                <p className="mt-2 text-sm text-gray-300">
+                                  {badge.requirement}
+                                </p>
+
+                                {badge.target !== null && (
+                                  <p className="mt-2 text-xs font-semibold text-purple-400">
+                                    Target: {badge.target}
+                                  </p>
+                                )}
+                              </>
+                            ) : (
+                              <p className="mt-2 text-sm text-gray-600">
+                                No requirement configured.
+                              </p>
+                            )}
+
+                          </div>
+
+                          <div className="mt-5 grid grid-cols-2 gap-2.5">
+
+                            <Link
+                              href={`/admin/badges/${badge.id}/edit`}
+                              className="rounded-xl border border-purple-500/20 bg-purple-500/10 px-4 py-2.5 text-center text-sm font-bold text-purple-400 transition hover:bg-purple-500/20"
+                            >
+                              Edit
+                            </Link>
+
+                            <form action={deleteBadge}>
+
+                              <input
+                                type="hidden"
+                                name="badgeId"
+                                value={badge.id}
+                              />
+
+                              <button
+                                type="submit"
+                                className="w-full rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-2.5 text-sm font-bold text-red-400 transition hover:bg-red-500/20"
+                              >
+                                Delete
+                              </button>
+
+                            </form>
+
+                          </div>
+
+                        </div>
+
+                      ))}
 
                     </div>
 
                   </div>
-
                 )}
 
               </div>
-
             )}
 
           </div>
 
-          {/* Award Badge */}
-          <div className="mt-12 bg-white/5 border border-white/10 rounded-3xl p-8">
+          {/* ===================================================== */}
+          {/* AWARD BADGE */}
+          {/* ===================================================== */}
 
-            <h2 className="text-3xl font-bold">
-              Award Badge
-            </h2>
+          <div className="mt-14 overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04]">
 
-            <p className="text-gray-400 mt-2">
-              Only Owners can award badges to members.
-            </p>
+            <div className="border-b border-white/10 bg-white/[0.02] px-8 py-6">
+
+              <div className="flex items-center gap-4">
+
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-green-500/20 bg-green-500/10 text-2xl">
+                  🎁
+                </div>
+
+                <div>
+                  <h2 className="text-2xl font-bold">
+                    Award Badge
+                  </h2>
+
+                  <p className="mt-1 text-sm text-gray-500">
+                    Manually award an achievement to a Nexus
+                    member.
+                  </p>
+                </div>
+
+              </div>
+
+            </div>
 
             {users.length === 0 ? (
 
-              <div
-                className="
-                  mt-8
-                  rounded-xl
-                  bg-black/20
-                  border
-                  border-white/10
-                  p-6
-                  text-gray-400
-                "
-              >
+              <div className="p-8 text-gray-500">
                 No users are available yet.
               </div>
 
             ) : badges.length === 0 ? (
 
-              <div
-                className="
-                  mt-8
-                  rounded-xl
-                  bg-black/20
-                  border
-                  border-white/10
-                  p-6
-                  text-gray-400
-                "
-              >
+              <div className="p-8 text-gray-500">
                 Create a badge first before awarding one.
               </div>
 
@@ -892,89 +760,66 @@ export default async function BadgesAdminPage() {
 
               <form
                 action={awardBadge}
-                className="mt-8 grid md:grid-cols-2 gap-5"
+                className="grid gap-5 p-8 md:grid-cols-2"
               >
 
-                <select
-                  name="userId"
-                  required
-                  defaultValue=""
-                  className="
-                    bg-black/30
-                    border
-                    border-white/10
-                    rounded-xl
-                    px-5
-                    py-4
-                    outline-none
-                    focus:border-purple-500
-                  "
-                >
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-gray-400">
+                    Member
+                  </label>
 
-                  <option value="" disabled>
-                    Select User
-                  </option>
-
-                  {users.map((user) => (
-
-                    <option
-                      key={user.id}
-                      value={user.id}
-                    >
-                      {user.username}
+                  <select
+                    name="userId"
+                    required
+                    defaultValue=""
+                    className="w-full rounded-xl border border-white/10 bg-[#0D0D11] px-5 py-3.5 text-white outline-none transition focus:border-purple-500/60"
+                  >
+                    <option value="" disabled>
+                      Select User
                     </option>
 
-                  ))}
+                    {users.map((user) => (
+                      <option
+                        key={user.id}
+                        value={user.id}
+                      >
+                        {user.username}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-                </select>
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-gray-400">
+                    Badge
+                  </label>
 
-                <select
-                  name="badgeId"
-                  required
-                  defaultValue=""
-                  className="
-                    bg-black/30
-                    border
-                    border-white/10
-                    rounded-xl
-                    px-5
-                    py-4
-                    outline-none
-                    focus:border-purple-500
-                  "
-                >
-
-                  <option value="" disabled>
-                    Select Badge
-                  </option>
-
-                  {badges.map((badge) => (
-
-                    <option
-                      key={badge.id}
-                      value={badge.id}
-                    >
-                      {badge.icon} {badge.name}
+                  <select
+                    name="badgeId"
+                    required
+                    defaultValue=""
+                    className="w-full rounded-xl border border-white/10 bg-[#0D0D11] px-5 py-3.5 text-white outline-none transition focus:border-purple-500/60"
+                  >
+                    <option value="" disabled>
+                      Select Badge
                     </option>
 
-                  ))}
-
-                </select>
+                    {badges.map((badge) => (
+                      <option
+                        key={badge.id}
+                        value={badge.id}
+                      >
+                        {badge.icon} {badge.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
                 <button
                   type="submit"
-                  className="
-                    md:col-span-2
-                    bg-purple-600
-                    hover:bg-purple-700
-                    px-6
-                    py-3
-                    rounded-xl
-                    font-bold
-                    transition
-                  "
+                  className="rounded-xl bg-purple-600 px-6 py-3.5 font-bold transition hover:bg-purple-500 hover:shadow-lg hover:shadow-purple-600/20 md:col-span-2"
                 >
-                  Award Badge
+                  🏆 Award Badge
                 </button>
 
               </form>
@@ -983,101 +828,82 @@ export default async function BadgesAdminPage() {
 
           </div>
 
-          {/* Award History */}
-          <div className="mt-12">
+          {/* ===================================================== */}
+          {/* AWARD HISTORY */}
+          {/* ===================================================== */}
 
-            <h2 className="text-3xl font-bold">
-              Award History
-            </h2>
+          <div className="mt-14">
 
-            <p className="text-gray-400 mt-2">
-              Recent badges awarded to Nexus members.
-            </p>
+            <div>
+              <h2 className="text-3xl font-bold">
+                Award History
+              </h2>
+
+              <p className="mt-2 text-gray-500">
+                Recent achievements awarded to Nexus members.
+              </p>
+            </div>
 
             {awardedBadges.length === 0 ? (
 
-              <div
-                className="
-                  mt-6
-                  bg-white/5
-                  border
-                  border-white/10
-                  rounded-2xl
-                  p-10
-                  text-center
-                "
-              >
+              <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-12 text-center">
 
                 <div className="text-5xl">
                   🏆
                 </div>
 
-                <h3 className="text-xl font-bold mt-4">
+                <h3 className="mt-4 text-xl font-bold">
                   No badges awarded yet
                 </h3>
 
-                <p className="text-gray-500 mt-2">
-                  Award a badge to a member to see it here.
+                <p className="mt-2 text-gray-500">
+                  Award a badge to a member and the activity will
+                  appear here.
                 </p>
 
               </div>
 
             ) : (
 
-              <div className="mt-6 space-y-4">
+              <div className="mt-6 space-y-3">
 
                 {awardedBadges.map((assignment) => (
 
                   <div
                     key={assignment.id}
-                    className="
-                      bg-white/5
-                      border
-                      border-white/10
-                      rounded-2xl
-                      p-5
-                      flex
-                      flex-col
-                      md:flex-row
-                      md:items-center
-                      md:justify-between
-                      gap-5
-                    "
+                    className="group flex flex-col gap-5 rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition hover:border-white/20 md:flex-row md:items-center md:justify-between"
                   >
 
                     <div className="flex items-center gap-4">
 
-                      <div
-                        className="
-                          w-14
-                          h-14
-                          rounded-xl
-                          bg-purple-500/10
-                          border
-                          border-purple-500/20
-                          flex
-                          items-center
-                          justify-center
-                          text-3xl
-                        "
-                      >
+                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-purple-500/20 bg-purple-500/10 text-3xl">
                         {assignment.badge.icon}
                       </div>
 
-                      <div>
+                      <div className="min-w-0">
 
-                        <h3 className="text-xl font-bold">
-                          {assignment.badge.name}
-                        </h3>
+                        <div className="flex flex-wrap items-center gap-2">
 
-                        <p className="text-gray-400 mt-1">
+                          <h3 className="text-lg font-bold">
+                            {assignment.badge.name}
+                          </h3>
+
+                          {assignment.badge.isSecret && (
+                            <span className="rounded-full bg-purple-500/10 px-2 py-0.5 text-[10px] font-bold text-purple-400">
+                              SECRET
+                            </span>
+                          )}
+
+                        </div>
+
+                        <p className="mt-1 text-sm text-gray-400">
                           Awarded to{" "}
-                          <span className="text-white font-semibold">
+                          <span className="font-semibold text-white">
                             {assignment.user.username}
                           </span>
                         </p>
 
-                        <p className="text-gray-500 text-sm mt-1">
+                        <p className="mt-1 text-xs text-gray-600">
                           {assignment.awardedBy
                             ? `Awarded by ${assignment.awardedBy.username}`
                             : "Awarder unavailable"}
@@ -1106,18 +932,7 @@ export default async function BadgesAdminPage() {
 
                       <button
                         type="submit"
-                        className="
-                          bg-red-500/10
-                          text-red-400
-                          hover:bg-red-500/20
-                          border
-                          border-red-500/10
-                          px-5
-                          py-2.5
-                          rounded-xl
-                          font-bold
-                          transition
-                        "
+                        className="w-full rounded-xl border border-red-500/20 bg-red-500/10 px-5 py-2.5 text-sm font-bold text-red-400 transition hover:bg-red-500/20 md:w-auto"
                       >
                         Remove Badge
                       </button>

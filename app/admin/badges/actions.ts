@@ -85,12 +85,8 @@ export async function createBadge(formData: FormData) {
       icon,
       description,
       category,
-
-      requirement:
-        requirement || null,
-
+      requirement: requirement || null,
       target,
-
       isSecret,
     },
   });
@@ -198,12 +194,8 @@ export async function updateBadge(formData: FormData) {
       icon,
       description,
       category,
-
-      requirement:
-        requirement || null,
-
+      requirement: requirement || null,
       target,
-
       isSecret,
     },
   });
@@ -243,7 +235,6 @@ export async function deleteBadge(formData: FormData) {
     );
   }
 
-  // Remove all awards using this badge first.
   await prisma.userBadge.deleteMany({
     where: {
       badgeId,
@@ -302,6 +293,83 @@ export async function awardBadge(formData: FormData) {
       awardedById: owner.id,
     },
   });
+
+  revalidatePath("/admin/badges");
+  revalidatePath("/profile");
+}
+
+export async function awardBadgeToEveryone(
+  formData: FormData
+) {
+  const owner =
+    await requireRole(["OWNER"]);
+
+  const badgeId = Number(
+    formData.get("badgeId")
+  );
+
+  if (!badgeId) {
+    throw new Error(
+      "Badge is required."
+    );
+  }
+
+  const badge =
+    await prisma.badge.findUnique({
+      where: {
+        id: badgeId,
+      },
+    });
+
+  if (!badge) {
+    throw new Error(
+      "Badge not found."
+    );
+  }
+
+  const users = await prisma.user.findMany({
+    select: {
+      id: true,
+    },
+  });
+
+  if (users.length === 0) {
+    throw new Error(
+      "No users are available."
+    );
+  }
+
+  const existingAwards =
+    await prisma.userBadge.findMany({
+      where: {
+        badgeId,
+      },
+      select: {
+        userId: true,
+      },
+    });
+
+  const existingUserIds = new Set(
+    existingAwards.map(
+      (award) => award.userId
+    )
+  );
+
+  const usersToAward = users.filter(
+    (user) =>
+      !existingUserIds.has(user.id)
+  );
+
+  if (usersToAward.length > 0) {
+    await prisma.userBadge.createMany({
+      data: usersToAward.map((user) => ({
+        userId: user.id,
+        badgeId,
+        awardedById: owner.id,
+      })),
+      skipDuplicates: true,
+    });
+  }
 
   revalidatePath("/admin/badges");
   revalidatePath("/profile");
