@@ -87,6 +87,7 @@ export default async function EditBadgePage({ params }: Props) {
 
             <div className="mt-8">
               <div className="flex items-center gap-4">
+
                 <div
                   className="
                     w-16
@@ -116,6 +117,7 @@ export default async function EditBadgePage({ params }: Props) {
                     Update the information for {badge.name}.
                   </p>
                 </div>
+
               </div>
             </div>
           </div>
@@ -127,6 +129,7 @@ export default async function EditBadgePage({ params }: Props) {
               action={updateBadge}
               className="space-y-6"
             >
+
               <input
                 type="hidden"
                 name="badgeId"
@@ -249,6 +252,106 @@ export default async function EditBadgePage({ params }: Props) {
                 />
               </div>
 
+              {/* Requirement */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-300 mb-2">
+                  🎯 Badge Requirement
+                </label>
+
+                <input
+                  name="requirement"
+                  defaultValue={badge.requirement ?? ""}
+                  placeholder="e.g. Attend Nexus events"
+                  className="
+                    w-full
+                    bg-black/30
+                    border
+                    border-white/10
+                    rounded-xl
+                    px-5
+                    py-4
+                    outline-none
+                    focus:border-purple-500
+                    transition
+                  "
+                />
+
+                <p className="text-xs text-gray-500 mt-2">
+                  Describe what a member needs to do to earn this badge.
+                </p>
+              </div>
+
+              {/* Target */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-300 mb-2">
+                  🔢 Requirement Target
+                </label>
+
+                <input
+                  type="number"
+                  name="target"
+                  min="1"
+                  step="1"
+                  defaultValue={badge.target ?? ""}
+                  placeholder="e.g. 5"
+                  className="
+                    w-full
+                    bg-black/30
+                    border
+                    border-white/10
+                    rounded-xl
+                    px-5
+                    py-4
+                    outline-none
+                    focus:border-purple-500
+                    transition
+                  "
+                />
+
+                <p className="text-xs text-gray-500 mt-2">
+                  Optional. Use this for requirements that need a specific
+                  number, such as attending 5 events.
+                </p>
+              </div>
+
+              {/* Secret Badge */}
+              <div
+                className="
+                  rounded-2xl
+                  bg-purple-500/5
+                  border
+                  border-purple-500/10
+                  p-5
+                "
+              >
+                <label className="flex items-start gap-4 cursor-pointer">
+
+                  <input
+                    type="checkbox"
+                    name="isSecret"
+                    defaultChecked={badge.isSecret}
+                    className="
+                      mt-1
+                      w-5
+                      h-5
+                      accent-purple-600
+                    "
+                  />
+
+                  <div>
+                    <p className="font-semibold text-gray-200">
+                      🔒 Secret Badge
+                    </p>
+
+                    <p className="text-sm text-gray-500 mt-1">
+                      Hide the badge requirements from members until they
+                      discover or earn it.
+                    </p>
+                  </div>
+
+                </label>
+              </div>
+
               {/* Buttons */}
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
 
@@ -292,7 +395,7 @@ export default async function EditBadgePage({ params }: Props) {
             </form>
           </div>
 
-          {/* Preview */}
+          {/* Current Badge Preview */}
           <div className="mt-8 bg-white/5 border border-white/10 rounded-3xl p-8">
 
             <h2 className="text-xl font-bold">
@@ -303,7 +406,7 @@ export default async function EditBadgePage({ params }: Props) {
               className="
                 mt-5
                 flex
-                items-center
+                items-start
                 gap-5
                 bg-black/20
                 border
@@ -312,11 +415,13 @@ export default async function EditBadgePage({ params }: Props) {
                 p-5
               "
             >
+
               <div className="text-5xl">
                 {badge.icon}
               </div>
 
-              <div>
+              <div className="flex-1">
+
                 <h3 className="text-xl font-bold">
                   {badge.name}
                 </h3>
@@ -342,7 +447,43 @@ export default async function EditBadgePage({ params }: Props) {
                 >
                   {badge.category}
                 </span>
+
+                {/* Current Requirement */}
+                <div className="mt-5 pt-5 border-t border-white/10">
+
+                  <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
+                    Requirement
+                  </p>
+
+                  {badge.requirement ? (
+                    <p className="text-gray-200 font-semibold mt-2">
+                      🎯 {badge.requirement}
+                    </p>
+                  ) : (
+                    <p className="text-gray-500 mt-2">
+                      No requirement set.
+                    </p>
+                  )}
+
+                  {badge.target !== null && (
+                    <p className="text-sm text-gray-500 mt-2">
+                      Target:{" "}
+                      <span className="text-purple-400 font-semibold">
+                        {badge.target}
+                      </span>
+                    </p>
+                  )}
+
+                  {badge.isSecret && (
+                    <p className="text-purple-400 text-sm font-semibold mt-3">
+                      🔒 Secret Badge
+                    </p>
+                  )}
+
+                </div>
+
               </div>
+
             </div>
 
           </div>
