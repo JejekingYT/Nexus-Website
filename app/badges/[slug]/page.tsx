@@ -3,6 +3,8 @@ import Footer from "@/components/layout/Footer";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -30,6 +32,8 @@ export default async function BadgePage({
   if (!slug) {
     notFound();
   }
+
+  const session = await getServerSession(authOptions);
 
   const badge = await prisma.badge.findUnique({
     where: {
@@ -59,6 +63,60 @@ export default async function BadgePage({
   if (!badge) {
     notFound();
   }
+
+  /*
+   * Get the currently logged-in Nexus user
+   */
+  const currentUser = session?.user?.id
+    ? await prisma.user.findUnique({
+        where: {
+          discordId: session.user.id,
+        },
+        select: {
+          id: true,
+        },
+      })
+    : null;
+
+  /*
+   * Get this user's progress for this badge
+   */
+  const userProgress = currentUser
+    ? await prisma.badgeProgress.findUnique({
+        where: {
+          userId_badgeId: {
+            userId: currentUser.id,
+            badgeId: badge.id,
+          },
+        },
+      })
+    : null;
+
+  /*
+   * Check if the user already owns the badge
+   */
+  const userBadge = currentUser
+    ? await prisma.userBadge.findUnique({
+        where: {
+          userId_badgeId: {
+            userId: currentUser.id,
+            badgeId: badge.id,
+          },
+        },
+      })
+    : null;
+
+  const progress = userProgress?.progress ?? 0;
+  const target = badge.target ?? 0;
+
+  const progressPercentage =
+    target > 0
+      ? Math.min(100, Math.round((progress / target) * 100))
+      : 0;
+
+  const displayProgress = userBadge
+    ? target
+    : Math.min(progress, target);
 
   const categoryIcon =
     categoryIcons[badge.category] || "🏅";
@@ -535,106 +593,234 @@ export default async function BadgePage({
           </div>
 
           {/* Requirements */}
-<div
-  className="
-    mt-10
-    glass
-    rounded-3xl
-    border
-    border-white/10
-    p-7
-    md:p-9
-  "
->
-  <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
+          <div
+            className="
+              mt-10
+              glass
+              rounded-3xl
+              border
+              border-white/10
+              p-7
+              md:p-9
+            "
+          >
 
-    <div>
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
 
-      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold">
-        🎯
-        How to earn
-      </div>
+              <div>
 
-      <h2 className="text-2xl font-bold mt-4">
-        Badge Requirements
-      </h2>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold">
+                  🎯
+                  How to earn
+                </div>
 
-      <p className="text-gray-500 mt-2 max-w-2xl">
-        Complete the requirement below to unlock this
-        achievement.
-      </p>
+                <h2 className="text-2xl font-bold mt-4">
+                  Badge Requirements
+                </h2>
 
-    </div>
+                <p className="text-gray-500 mt-2 max-w-2xl">
+                  Complete the requirement below to unlock this
+                  achievement.
+                </p>
 
-    {badge.isSecret && (
-      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold">
-        🔒 Secret Badge
-      </div>
-    )}
+              </div>
 
-  </div>
+              {badge.isSecret && (
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold">
+                  🔒 Secret Badge
+                </div>
+              )}
 
-  <div className="mt-7 rounded-2xl bg-white/[0.03] border border-white/10 p-6">
+            </div>
 
-    {badge.requirement ? (
+            <div className="mt-7 rounded-2xl bg-white/[0.03] border border-white/10 p-6">
 
-      <div className="flex items-start gap-4">
+              {badge.requirement ? (
 
-        <div className="w-12 h-12 shrink-0 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-xl">
-          🎯
-        </div>
+                <div className="flex items-start gap-4">
 
-        <div>
+                  <div className="w-12 h-12 shrink-0 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-xl">
+                    🎯
+                  </div>
 
-          <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
-            Requirement
-          </p>
+                  <div>
 
-          <p className="text-gray-200 text-lg font-semibold mt-2">
-            {badge.requirement}
-          </p>
+                    <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
+                      Requirement
+                    </p>
 
-          {badge.target !== null && (
-            <p className="text-sm text-gray-500 mt-2">
-              Target:{" "}
-              <span className="text-purple-400 font-semibold">
-                {badge.target}
-              </span>
-            </p>
+                    <p className="text-gray-200 text-lg font-semibold mt-2">
+                      {badge.requirement}
+                    </p>
+
+                    {badge.target !== null && (
+                      <p className="text-sm text-gray-500 mt-2">
+                        Target:{" "}
+                        <span className="text-purple-400 font-semibold">
+                          {badge.target}
+                        </span>
+                      </p>
+                    )}
+
+                  </div>
+
+                </div>
+
+              ) : (
+
+                <div className="flex items-start gap-4">
+
+                  <div className="w-12 h-12 shrink-0 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-xl">
+                    🏆
+                  </div>
+
+                  <div>
+
+                    <p className="font-semibold text-gray-200">
+                      Special achievement
+                    </p>
+
+                    <p className="text-sm text-gray-500 mt-1">
+                      This badge is awarded by the Nexus team for
+                      special contributions, achievements, or roles.
+                    </p>
+
+                  </div>
+
+                </div>
+
+              )}
+
+            </div>
+
+          </div>
+
+          {/* Your Progress */}
+          {currentUser && badge.target !== null && (
+            <div
+              className="
+                mt-10
+                glass
+                rounded-3xl
+                border
+                border-purple-500/20
+                p-7
+                md:p-9
+              "
+            >
+
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+
+                <div>
+
+                  <div className="
+                    inline-flex
+                    items-center
+                    gap-2
+                    px-3
+                    py-1.5
+                    rounded-full
+                    bg-purple-500/10
+                    border
+                    border-purple-500/20
+                    text-purple-400
+                    text-xs
+                    font-semibold
+                  ">
+                    📊
+                    Your Progress
+                  </div>
+
+                  <h2 className="text-2xl font-bold mt-4">
+                    {userBadge
+                      ? "Badge Earned!"
+                      : "Keep Going"}
+                  </h2>
+
+                  <p className="text-gray-500 mt-2">
+                    {userBadge
+                      ? "You have successfully completed this badge."
+                      : "Your progress toward earning this badge."}
+                  </p>
+
+                </div>
+
+                <div className="text-left sm:text-right">
+
+                  <p className="text-3xl font-extrabold">
+                    {displayProgress}
+                    <span className="text-gray-500 text-xl">
+                      {" "}/ {target}
+                    </span>
+                  </p>
+
+                  <p className="text-sm text-purple-400 font-semibold mt-1">
+                    {userBadge
+                      ? "100%"
+                      : `${progressPercentage}%`}
+                  </p>
+
+                </div>
+
+              </div>
+
+              {/* Progress Bar */}
+              <div className="mt-7">
+
+                <div
+                  className="
+                    h-4
+                    w-full
+                    rounded-full
+                    bg-white/[0.05]
+                    border
+                    border-white/10
+                    overflow-hidden
+                  "
+                >
+                  <div
+                    className="
+                      h-full
+                      rounded-full
+                      bg-linear-to-r
+                      from-purple-600
+                      to-blue-500
+                      transition-all
+                      duration-500
+                    "
+                    style={{
+                      width: `${
+                        userBadge
+                          ? 100
+                          : progressPercentage
+                      }%`,
+                    }}
+                  />
+                </div>
+
+                <div className="flex justify-between mt-3 text-sm">
+
+                  <span className="text-gray-500">
+                    {userBadge
+                      ? "Requirement completed"
+                      : `${Math.max(
+                          target - progress,
+                          0
+                        )} more to go`}
+                  </span>
+
+                  <span className="text-gray-400">
+                    {userBadge
+                      ? "🏆 Earned"
+                      : `${progressPercentage}%`}
+                  </span>
+
+                </div>
+
+              </div>
+
+            </div>
           )}
-
-        </div>
-
-      </div>
-
-    ) : (
-
-      <div className="flex items-start gap-4">
-
-        <div className="w-12 h-12 shrink-0 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-xl">
-          🏆
-        </div>
-
-        <div>
-
-          <p className="font-semibold text-gray-200">
-            Special achievement
-          </p>
-
-          <p className="text-sm text-gray-500 mt-1">
-            This badge is awarded by the Nexus team for
-            special contributions, achievements, or roles.
-          </p>
-
-        </div>
-
-      </div>
-
-    )}
-
-  </div>
-
-</div>
 
           {/* CTA */}
           <div
