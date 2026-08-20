@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 function createSlug(value: string) {
   return value
@@ -17,6 +18,7 @@ export async function createBadge(formData: FormData) {
 
   const name = String(formData.get("name") || "").trim();
   const icon = String(formData.get("icon") || "").trim();
+
   const description = String(
     formData.get("description") || ""
   ).trim();
@@ -59,7 +61,9 @@ export async function createBadge(formData: FormData) {
 export async function updateBadge(formData: FormData) {
   await requireRole(["OWNER"]);
 
-  const badgeId = Number(formData.get("badgeId"));
+  const badgeId = Number(
+    formData.get("badgeId")
+  );
 
   const name = String(
     formData.get("name") || ""
@@ -128,6 +132,8 @@ export async function updateBadge(formData: FormData) {
   revalidatePath("/admin/badges");
   revalidatePath(`/admin/badges/${badgeId}/edit`);
   revalidatePath("/profile");
+
+  redirect("/admin/badges");
 }
 
 export async function deleteBadge(formData: FormData) {
