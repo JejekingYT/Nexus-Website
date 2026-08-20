@@ -22,8 +22,8 @@ model Community {
   staff       Json?
   createdAt   DateTime          @default(now())
   discordId   String?
-  games       Game[]
   reviews     CommunityReview[]
+  games       Game[]
 }
 
 model CommunityReview {
@@ -32,23 +32,16 @@ model CommunityReview {
   userId      Int
   rating      Int
   comment     String
-  status      ReviewStatus @default(PENDING)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
-
-  community Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status      ReviewStatus @default(PENDING)
+  community   Community    @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([communityId, userId])
   @@index([communityId])
   @@index([userId])
   @@index([status])
-}
-
-enum ReviewStatus {
-  PENDING
-  APPROVED
-  REJECTED
 }
 
 model News {
@@ -64,16 +57,31 @@ model News {
 }
 
 model Event {
-  id          Int      @id @default(autoincrement())
-  title       String
-  slug        String   @unique
-  description String
-  image       String?
-  date        String
-  time        String
-  discord     String?
-  published   Boolean  @default(false)
-  createdAt   DateTime @default(now())
+  id           Int                @id @default(autoincrement())
+  title        String
+  slug         String             @unique
+  description  String
+  image        String?
+  date         String
+  time         String
+  discord      String?
+  published    Boolean            @default(false)
+  createdAt    DateTime           @default(now())
+  participants EventParticipant[]
+}
+
+model EventParticipant {
+  id       Int      @id @default(autoincrement())
+  eventId  Int
+  userId   Int
+  joinedAt DateTime @default(now())
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@index([eventId])
+  @@index([userId])
 }
 
 model Project {
@@ -123,22 +131,28 @@ model User {
   role             String            @default("USER")
   createdAt        DateTime          @default(now())
   logs             AuditLog[]
+  badgeProgress    BadgeProgress[]
+  communityReviews CommunityReview[]
   news             News[]
   supportMessages  SupportMessage[]
   supportTickets   SupportTicket[]
   awardedBadges    UserBadge[]       @relation("AwardedBadges")
   badges           UserBadge[]       @relation("UserBadges")
-  communityReviews CommunityReview[]
+  eventParticipations EventParticipant[]
 }
 
 model Badge {
-  id          Int         @id @default(autoincrement())
-  name        String      @unique
-  slug        String      @unique
+  id          Int             @id @default(autoincrement())
+  name        String          @unique
+  slug        String          @unique
   icon        String
   description String
-  category    String      @default("Special/Role")
-  createdAt   DateTime    @default(now())
+  createdAt   DateTime        @default(now())
+  category    String          @default("Special/Role")
+  isSecret    Boolean         @default(false)
+  requirement String?
+  target      Int?
+  progress    BadgeProgress[]
   users       UserBadge[]
 }
 
@@ -156,6 +170,20 @@ model UserBadge {
   @@index([userId])
   @@index([badgeId])
   @@index([awardedById])
+}
+
+model BadgeProgress {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  badgeId   Int
+  progress  Int      @default(0)
+  updatedAt DateTime @updatedAt
+  badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+  @@index([userId])
+  @@index([badgeId])
 }
 
 model AuditLog {
@@ -239,6 +267,12 @@ model HallOfFame {
   image       String?
   year        String?
   createdAt   DateTime @default(now())
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 enum PartnerStatus {

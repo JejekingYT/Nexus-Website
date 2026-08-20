@@ -39,6 +39,9 @@ export default async function BadgesPage() {
       icon: true,
       description: true,
       category: true,
+      isSecret: true,
+      requirement: true,
+      target: true,
       createdAt: true,
       users: {
         select: {

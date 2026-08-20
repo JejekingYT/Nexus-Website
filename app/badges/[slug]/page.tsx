@@ -534,6 +534,108 @@ export default async function BadgePage({
 
           </div>
 
+          {/* Requirements */}
+<div
+  className="
+    mt-10
+    glass
+    rounded-3xl
+    border
+    border-white/10
+    p-7
+    md:p-9
+  "
+>
+  <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
+
+    <div>
+
+      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold">
+        🎯
+        How to earn
+      </div>
+
+      <h2 className="text-2xl font-bold mt-4">
+        Badge Requirements
+      </h2>
+
+      <p className="text-gray-500 mt-2 max-w-2xl">
+        Complete the requirement below to unlock this
+        achievement.
+      </p>
+
+    </div>
+
+    {badge.isSecret && (
+      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold">
+        🔒 Secret Badge
+      </div>
+    )}
+
+  </div>
+
+  <div className="mt-7 rounded-2xl bg-white/[0.03] border border-white/10 p-6">
+
+    {badge.requirement ? (
+
+      <div className="flex items-start gap-4">
+
+        <div className="w-12 h-12 shrink-0 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-xl">
+          🎯
+        </div>
+
+        <div>
+
+          <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
+            Requirement
+          </p>
+
+          <p className="text-gray-200 text-lg font-semibold mt-2">
+            {badge.requirement}
+          </p>
+
+          {badge.target !== null && (
+            <p className="text-sm text-gray-500 mt-2">
+              Target:{" "}
+              <span className="text-purple-400 font-semibold">
+                {badge.target}
+              </span>
+            </p>
+          )}
+
+        </div>
+
+      </div>
+
+    ) : (
+
+      <div className="flex items-start gap-4">
+
+        <div className="w-12 h-12 shrink-0 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-xl">
+          🏆
+        </div>
+
+        <div>
+
+          <p className="font-semibold text-gray-200">
+            Special achievement
+          </p>
+
+          <p className="text-sm text-gray-500 mt-1">
+            This badge is awarded by the Nexus team for
+            special contributions, achievements, or roles.
+          </p>
+
+        </div>
+
+      </div>
+
+    )}
+
+  </div>
+
+</div>
+
           {/* CTA */}
           <div
             className="
