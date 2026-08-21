@@ -66,7 +66,6 @@ export default function Navbar({
         mx-auto
         flex
         items-center
-        justify-between
         px-6
         py-4
       ">
@@ -94,12 +93,28 @@ export default function Navbar({
           md:flex
           items-center
           gap-7
+          ml-7
           text-gray-300
           font-medium
         ">
 
 
-          <Link href="/" className={navLink}>
+          <Link
+            href="/"
+            className="
+              text-2xl
+              font-bold
+              bg-linear-to-r
+              from-purple-400
+              to-blue-400
+              bg-clip-text
+              text-transparent
+              transition
+              duration-200
+              hover:opacity-80
+              mr-2
+            "
+          >
             Home
           </Link>
 
