@@ -101,14 +101,7 @@ export default function Navbar({
 
           <Link
             href="/"
-            className="
-              px-5
-              py-2
-              rounded-xl
-              hover:bg-purple-500
-              transition
-              text-white
-            "
+            className={navLink}
           >
             Home
           </Link>
