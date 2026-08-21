@@ -47,6 +47,7 @@ export async function POST(
       !currentUser ||
       (
         currentUser.role !== "OWNER" &&
+        currentUser.role !== "MANAGER" &&
         currentUser.role !== "ADMIN"
       )
     ) {
@@ -65,6 +66,42 @@ export async function POST(
 
 
     const body = await request.json();
+
+
+
+    const staff =
+  Array.isArray(body.staff)
+    ? body.staff
+        .filter(
+          (member: {
+            name?: string;
+            role?: string;
+            image?: string;
+          }) =>
+            member &&
+            typeof member.name === "string" &&
+            member.name.trim()
+        )
+        .map(
+          (member: {
+            name?: string;
+            role?: string;
+            image?: string;
+          }) => ({
+            name: member.name!.trim(),
+
+            role:
+              typeof member.role === "string"
+                ? member.role.trim()
+                : "",
+
+            image:
+              typeof member.image === "string"
+                ? member.image.trim()
+                : "",
+          })
+        )
+    : [];
 
 
 
@@ -111,6 +148,8 @@ export async function POST(
         discord: body.discord,
 
         roblox: body.roblox || null,
+
+        staff,
 
       },
 
