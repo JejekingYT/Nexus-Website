@@ -44,7 +44,7 @@ export default function Navbar({
 
 
   const navLink =
-    "transition hover:text-purple-400 duration-200";
+    "whitespace-nowrap transition hover:text-purple-400 duration-200";
 
 
   return (
