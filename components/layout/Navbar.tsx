@@ -104,15 +104,10 @@ export default function Navbar({
             className="
               text-2xl
               font-bold
-              bg-linear-to-r
-              from-purple-400
-              to-blue-400
-              bg-clip-text
-              text-transparent
+              text-gray-300
               transition
               duration-200
-              hover:opacity-80
-              mr-2
+              hover:text-purple-400
             "
           >
             Home
