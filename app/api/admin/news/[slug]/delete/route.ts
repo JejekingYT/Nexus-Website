@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { createActivityLog } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
@@ -100,20 +101,11 @@ export async function DELETE(
 
 
     // Create audit log
-    await prisma.auditLog.create({
-
-      data: {
-
-        action: "DELETE_NEWS",
-
-        target: news.title,
-
-        details: `Deleted news article "${news.title}"`,
-
-        userId: currentUser.id,
-
-      },
-
+    await createActivityLog({
+      action: "DELETE_NEWS",
+      target: news.title,
+      details: `Deleted news article "${news.title}"`,
+      userId: currentUser.id,
     });
 
 

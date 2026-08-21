@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { createActivityLog } from "@/lib/auth";
 
 export async function updateBadgeProgress(
   userId: number,
@@ -26,6 +27,7 @@ export async function updateBadgeProgress(
       },
     });
 
+    // User already has this badge.
     if (existingBadge) {
       continue;
     }
@@ -51,22 +53,32 @@ export async function updateBadgeProgress(
       },
     });
 
+    // Badge requirement reached.
     if (progress.progress >= badge.target) {
-      await prisma.userBadge.upsert({
-        where: {
-          userId_badgeId: {
-            userId,
-            badgeId: badge.id,
-          },
-        },
-
-        create: {
+      const newlyAwardedBadge = await prisma.userBadge.create({
+        data: {
           userId,
           badgeId: badge.id,
         },
-
-        update: {},
       });
+
+      if (newlyAwardedBadge) {
+        const user = await prisma.user.findUnique({
+          where: {
+            id: userId,
+          },
+          select: {
+            username: true,
+          },
+        });
+
+        await createActivityLog({
+          action: "BADGE_EARNED",
+          target: user?.username || `User #${userId}`,
+          details: `Earned badge "${badge.name}"`,
+          userId,
+        });
+      }
     }
   }
 }
@@ -112,6 +124,7 @@ export async function updateMembershipBadgeProgress(
       },
     });
 
+    // User already has this badge.
     if (existingBadge) {
       continue;
     }
@@ -135,22 +148,23 @@ export async function updateMembershipBadgeProgress(
       },
     });
 
+    // Membership requirement reached.
     if (days >= badge.target) {
-      await prisma.userBadge.upsert({
-        where: {
-          userId_badgeId: {
-            userId,
-            badgeId: badge.id,
-          },
-        },
-
-        create: {
+      const newlyAwardedBadge = await prisma.userBadge.create({
+        data: {
           userId,
           badgeId: badge.id,
         },
-
-        update: {},
       });
+
+      if (newlyAwardedBadge) {
+        await createActivityLog({
+          action: "BADGE_EARNED",
+          target: user.username,
+          details: `Earned badge "${badge.name}"`,
+          userId,
+        });
+      }
     }
   }
 }

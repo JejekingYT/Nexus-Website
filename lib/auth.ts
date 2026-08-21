@@ -65,3 +65,31 @@ export async function requireRole(
   return user;
 
 }
+
+export async function createActivityLog({
+  action,
+  target,
+  details,
+  userId,
+}: {
+  action: string;
+  target: string;
+  details: string;
+  userId?: number;
+}) {
+  let finalUserId = userId;
+
+  if (!finalUserId) {
+    const user = await getCurrentUser();
+    finalUserId = user.id;
+  }
+
+  return prisma.auditLog.create({
+    data: {
+      action,
+      target,
+      details,
+      userId: finalUserId,
+    },
+  });
+}

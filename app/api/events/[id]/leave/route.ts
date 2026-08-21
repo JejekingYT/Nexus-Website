@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
+import { createActivityLog } from "@/lib/auth";
 
 export async function POST(
   request: Request,
@@ -85,6 +86,13 @@ export async function POST(
       where: {
         id: participant.id,
       },
+    });
+
+    await createActivityLog({
+      action: "EVENT_LEAVE",
+      target: event.title,
+      details: `Left event "${event.title}"`,
+      userId: user.id,
     });
 
     // Reduce event badge progress by 1.

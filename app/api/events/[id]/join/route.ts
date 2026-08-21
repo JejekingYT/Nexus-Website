@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
+import { createActivityLog } from "@/lib/auth";
 import { updateBadgeProgress } from "@/lib/badges";
 
 export async function POST(
@@ -87,6 +88,13 @@ export async function POST(
         eventId: event.id,
         userId: user.id,
       },
+    });
+
+    await createActivityLog({
+      action: "EVENT_JOIN",
+      target: event.title,
+      details: `Joined event "${event.title}"`,
+      userId: user.id,
     });
 
     // Update automatic badge progress

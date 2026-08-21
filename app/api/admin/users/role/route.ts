@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { createActivityLog } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
@@ -186,22 +187,11 @@ export async function POST(req: Request) {
 
 
 
-
-    await prisma.auditLog.create({
-
-      data: {
-
-        action: "ROLE_CHANGE",
-
-        target: targetUser.username,
-
-        details:
-          `${targetUser.role} → ${role}`,
-
-        userId: currentUser.id,
-
-      },
-
+    await createActivityLog({
+      action: "ROLE_CHANGE",
+      target: targetUser.username,
+      details: `${targetUser.role} → ${role}`,
+      userId: currentUser.id,
     });
 
 

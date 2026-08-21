@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { createActivityLog } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
@@ -99,20 +100,11 @@ export async function DELETE(
 
 
 
-    await prisma.auditLog.create({
-
-      data: {
-
-        action: "DELETE_COMMUNITY",
-
-        target: community.name,
-
-        details: `Deleted community "${community.name}"`,
-
-        userId: currentUser.id,
-
-      },
-
+    await createActivityLog({
+      action: "DELETE_COMMUNITY",
+      target: community.name,
+      details: `Deleted community "${community.name}"`,
+      userId: currentUser.id,
     });
 
 

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
+import { createActivityLog } from "@/lib/auth";
 
 export async function POST(request: Request) {
   try {
@@ -56,6 +57,7 @@ export async function POST(request: Request) {
       },
       select: {
         id: true,
+        username: true,
       },
     });
 
@@ -77,26 +79,40 @@ export async function POST(request: Request) {
 
     if (existingFollow) {
       await prisma.follow.delete({
-        where: {
-          id: existingFollow.id,
-        },
-      });
+  where: {
+    id: existingFollow.id,
+  },
+});
 
-      return NextResponse.json({
-        following: false,
-      });
+await createActivityLog({
+  action: "UNFOLLOW_USER",
+  target: targetUser.username,
+  details: `Unfollowed user "${targetUser.username}"`,
+  userId: currentUser.id,
+});
+
+return NextResponse.json({
+  following: false,
+});
     }
 
     await prisma.follow.create({
-      data: {
-        followerId: currentUser.id,
-        followingId: targetUserId,
-      },
-    });
+  data: {
+    followerId: currentUser.id,
+    followingId: targetUserId,
+  },
+});
 
-    return NextResponse.json({
-      following: true,
-    });
+await createActivityLog({
+  action: "FOLLOW_USER",
+  target: targetUser.username,
+  details: `Followed user "${targetUser.username}"`,
+  userId: currentUser.id,
+});
+
+return NextResponse.json({
+  following: true,
+});
   } catch (error) {
     console.error("Follow API error:", error);
 

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { createActivityLog } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
@@ -165,20 +166,11 @@ export async function POST(
 
 
     // Audit Log
-    await prisma.auditLog.create({
-
-      data: {
-
-        action: "EDIT_EVENT",
-
-        target: oldEvent.title,
-
-        details: `Edited event "${oldEvent.title}"`,
-
-        userId: currentUser.id,
-
-      },
-
+    await createActivityLog({
+      action: "EDIT_EVENT",
+      target: oldEvent.title,
+      details: `Edited event "${oldEvent.title}"`,
+      userId: currentUser.id,
     });
 
 
