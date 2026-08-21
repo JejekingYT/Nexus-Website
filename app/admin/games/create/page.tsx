@@ -9,6 +9,7 @@ export default async function CreateGamePage() {
 
   if (
     currentUser.role !== "OWNER" &&
+    currentUser.role !== "Manager" &&
     currentUser.role !== "ADMIN"
   ) {
     redirect("/admin");

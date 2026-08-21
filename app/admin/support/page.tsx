@@ -20,6 +20,7 @@ export default async function AdminSupportPage() {
   const canDelete =
     currentUser.role === "OWNER" ||
     currentUser.role === "CO-OWNER" ||
+    currentUser.role === "MANAGER" ||
     currentUser.role === "ADMIN" ||
     currentUser.role === "SUPPORT";
 

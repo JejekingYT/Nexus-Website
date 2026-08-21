@@ -16,6 +16,7 @@ export default async function SettingsPage() {
     !currentUser ||
     (
       currentUser.role !== "OWNER" &&
+      currentUser.role !== "MANAGER" &&
       currentUser.role !== "ADMIN"
     )
   ) {

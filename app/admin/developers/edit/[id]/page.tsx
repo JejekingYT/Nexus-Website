@@ -17,6 +17,7 @@ export default async function EditDeveloperPage({
 
   if (
     currentUser.role !== "OWNER" &&
+    currentUser.role !== "Manager" &&
     currentUser.role !== "ADMIN"
   ) {
     redirect("/admin");

@@ -15,6 +15,7 @@ export default async function AdminGamesPage() {
 
   if (
     currentUser.role !== "OWNER" &&
+    currentUser.role !== "Manager" &&
     currentUser.role !== "ADMIN"
   ) {
     redirect("/admin");

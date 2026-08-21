@@ -11,6 +11,7 @@ export default async function NewsManager() {
 
   await requireRole([
     "OWNER",
+    "MANAGER",
     "ADMIN",
   ]);
 

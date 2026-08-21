@@ -11,6 +11,7 @@ export default async function CreateProjectPage() {
 
   if (
     currentUser.role !== "OWNER" &&
+    currentUser.role !== "MANAGER" &&
     currentUser.role !== "ADMIN"
   ) {
     redirect("/admin");

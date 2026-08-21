@@ -6,6 +6,7 @@ export default async function NewNewsPage() {
 
   await requireRole([
     "OWNER",
+    "MANAGER",
     "ADMIN",
   ]);
 

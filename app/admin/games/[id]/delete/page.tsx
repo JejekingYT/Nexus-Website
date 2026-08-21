@@ -16,6 +16,7 @@ export default async function DeleteGamePage({
 
   if (
     currentUser.role !== "OWNER" &&
+    currentUser.role !== "Manager" &&
     currentUser.role !== "ADMIN"
   ) {
     redirect("/admin");

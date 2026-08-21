@@ -8,6 +8,8 @@ export type UserRole =
   | "USER"
   | "SUPPORT"
   | "ADMIN"
+  | "MANAGER"
+  | "CO-OWNER"
   | "OWNER";
 
 
