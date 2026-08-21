@@ -64,7 +64,7 @@ export default function FollowButton({
         disabled:opacity-60
         ${
           following
-            ? "border border-white/10 bg-white/10 text-gray-200 hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-400"
+            ? "border border-white/10 bg-white/10 text-gray-200 hover:border-red-500/20 hover:bg-red-500/10 hover:text-red-400"
             : "bg-linear-to-r from-purple-600 to-blue-600 text-white hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20"
         }
       `}

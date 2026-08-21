@@ -302,7 +302,13 @@ export default async function PublicProfilePage({
                 {/* Follow System */}
 
                 <div className="mt-8 flex flex-wrap justify-center gap-3">
-                  <div
+
+                  {/* Followers */}
+
+                  <Link
+                    href={`/add/profile/${encodeURIComponent(
+                      user.username
+                    )}/followers`}
                     className="
                       inline-flex
                       items-center
@@ -313,6 +319,10 @@ export default async function PublicProfilePage({
                       bg-white/[0.04]
                       px-5
                       py-3
+                      transition-all
+                      hover:border-purple-500/30
+                      hover:bg-purple-500/[0.08]
+                      hover:-translate-y-0.5
                     "
                   >
                     <span className="text-lg">
@@ -328,9 +338,15 @@ export default async function PublicProfilePage({
                         Followers
                       </p>
                     </div>
-                  </div>
+                  </Link>
 
-                  <div
+
+                  {/* Following */}
+
+                  <Link
+                    href={`/add/profile/${encodeURIComponent(
+                      user.username
+                    )}/following`}
                     className="
                       inline-flex
                       items-center
@@ -341,6 +357,10 @@ export default async function PublicProfilePage({
                       bg-white/[0.04]
                       px-5
                       py-3
+                      transition-all
+                      hover:border-blue-500/30
+                      hover:bg-blue-500/[0.08]
+                      hover:-translate-y-0.5
                     "
                   >
                     <span className="text-lg">
@@ -356,7 +376,8 @@ export default async function PublicProfilePage({
                         Following
                       </p>
                     </div>
-                  </div>
+                  </Link>
+
                 </div>
 
                 {/* Follow Button */}
