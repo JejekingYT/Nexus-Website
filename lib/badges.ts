@@ -5,7 +5,6 @@ export async function updateBadgeProgress(
   requirement: string,
   amount: number = 1
 ) {
-  // Find all badges that use this requirement
   const badges = await prisma.badge.findMany({
     where: {
       requirement,
@@ -18,7 +17,6 @@ export async function updateBadgeProgress(
   for (const badge of badges) {
     if (!badge.target) continue;
 
-    // Check if the user already has this badge
     const existingBadge = await prisma.userBadge.findUnique({
       where: {
         userId_badgeId: {
@@ -28,12 +26,10 @@ export async function updateBadgeProgress(
       },
     });
 
-    // Don't update progress if already earned
     if (existingBadge) {
       continue;
     }
 
-    // Get or create progress
     const progress = await prisma.badgeProgress.upsert({
       where: {
         userId_badgeId: {
@@ -55,8 +51,91 @@ export async function updateBadgeProgress(
       },
     });
 
-    // Automatically award badge when target is reached
     if (progress.progress >= badge.target) {
+      await prisma.userBadge.upsert({
+        where: {
+          userId_badgeId: {
+            userId,
+            badgeId: badge.id,
+          },
+        },
+
+        create: {
+          userId,
+          badgeId: badge.id,
+        },
+
+        update: {},
+      });
+    }
+  }
+}
+
+export async function updateMembershipBadgeProgress(
+  userId: number
+) {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!user) return;
+
+  const now = new Date();
+
+  const difference =
+    now.getTime() - user.createdAt.getTime();
+
+  const days = Math.floor(
+    difference / (1000 * 60 * 60 * 24)
+  );
+
+  const badges = await prisma.badge.findMany({
+    where: {
+      requirement: "MEMBER_DAYS",
+      target: {
+        not: null,
+      },
+    },
+  });
+
+  for (const badge of badges) {
+    if (!badge.target) continue;
+
+    const existingBadge = await prisma.userBadge.findUnique({
+      where: {
+        userId_badgeId: {
+          userId,
+          badgeId: badge.id,
+        },
+      },
+    });
+
+    if (existingBadge) {
+      continue;
+    }
+
+    await prisma.badgeProgress.upsert({
+      where: {
+        userId_badgeId: {
+          userId,
+          badgeId: badge.id,
+        },
+      },
+
+      create: {
+        userId,
+        badgeId: badge.id,
+        progress: days,
+      },
+
+      update: {
+        progress: days,
+      },
+    });
+
+    if (days >= badge.target) {
       await prisma.userBadge.upsert({
         where: {
           userId_badgeId: {

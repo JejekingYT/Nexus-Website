@@ -324,20 +324,32 @@ export default async function BadgesAdminPage() {
               {/* Requirement */}
               <div>
                 <label className="mb-2 block text-sm font-medium text-gray-400">
-                  Requirement
+                  Requirement Type
                 </label>
 
-                <input
+                <select
                   name="requirement"
-                  placeholder="e.g. Attend 5 Nexus events"
-                  className="w-full rounded-xl border border-white/10 bg-black/30 px-5 py-3.5 text-white outline-none transition placeholder:text-gray-600 focus:border-purple-500/60 focus:ring-2 focus:ring-purple-500/10"
-                />
+                  defaultValue=""
+                  className="w-full rounded-xl border border-white/10 bg-[#0D0D11] px-5 py-3.5 text-white outline-none transition focus:border-purple-500/60 focus:ring-2 focus:ring-purple-500/10"
+                >
+                  <option value="">
+                    No automatic requirement
+                  </option>
 
-                <p className="mt-2 text-xs text-gray-600">
-                  Explain what a member needs to do to earn this
-                  badge.
-                </p>
-              </div>
+                  <option value="EVENTS">
+                    🎉 Events Joined
+                  </option>
+
+                  <option value="MEMBERSHIP_DAYS">
+                    🕰️ Membership Days
+                  </option>
+
+                  </select>
+
+                  <p className="mt-2 text-xs text-gray-600">
+                    Select how progress for this badge should be tracked automatically.
+                  </p>
+                </div>
 
               {/* Secret */}
               <label className="flex cursor-pointer items-center gap-4 rounded-2xl border border-white/10 bg-black/20 p-5 transition hover:border-purple-500/30 hover:bg-purple-500/[0.03]">

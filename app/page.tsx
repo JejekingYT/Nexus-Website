@@ -9,8 +9,26 @@ import LatestNews from "@/components/home/LatestNews";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { updateMembershipBadgeProgress } from "@/lib/badges";
+
 
 export default async function Home() {
+
+    const session = await getServerSession(authOptions);
+
+  if (session?.user?.id) {
+    const user = await prisma.user.findUnique({
+      where: {
+        discordId: session.user.id,
+      },
+    });
+
+    if (user) {
+      await updateMembershipBadgeProgress(user.id);
+    }
+  }
 
   const events = await prisma.event.findMany({
 
