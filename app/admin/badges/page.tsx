@@ -47,6 +47,19 @@ const badgeCategories = [
   },
 ];
 
+const getRequirementLabel = (requirement: string | null) => {
+  switch (requirement) {
+    case "EVENTS":
+      return "🎉 Events Joined";
+
+    case "MEMBER_DAYS":
+      return "🕰️ Membership Days";
+
+    default:
+      return requirement ?? "No requirement configured.";
+  }
+};
+
 export default async function BadgesAdminPage() {
   await requireRole(["OWNER"]);
 
@@ -527,7 +540,7 @@ export default async function BadgesAdminPage() {
 
                                 <>
                                   <p className="mt-2 text-sm text-gray-300">
-                                    {badge.requirement}
+                                    {getRequirementLabel(badge.requirement)}
                                   </p>
 
                                   {badge.target !== null && (
@@ -668,7 +681,7 @@ export default async function BadgesAdminPage() {
                             {badge.requirement ? (
                               <>
                                 <p className="mt-2 text-sm text-gray-300">
-                                  {badge.requirement}
+                                  {getRequirementLabel(badge.requirement)}
                                 </p>
 
                                 {badge.target !== null && (

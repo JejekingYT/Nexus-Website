@@ -13,6 +13,154 @@ function createSlug(value: string) {
     .replace(/^-+|-+$/g, "");
 }
 
+/**
+ * Update automatic badge progress for a user.
+ *
+ * Supported requirements:
+ *
+ * EVENTS
+ * - Number of events the user has joined.
+ *
+ * MEMBER_DAYS
+ * - Number of full days since the user's
+ *   first account creation date.
+ */
+export async function updateBadgeProgress(userId: number) {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    select: {
+      id: true,
+      createdAt: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found.");
+  }
+
+  const badges = await prisma.badge.findMany({
+    where: {
+      requirement: {
+        in: ["EVENTS", "MEMBER_DAYS"],
+      },
+    },
+  });
+
+  if (badges.length === 0) {
+    return;
+  }
+
+  for (const badge of badges) {
+    let progress = 0;
+
+    // ============================================
+    // EVENTS
+    // ============================================
+
+    if (badge.requirement === "EVENTS") {
+      progress = await prisma.eventParticipant.count({
+        where: {
+          userId,
+        },
+      });
+    }
+
+    // ============================================
+    // MEMBER DAYS
+    // ============================================
+
+    if (badge.requirement === "MEMBER_DAYS") {
+      const now = new Date();
+
+      const millisecondsPerDay =
+        1000 * 60 * 60 * 24;
+
+      progress = Math.floor(
+        (now.getTime() - user.createdAt.getTime()) /
+          millisecondsPerDay
+      );
+
+      // Never allow a negative value.
+      progress = Math.max(0, progress);
+    }
+
+    // ============================================
+    // SAVE PROGRESS
+    // ============================================
+
+    await prisma.badgeProgress.upsert({
+      where: {
+        userId_badgeId: {
+          userId,
+          badgeId: badge.id,
+        },
+      },
+
+      update: {
+        progress,
+      },
+
+      create: {
+        userId,
+        badgeId: badge.id,
+        progress,
+      },
+    });
+
+    // ============================================
+    // AUTOMATIC AWARD
+    // ============================================
+
+    if (
+      badge.target !== null &&
+      progress >= badge.target
+    ) {
+      const existingAward =
+        await prisma.userBadge.findUnique({
+          where: {
+            userId_badgeId: {
+              userId,
+              badgeId: badge.id,
+            },
+          },
+        });
+
+      if (!existingAward) {
+        await prisma.userBadge.create({
+          data: {
+            userId,
+            badgeId: badge.id,
+          },
+        });
+      }
+    }
+  }
+
+  revalidatePath("/badges");
+  revalidatePath("/profile");
+}
+
+/**
+ * Update automatic badge progress for every user.
+ */
+export async function updateAllBadgeProgress() {
+  const users = await prisma.user.findMany({
+    select: {
+      id: true,
+    },
+  });
+
+  for (const user of users) {
+    await updateBadgeProgress(user.id);
+  }
+
+  revalidatePath("/badges");
+  revalidatePath("/profile");
+  revalidatePath("/admin/badges");
+}
+
 export async function createBadge(formData: FormData) {
   await requireRole(["OWNER"]);
 
@@ -60,6 +208,15 @@ export async function createBadge(formData: FormData) {
   ) {
     throw new Error(
       "Target must be a positive whole number."
+    );
+  }
+
+  if (
+    requirement &&
+    !["EVENTS", "MEMBER_DAYS"].includes(requirement)
+  ) {
+    throw new Error(
+      "Invalid badge requirement."
     );
   }
 
@@ -155,6 +312,15 @@ export async function updateBadge(formData: FormData) {
     );
   }
 
+  if (
+    requirement &&
+    !["EVENTS", "MEMBER_DAYS"].includes(requirement)
+  ) {
+    throw new Error(
+      "Invalid badge requirement."
+    );
+  }
+
   const existingBadge =
     await prisma.badge.findUnique({
       where: {
@@ -200,6 +366,15 @@ export async function updateBadge(formData: FormData) {
     },
   });
 
+  // Recalculate this badge for every user
+  // if it uses automatic progress.
+  if (
+    requirement === "EVENTS" ||
+    requirement === "MEMBER_DAYS"
+  ) {
+    await updateAllBadgeProgress();
+  }
+
   revalidatePath("/admin/badges");
   revalidatePath(`/admin/badges/${badgeId}/edit`);
   revalidatePath(`/badges/${slug}`);
@@ -236,6 +411,12 @@ export async function deleteBadge(formData: FormData) {
   }
 
   await prisma.userBadge.deleteMany({
+    where: {
+      badgeId,
+    },
+  });
+
+  await prisma.badgeProgress.deleteMany({
     where: {
       badgeId,
     },
