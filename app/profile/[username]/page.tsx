@@ -306,7 +306,7 @@ export default async function PublicProfilePage({
                   {/* Followers */}
 
                   <Link
-                    href={`/add/profile/${encodeURIComponent(
+                    href={`/profile/${encodeURIComponent(
                       user.username
                     )}/followers`}
                     className="
@@ -344,7 +344,7 @@ export default async function PublicProfilePage({
                   {/* Following */}
 
                   <Link
-                    href={`/add/profile/${encodeURIComponent(
+                    href={`/profile/${encodeURIComponent(
                       user.username
                     )}/following`}
                     className="

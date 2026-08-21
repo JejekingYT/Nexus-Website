@@ -185,7 +185,7 @@ export default async function FollowingPage({
                   return (
                     <Link
                       key={follow.id}
-                      href={`/add/profile/${encodeURIComponent(
+                      href={`/profile/${encodeURIComponent(
                         followedUser.username
                       )}`}
                       className="
@@ -343,7 +343,7 @@ export default async function FollowingPage({
 
           <div className="text-center mt-10">
             <Link
-              href={`/add/profile/${encodeURIComponent(
+              href={`/profile/${encodeURIComponent(
                 user.username
               )}`}
               className="
