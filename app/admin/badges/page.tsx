@@ -340,7 +340,7 @@ export default async function BadgesAdminPage() {
                     🎉 Events Joined
                   </option>
 
-                  <option value="MEMBERSHIP_DAYS">
+                  <option value="MEMBER_DAYS">
                     🕰️ Membership Days
                   </option>
 

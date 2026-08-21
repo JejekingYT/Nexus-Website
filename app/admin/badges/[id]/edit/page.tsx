@@ -282,7 +282,7 @@ export default async function EditBadgePage({ params }: Props) {
       🎉 Join Events
     </option>
 
-    <option value="MEMBERSHIP_DAYS" className="bg-[#09090B]">
+    <option value="MEMBER_DAYS" className="bg-[#09090B]">
       🕰️ Membership Days
     </option>
   </select>
