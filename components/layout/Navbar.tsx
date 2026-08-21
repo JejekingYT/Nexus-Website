@@ -105,7 +105,6 @@ export default function Navbar({
               px-5
               py-2
               rounded-xl
-              bg-purple-600
               hover:bg-purple-500
               transition
               text-white
