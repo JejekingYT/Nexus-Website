@@ -258,10 +258,9 @@ export default async function EditBadgePage({ params }: Props) {
     🎯 Badge Requirement
   </label>
 
-  <input
+  <select
     name="requirement"
     defaultValue={badge.requirement ?? ""}
-    placeholder="e.g. Attend Nexus events"
     className="
       w-full
       bg-black/30
@@ -274,10 +273,22 @@ export default async function EditBadgePage({ params }: Props) {
       focus:border-purple-500
       transition
     "
-  />
+  >
+    <option value="" className="bg-[#09090B]">
+      No automatic requirement
+    </option>
+
+    <option value="EVENTS" className="bg-[#09090B]">
+      🎉 Join Events
+    </option>
+
+    <option value="MEMBERSHIP_DAYS" className="bg-[#09090B]">
+      🕰️ Membership Days
+    </option>
+  </select>
 
   <p className="text-xs text-gray-500 mt-2">
-    Describe what a member needs to do to earn this badge.
+    Select what members need to do to automatically earn this badge.
   </p>
 </div>
 
