@@ -122,6 +122,20 @@ model Developer {
   createdAt   DateTime @default(now())
 }
 
+model Follow {
+  id          Int      @id @default(autoincrement())
+  followerId  Int
+  followingId Int
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
 model User {
   id               Int               @id @default(autoincrement())
   discordId        String            @unique
@@ -139,6 +153,9 @@ model User {
   awardedBadges    UserBadge[]       @relation("AwardedBadges")
   badges           UserBadge[]       @relation("UserBadges")
   eventParticipations EventParticipant[]
+
+  followers Follow[] @relation("Followers")
+  following Follow[] @relation("Following")
 }
 
 model Badge {
