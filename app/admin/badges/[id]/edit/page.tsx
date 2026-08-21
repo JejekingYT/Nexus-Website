@@ -253,33 +253,33 @@ export default async function EditBadgePage({ params }: Props) {
               </div>
 
               {/* Requirement */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-2">
-                  🎯 Badge Requirement
-                </label>
+<div>
+  <label className="block text-sm font-semibold text-gray-300 mb-2">
+    🎯 Badge Requirement
+  </label>
 
-                <input
-                  name="requirement"
-                  defaultValue={badge.requirement ?? ""}
-                  placeholder="e.g. Attend Nexus events"
-                  className="
-                    w-full
-                    bg-black/30
-                    border
-                    border-white/10
-                    rounded-xl
-                    px-5
-                    py-4
-                    outline-none
-                    focus:border-purple-500
-                    transition
-                  "
-                />
+  <input
+    name="requirement"
+    defaultValue={badge.requirement ?? ""}
+    placeholder="e.g. Attend Nexus events"
+    className="
+      w-full
+      bg-black/30
+      border
+      border-white/10
+      rounded-xl
+      px-5
+      py-4
+      outline-none
+      focus:border-purple-500
+      transition
+    "
+  />
 
-                <p className="text-xs text-gray-500 mt-2">
-                  Describe what a member needs to do to earn this badge.
-                </p>
-              </div>
+  <p className="text-xs text-gray-500 mt-2">
+    Describe what a member needs to do to earn this badge.
+  </p>
+</div>
 
               {/* Target */}
               <div>
