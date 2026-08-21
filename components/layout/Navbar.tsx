@@ -102,12 +102,13 @@ export default function Navbar({
           <Link
             href="/"
             className="
-              text-2xl
-              font-bold
-              text-gray-300
+              px-5
+              py-2
+              rounded-xl
+              bg-purple-600
+              hover:bg-purple-500
               transition
-              duration-200
-              hover:text-purple-400
+              text-white
             "
           >
             Home
