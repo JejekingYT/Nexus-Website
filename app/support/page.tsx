@@ -97,7 +97,6 @@ export default async function SupportPage() {
 
 
 
-
     const webhook =
       process.env.DISCORD_SUPPORT_LOG_WEBHOOK;
 
@@ -172,6 +171,8 @@ ${process.env.NEXTAUTH_URL}/admin/support/${ticket.id}
     redirect(`/support/${ticket.id}`);
 
   }
+
+
 
 
 
@@ -298,23 +299,42 @@ ${process.env.NEXTAUTH_URL}/admin/support/${ticket.id}
 
               name="category"
 
-              className="input"
+              defaultValue="Technical Issue"
+
+              className="
+                input
+                bg-[#18181B]
+                text-white
+                border-white/10
+              "
 
             >
 
-              <option>
+              <option
+                value="Technical Issue"
+                className="bg-[#18181B] text-white"
+              >
                 Technical Issue
               </option>
 
-              <option>
+              <option
+                value="Account Help"
+                className="bg-[#18181B] text-white"
+              >
                 Account Help
               </option>
 
-              <option>
+              <option
+                value="Community Question"
+                className="bg-[#18181B] text-white"
+              >
                 Community Question
               </option>
 
-              <option>
+              <option
+                value="Report"
+                className="bg-[#18181B] text-white"
+              >
                 Report
               </option>
 
