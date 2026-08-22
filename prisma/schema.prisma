@@ -75,9 +75,8 @@ model EventParticipant {
   eventId  Int
   userId   Int
   joinedAt DateTime @default(now())
-
-  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event    Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([eventId, userId])
   @@index([eventId])
@@ -127,9 +126,8 @@ model Follow {
   followerId  Int
   followingId Int
   createdAt   DateTime @default(now())
-
-  follower  User @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
-  following User @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
+  follower    User     @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
 
   @@unique([followerId, followingId])
   @@index([followerId])
@@ -137,25 +135,31 @@ model Follow {
 }
 
 model User {
-  id               Int               @id @default(autoincrement())
-  discordId        String            @unique
-  username         String
-  image            String?
-  bio              String?
-  role             String            @default("USER")
-  createdAt        DateTime          @default(now())
-  logs             AuditLog[]
-  badgeProgress    BadgeProgress[]
-  communityReviews CommunityReview[]
-  news             News[]
-  supportMessages  SupportMessage[]
-  supportTickets   SupportTicket[]
-  awardedBadges    UserBadge[]       @relation("AwardedBadges")
-  badges           UserBadge[]       @relation("UserBadges")
+  id                  Int                @id @default(autoincrement())
+  discordId           String             @unique
+  username            String
+  image               String?
+  bio                 String?
+  role                String             @default("USER")
+  createdAt           DateTime           @default(now())
+  banner              String?
+  discord             String?
+  github              String?
+  roblox              String?
+  theme               String             @default("default")
+  twitter             String?
+  youtube             String?
+  logs                AuditLog[]
+  badgeProgress       BadgeProgress[]
+  communityReviews    CommunityReview[]
   eventParticipations EventParticipant[]
-
-  followers Follow[] @relation("Followers")
-  following Follow[] @relation("Following")
+  following           Follow[]           @relation("Following")
+  followers           Follow[]           @relation("Followers")
+  news                News[]
+  supportMessages     SupportMessage[]
+  supportTickets      SupportTicket[]
+  awardedBadges       UserBadge[]        @relation("AwardedBadges")
+  badges              UserBadge[]        @relation("UserBadges")
 }
 
 model Badge {

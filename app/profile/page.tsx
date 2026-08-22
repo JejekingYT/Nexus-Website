@@ -57,6 +57,46 @@ function getRoleName(role: string) {
   }
 }
 
+function getTheme(theme: string | null) {
+  switch (theme) {
+    case "purple":
+      return {
+        banner:
+          "from-purple-950 via-purple-700/60 to-indigo-950",
+        accent: "ring-purple-500",
+        button:
+          "from-purple-600 to-fuchsia-600",
+      };
+
+    case "blue":
+      return {
+        banner:
+          "from-blue-950 via-blue-700/60 to-cyan-950",
+        accent: "ring-blue-500",
+        button:
+          "from-blue-600 to-cyan-600",
+      };
+
+    case "dark":
+      return {
+        banner:
+          "from-black via-zinc-800 to-black",
+        accent: "ring-zinc-500",
+        button:
+          "from-zinc-700 to-zinc-900",
+      };
+
+    default:
+      return {
+        banner:
+          "from-purple-900/60 via-purple-600/30 to-black",
+        accent: "ring-purple-500",
+        button:
+          "from-purple-600 to-blue-600",
+      };
+  }
+}
+
 export default async function ProfilePage() {
   const session = await getServerSession(authOptions);
 
@@ -80,12 +120,26 @@ export default async function ProfilePage() {
           awardedAt: "desc",
         },
       },
+
+      followers: true,
+
+      following: true,
+
+      logs: {
+        orderBy: {
+          createdAt: "desc",
+        },
+
+        take: 5,
+      },
     },
   });
 
   if (!user) {
     redirect("/login");
   }
+
+  const theme = getTheme(user.theme);
 
   return (
     <main className="min-h-screen bg-[#09090B] text-white">
@@ -115,26 +169,53 @@ export default async function ProfilePage() {
               mt-12
               rounded-3xl
               overflow-hidden
+              border
+              border-white/10
             "
           >
 
             {/* Banner */}
 
             <div
-              className="
-                h-44
+              className={`
+                relative
+                h-52
                 bg-linear-to-r
-                from-purple-900/60
-                via-purple-600/30
-                to-black
-              "
-            />
+                ${theme.banner}
+                overflow-hidden
+              `}
+            >
+
+              {user.banner && (
+                <img
+                  src={user.banner}
+                  alt="Profile banner"
+                  className="
+                    absolute
+                    inset-0
+                    w-full
+                    h-full
+                    object-cover
+                  "
+                />
+              )}
+
+              <div
+                className="
+                  absolute
+                  inset-0
+                  bg-black/20
+                "
+              />
+
+            </div>
+
 
             <div className="px-8 pb-12 text-center">
 
               {/* Avatar */}
 
-              <div className="-mt-20">
+              <div className="-mt-20 relative z-10">
 
                 {user.image ? (
                   <Image
@@ -142,7 +223,7 @@ export default async function ProfilePage() {
                     alt={user.username}
                     width={144}
                     height={144}
-                    className="
+                    className={`
                       w-36
                       h-36
                       mx-auto
@@ -151,12 +232,12 @@ export default async function ProfilePage() {
                       border-4
                       border-[#09090B]
                       ring-2
-                      ring-purple-500
-                    "
+                      ${theme.accent}
+                    `}
                   />
                 ) : (
                   <div
-                    className="
+                    className={`
                       w-36
                       h-36
                       mx-auto
@@ -170,8 +251,8 @@ export default async function ProfilePage() {
                       border-4
                       border-[#09090B]
                       ring-2
-                      ring-purple-500
-                    "
+                      ${theme.accent}
+                    `}
                   >
                     {user.username.charAt(0).toUpperCase()}
                   </div>
@@ -179,11 +260,18 @@ export default async function ProfilePage() {
 
               </div>
 
+
+              {/* Username */}
+
               <h2 className="text-4xl font-bold mt-6">
                 {user.username}
               </h2>
 
+
+              {/* Role */}
+
               <div className="flex justify-center mt-4">
+
                 <span
                   className={`
                     px-5
@@ -197,7 +285,11 @@ export default async function ProfilePage() {
                 >
                   {getRoleName(user.role)}
                 </span>
+
               </div>
+
+
+              {/* Bio */}
 
               <p
                 className="
@@ -210,11 +302,171 @@ export default async function ProfilePage() {
                 {user.bio || "No bio set yet."}
               </p>
 
+
+              {/* Followers / Following */}
+
+              <div className="flex justify-center gap-10 mt-8">
+
+                <Link
+                  href={`/profile/${user.username}/followers`}
+                  className="group"
+                >
+                  <p className="text-2xl font-bold group-hover:text-purple-400 transition">
+                    {user.followers.length}
+                  </p>
+
+                  <p className="text-gray-500 text-sm">
+                    Followers
+                  </p>
+                </Link>
+
+
+                <Link
+                  href={`/profile/${user.username}/following`}
+                  className="group"
+                >
+                  <p className="text-2xl font-bold group-hover:text-purple-400 transition">
+                    {user.following.length}
+                  </p>
+
+                  <p className="text-gray-500 text-sm">
+                    Following
+                  </p>
+                </Link>
+
+              </div>
+
+
+              {/* Social Links */}
+
+              {(user.discord ||
+                user.youtube ||
+                user.github ||
+                user.twitter ||
+                user.roblox) && (
+
+                <div className="flex justify-center flex-wrap gap-3 mt-8">
+
+                  {user.discord && (
+                    <a
+                      href={
+                        user.discord.startsWith("http")
+                          ? user.discord
+                          : "#"
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="
+                        px-4
+                        py-2
+                        rounded-xl
+                        bg-indigo-500/10
+                        border
+                        border-indigo-500/20
+                        text-indigo-400
+                        hover:bg-indigo-500/20
+                        transition
+                      "
+                    >
+                      💬 Discord
+                    </a>
+                  )}
+
+                  {user.youtube && (
+                    <a
+                      href={user.youtube}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="
+                        px-4
+                        py-2
+                        rounded-xl
+                        bg-red-500/10
+                        border
+                        border-red-500/20
+                        text-red-400
+                        hover:bg-red-500/20
+                        transition
+                      "
+                    >
+                      ▶️ YouTube
+                    </a>
+                  )}
+
+                  {user.github && (
+                    <a
+                      href={user.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="
+                        px-4
+                        py-2
+                        rounded-xl
+                        bg-white/5
+                        border
+                        border-white/10
+                        text-gray-300
+                        hover:bg-white/10
+                        transition
+                      "
+                    >
+                      💻 GitHub
+                    </a>
+                  )}
+
+                  {user.twitter && (
+                    <a
+                      href={user.twitter}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="
+                        px-4
+                        py-2
+                        rounded-xl
+                        bg-sky-500/10
+                        border
+                        border-sky-500/20
+                        text-sky-400
+                        hover:bg-sky-500/20
+                        transition
+                      "
+                    >
+                      𝕏 Twitter
+                    </a>
+                  )}
+
+                  {user.roblox && (
+                    <a
+                      href={user.roblox}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="
+                        px-4
+                        py-2
+                        rounded-xl
+                        bg-green-500/10
+                        border
+                        border-green-500/20
+                        text-green-400
+                        hover:bg-green-500/20
+                        transition
+                      "
+                    >
+                      🎮 Roblox
+                    </a>
+                  )}
+
+                </div>
+
+              )}
+
+
               {/* Stats */}
 
               <div className="grid md:grid-cols-3 gap-5 mt-12">
 
                 <div className="glass p-6 rounded-2xl">
+
                   <p className="text-gray-500 text-sm">
                     Role
                   </p>
@@ -222,9 +474,12 @@ export default async function ProfilePage() {
                   <p className="font-bold text-xl mt-2">
                     {user.role}
                   </p>
+
                 </div>
 
+
                 <div className="glass p-6 rounded-2xl">
+
                   <p className="text-gray-500 text-sm">
                     Badges
                   </p>
@@ -232,9 +487,12 @@ export default async function ProfilePage() {
                   <p className="font-bold text-xl mt-2">
                     {user.badges.length}
                   </p>
+
                 </div>
 
+
                 <div className="glass p-6 rounded-2xl">
+
                   <p className="text-gray-500 text-sm">
                     Joined
                   </p>
@@ -248,9 +506,79 @@ export default async function ProfilePage() {
                       }
                     )}
                   </p>
+
                 </div>
 
               </div>
+
+
+              {/* Recent Activity */}
+
+              <div className="mt-14 text-left">
+
+                <h3 className="text-3xl font-bold text-center">
+                  ⚡ Recent Activity
+                </h3>
+
+                {user.logs.length > 0 ? (
+
+                  <div className="mt-8 space-y-4">
+
+                    {user.logs.map((log) => (
+
+                      <div
+                        key={log.id}
+                        className="
+                          glass
+                          rounded-2xl
+                          p-5
+                          border
+                          border-white/5
+                        "
+                      >
+
+                        <div className="flex justify-between gap-4">
+
+                          <div>
+
+                            <p className="font-bold">
+                              {log.action}
+                            </p>
+
+                            <p className="text-gray-400 text-sm mt-1">
+                              {log.details}
+                            </p>
+
+                          </div>
+
+                          <p className="text-gray-500 text-xs whitespace-nowrap">
+                            {log.createdAt.toLocaleDateString(
+                              "en-US",
+                              {
+                                month: "short",
+                                day: "numeric",
+                              }
+                            )}
+                          </p>
+
+                        </div>
+
+                      </div>
+
+                    ))}
+
+                  </div>
+
+                ) : (
+
+                  <p className="text-gray-500 text-center mt-8">
+                    No recent activity yet.
+                  </p>
+
+                )}
+
+              </div>
+
 
               {/* Badges */}
 
@@ -279,8 +607,6 @@ export default async function ProfilePage() {
 
                         <div className="flex gap-4">
 
-                          {/* Badge Icon */}
-
                           <div
                             className="
                               w-16
@@ -299,7 +625,6 @@ export default async function ProfilePage() {
                             {item.badge.icon}
                           </div>
 
-                          {/* Badge Information */}
 
                           <div className="min-w-0 flex-1">
 
@@ -308,8 +633,6 @@ export default async function ProfilePage() {
                               <h4 className="font-bold text-lg">
                                 {item.badge.name}
                               </h4>
-
-                              {/* Category */}
 
                               <span
                                 className="
@@ -330,12 +653,12 @@ export default async function ProfilePage() {
 
                             </div>
 
+
                             <p className="text-gray-400 text-sm mt-2">
                               {item.badge.description ||
                                 "No description available."}
                             </p>
 
-                            {/* Awarded Date */}
 
                             <p className="text-gray-500 text-xs mt-3">
                               Awarded{" "}
@@ -369,24 +692,27 @@ export default async function ProfilePage() {
 
               </div>
 
+
+              {/* Buttons */}
+
               <div className="flex justify-center gap-4 flex-wrap mt-12">
 
                 <Link
                   href="/profile/edit"
-                  className="
+                  className={`
                     px-8
                     py-3
                     rounded-xl
                     bg-linear-to-r
-                    from-purple-600
-                    to-blue-600
+                    ${theme.button}
                     font-bold
                     hover:scale-105
                     transition
-                  "
+                  `}
                 >
                   Edit Profile
                 </Link>
+
 
                 <Link
                   href={`/profile/${user.username}`}

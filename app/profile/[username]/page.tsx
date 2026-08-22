@@ -15,22 +15,16 @@ function getRoleStyle(role: string) {
   switch (role) {
     case "OWNER":
       return "bg-yellow-500/20 border-yellow-500/30 text-yellow-400";
-
     case "CO-OWNER":
       return "bg-orange-500/20 border-orange-500/30 text-orange-400";
-
     case "MANAGER":
       return "bg-blue-500/20 border-blue-500/30 text-blue-400";
-
     case "ADMIN":
       return "bg-red-500/20 border-red-500/30 text-red-400";
-
     case "MODERATOR":
       return "bg-green-500/20 border-green-500/30 text-green-400";
-
     case "SUPPORT":
       return "bg-cyan-500/20 border-cyan-500/30 text-cyan-400";
-
     default:
       return "bg-purple-500/20 border-purple-500/30 text-purple-400";
   }
@@ -40,24 +34,83 @@ function getRoleBadge(role: string) {
   switch (role) {
     case "OWNER":
       return "👑 Founder";
-
     case "CO-OWNER":
       return "👑 Co-Owner";
-
     case "MANAGER":
       return "⚙️ Manager";
-
     case "ADMIN":
       return "🛡️ Administrator";
-
     case "MODERATOR":
       return "🛡️ Moderator";
-
     case "SUPPORT":
       return "💬 Support";
-
     default:
       return "✅ Nexus Member";
+  }
+}
+
+function getThemeStyles(theme: string) {
+  switch (theme) {
+    case "purple":
+      return {
+        card: "border-purple-500/30",
+        banner:
+          "from-purple-950 via-purple-800/60 to-indigo-950",
+        ring: "ring-purple-500",
+        accent: "text-purple-400",
+        button:
+          "from-purple-600 to-fuchsia-600",
+      };
+
+    case "blue":
+      return {
+        card: "border-blue-500/30",
+        banner:
+          "from-blue-950 via-blue-800/60 to-cyan-950",
+        ring: "ring-blue-500",
+        accent: "text-blue-400",
+        button:
+          "from-blue-600 to-cyan-600",
+      };
+
+    case "dark":
+      return {
+        card: "border-white/10",
+        banner:
+          "from-black via-zinc-900 to-black",
+        ring: "ring-white/30",
+        accent: "text-gray-300",
+        button:
+          "from-zinc-700 to-zinc-900",
+      };
+
+    default:
+      return {
+        card: "border-white/10",
+        banner:
+          "from-purple-700/50 via-purple-500/20 to-blue-500/20",
+        ring: "ring-purple-500",
+        accent: "text-purple-400",
+        button:
+          "from-purple-600 to-blue-600",
+      };
+  }
+}
+
+function getSocialIcon(name: string) {
+  switch (name) {
+    case "Discord":
+      return "💬";
+    case "YouTube":
+      return "▶️";
+    case "GitHub":
+      return "💻";
+    case "Twitter":
+      return "𝕏";
+    case "Roblox":
+      return "🎮";
+    default:
+      return "🔗";
   }
 }
 
@@ -70,7 +123,6 @@ export default async function PublicProfilePage({
 
   const decodedUsername = decodeURIComponent(username);
 
-  // Get the currently logged-in user
   const session = await getServerSession(authOptions);
 
   const user = await prisma.user.findFirst({
@@ -102,7 +154,6 @@ export default async function PublicProfilePage({
     notFound();
   }
 
-  // Determine whether the logged-in user is following this profile
   let isFollowing = false;
   let isOwnProfile = false;
 
@@ -135,97 +186,107 @@ export default async function PublicProfilePage({
     }
   }
 
+  const themeStyles = getThemeStyles(user.theme || "default");
+
+  const socialLinks = [
+    {
+      name: "Discord",
+      value: user.discord,
+    },
+    {
+      name: "YouTube",
+      value: user.youtube,
+    },
+    {
+      name: "GitHub",
+      value: user.github,
+    },
+    {
+      name: "Twitter",
+      value: user.twitter,
+    },
+    {
+      name: "Roblox",
+      value: user.roblox,
+    },
+  ].filter((social) => social.value);
+
   return (
     <main className="min-h-screen text-white">
       <Navbar />
 
-      <section
-        className="
-          pt-32
-          pb-24
-          px-6
-        "
-      >
-        <div
-          className="
-            max-w-5xl
-            mx-auto
-          "
-        >
-          <div
-            className="
-              text-center
-              mb-12
-            "
-          >
-            <h1
-              className="
-                text-5xl
-                md:text-6xl
-                font-extrabold
-              "
-            >
-              Nexus{" "}
+      <section className="pt-32 pb-24 px-6">
+        <div className="max-w-5xl mx-auto">
 
-              <span
-                className="
-                  bg-linear-to-r
-                  from-purple-400
-                  to-blue-400
-                  bg-clip-text
-                  text-transparent
-                "
-              >
+          {/* Header */}
+
+          <div className="text-center mb-12">
+
+            <h1 className="text-5xl md:text-6xl font-extrabold">
+              Nexus{" "}
+              <span className="bg-linear-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
                 Member
               </span>
             </h1>
 
-            <p
-              className="
-                text-gray-400
-                mt-5
-                text-lg
-              "
-            >
+            <p className="text-gray-400 mt-5 text-lg">
               Viewing the public profile of a Nexus member.
             </p>
+
           </div>
 
+          {/* PROFILE CARD */}
+
           <div
-            className="
+            className={`
               glass
               rounded-3xl
               overflow-hidden
-            "
+              border
+              ${themeStyles.card}
+            `}
           >
+
             {/* Banner */}
 
             <div
-              className="
-                h-44
+              className={`
+                h-52
                 bg-linear-to-r
-                from-purple-700/50
-                via-purple-500/20
-                to-blue-500/20
-              "
-            />
-
-            <div
-              className="
-                px-8
-                pb-12
-              "
+                ${themeStyles.banner}
+                relative
+                overflow-hidden
+              `}
+              style={
+                user.banner
+                  ? {
+                      backgroundImage: `url(${user.banner})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }
+                  : undefined
+              }
             >
+
+              {user.banner && (
+                <div className="absolute inset-0 bg-black/25" />
+              )}
+
+            </div>
+
+            <div className="px-8 pb-12">
+
               {/* Avatar */}
 
-              <div className="-mt-20 flex justify-center">
+              <div className="-mt-20 flex justify-center relative z-10">
+
                 {user.image ? (
                   <Image
                     src={user.image}
                     alt={user.username}
-                    width={140}
-                    height={140}
-                    className="
+                    width={144}
+                    height={144}
+                    className={`
                       w-36
                       h-36
                       rounded-full
@@ -233,12 +294,12 @@ export default async function PublicProfilePage({
                       border-4
                       border-[#09090B]
                       ring-2
-                      ring-purple-500
-                    "
+                      ${themeStyles.ring}
+                    `}
                   />
                 ) : (
                   <div
-                    className="
+                    className={`
                       w-36
                       h-36
                       rounded-full
@@ -251,27 +312,25 @@ export default async function PublicProfilePage({
                       border-4
                       border-[#09090B]
                       ring-2
-                      ring-purple-500
-                    "
+                      ${themeStyles.ring}
+                    `}
                   >
                     {user.username.charAt(0).toUpperCase()}
                   </div>
                 )}
+
               </div>
 
               {/* User Info */}
 
               <div className="text-center mt-6">
-                <h2
-                  className="
-                    text-4xl
-                    font-bold
-                  "
-                >
+
+                <h2 className="text-4xl font-bold">
                   {user.username}
                 </h2>
 
                 <div className="flex justify-center mt-4">
+
                   <span
                     className={`
                       px-5
@@ -285,25 +344,78 @@ export default async function PublicProfilePage({
                   >
                     {getRoleBadge(user.role)}
                   </span>
+
                 </div>
 
-                <p
-                  className="
-                    text-gray-400
-                    text-lg
-                    mt-6
-                    max-w-2xl
-                    mx-auto
-                  "
-                >
+                {/* Bio */}
+
+                <p className="text-gray-400 text-lg mt-6 max-w-2xl mx-auto">
                   {user.bio || "This user hasn't added a bio yet."}
                 </p>
 
-                {/* Follow System */}
+                {/* Social Links */}
+
+                {socialLinks.length > 0 && (
+                  <div className="flex flex-wrap justify-center gap-3 mt-7">
+
+                    {socialLinks.map((social) => {
+
+                      const isDiscord =
+                        social.name === "Discord";
+
+                      return (
+                        <a
+                          key={social.name}
+                          href={
+                            isDiscord
+                              ? undefined
+                              : social.value!
+                          }
+                          target={
+                            isDiscord
+                              ? undefined
+                              : "_blank"
+                          }
+                          rel={
+                            isDiscord
+                              ? undefined
+                              : "noopener noreferrer"
+                          }
+                          className="
+                            inline-flex
+                            items-center
+                            gap-2
+                            px-4
+                            py-2
+                            rounded-xl
+                            border
+                            border-white/10
+                            bg-white/[0.04]
+                            hover:bg-white/[0.1]
+                            hover:border-purple-500/30
+                            transition
+                            text-sm
+                            font-semibold
+                          "
+                        >
+                          <span>
+                            {getSocialIcon(social.name)}
+                          </span>
+
+                          <span>
+                            {social.name}
+                          </span>
+                        </a>
+                      );
+
+                    })}
+
+                  </div>
+                )}
+
+                {/* Follow Stats */}
 
                 <div className="mt-8 flex flex-wrap justify-center gap-3">
-
-                  {/* Followers */}
 
                   <Link
                     href={`/profile/${encodeURIComponent(
@@ -339,9 +451,6 @@ export default async function PublicProfilePage({
                       </p>
                     </div>
                   </Link>
-
-
-                  {/* Following */}
 
                   <Link
                     href={`/profile/${encodeURIComponent(
@@ -384,6 +493,7 @@ export default async function PublicProfilePage({
 
                 {!isOwnProfile && (
                   <div className="mt-6 flex justify-center">
+
                     {session?.user ? (
                       <FollowButton
                         userId={user.id}
@@ -413,21 +523,16 @@ export default async function PublicProfilePage({
                         🔐 Login to Follow
                       </Link>
                     )}
+
                   </div>
                 )}
+
               </div>
 
               {/* Stats */}
 
-              <div
-                className="
-                  grid
-                  grid-cols-2
-                  md:grid-cols-5
-                  gap-5
-                  mt-12
-                "
-              >
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-5 mt-12">
+
                 {[
                   {
                     title: "Role",
@@ -456,70 +561,58 @@ export default async function PublicProfilePage({
                     ),
                   },
                 ].map((stat) => (
+
                   <div
                     key={stat.title}
                     className="
                       glass
                       p-6
                       text-center
+                      rounded-2xl
                     "
                   >
+
                     <p className="text-gray-500 text-sm">
                       {stat.title}
                     </p>
 
-                    <p
-                      className="
-                        font-bold
-                        text-xl
-                        mt-2
-                      "
-                    >
+                    <p className="font-bold text-xl mt-2">
                       {stat.value}
                     </p>
+
                   </div>
+
                 ))}
+
               </div>
 
               {/* Badges */}
 
               <div className="mt-14">
-                <h3
-                  className="
-                    text-3xl
-                    font-bold
-                    text-center
-                  "
-                >
+
+                <h3 className="text-3xl font-bold text-center">
                   🏅 Badges
                 </h3>
 
                 {user.badges.length > 0 ? (
-                  <div
-                    className="
-                      grid
-                      md:grid-cols-2
-                      gap-5
-                      mt-8
-                    "
-                  >
+
+                  <div className="grid md:grid-cols-2 gap-5 mt-8">
+
                     {user.badges.map((item) => (
+
                       <div
                         key={item.id}
                         className="
                           glass
                           p-5
+                          rounded-2xl
                           hover:border-purple-500
                           transition
                         "
                       >
-                        <div
-                          className="
-                            flex
-                            gap-4
-                            items-center
-                          "
-                        >
+
+                        <div className="flex gap-4 items-center">
+
                           <div
                             className="
                               w-14
@@ -538,66 +631,59 @@ export default async function PublicProfilePage({
                           </div>
 
                           <div>
-                            <h4
-                              className="
-                                font-bold
-                                text-lg
-                              "
-                            >
+
+                            <h4 className="font-bold text-lg">
                               {item.badge.name}
                             </h4>
 
-                            <p
-                              className="
-                                text-gray-400
-                                text-sm
-                              "
-                            >
+                            <p className="text-gray-400 text-sm">
                               {item.badge.description ||
                                 "No description available."}
                             </p>
+
                           </div>
+
                         </div>
+
                       </div>
+
                     ))}
+
                   </div>
+
                 ) : (
-                  <p
-                    className="
-                      text-center
-                      text-gray-500
-                      mt-6
-                    "
-                  >
+
+                  <p className="text-center text-gray-500 mt-6">
                     No badges earned yet.
                   </p>
+
                 )}
+
               </div>
 
               {/* Back Button */}
 
-              <div
-                className="
-                  text-center
-                  mt-12
-                "
-              >
+              <div className="text-center mt-12">
+
                 <Link
                   href="/members"
-                  className="
+                  className={`
                     inline-block
                     px-8
                     py-3
                     rounded-xl
-                    bg-white/10
-                    hover:bg-white/20
+                    bg-linear-to-r
+                    ${themeStyles.button}
                     font-bold
                     transition
-                  "
+                    hover:scale-105
+                  `}
                 >
                   ← Back to Members
                 </Link>
+
               </div>
+
             </div>
           </div>
         </div>
