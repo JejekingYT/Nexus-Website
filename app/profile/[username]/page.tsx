@@ -7,6 +7,7 @@ import Image from "next/image";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import FollowButton from "./FollowButton";
+import SocialLink from "./SocialLink";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -358,57 +359,14 @@ export default async function PublicProfilePage({
                 {socialLinks.length > 0 && (
                   <div className="flex flex-wrap justify-center gap-3 mt-7">
 
-                    {socialLinks.map((social) => {
-
-                      const isDiscord =
-                        social.name === "Discord";
-
-                      return (
-                        <a
-                          key={social.name}
-                          href={
-                            isDiscord
-                              ? undefined
-                              : social.value!
-                          }
-                          target={
-                            isDiscord
-                              ? undefined
-                              : "_blank"
-                          }
-                          rel={
-                            isDiscord
-                              ? undefined
-                              : "noopener noreferrer"
-                          }
-                          className="
-                            inline-flex
-                            items-center
-                            gap-2
-                            px-4
-                            py-2
-                            rounded-xl
-                            border
-                            border-white/10
-                            bg-white/[0.04]
-                            hover:bg-white/[0.1]
-                            hover:border-purple-500/30
-                            transition
-                            text-sm
-                            font-semibold
-                          "
-                        >
-                          <span>
-                            {getSocialIcon(social.name)}
-                          </span>
-
-                          <span>
-                            {social.name}
-                          </span>
-                        </a>
-                      );
-
-                    })}
+                    {socialLinks.map((social) => (
+                      <SocialLink
+                        key={social.name}
+                        name={social.name}
+                        value={social.value!}
+                        icon={getSocialIcon(social.name)}
+                      />
+                    ))}
 
                   </div>
                 )}
