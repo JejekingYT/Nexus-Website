@@ -3,7 +3,7 @@ import "./globals.css";
 
 import AuthProvider from "@/components/providers/AuthProvider";
 import AnimatedBackground from "@/components/layout/AnimatedBackground";
-
+import ActivityTracker from "@/components/layout/ActivityTracker";
 
 export const metadata: Metadata = {
   title: {
@@ -29,18 +29,15 @@ export const metadata: Metadata = {
   ],
 };
 
-
 export const viewport = {
   themeColor: "#070711",
 };
-
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
   return (
     <html lang="en">
 
@@ -48,10 +45,11 @@ export default function RootLayout({
 
         <AnimatedBackground />
 
-
         <div className="relative z-10 min-h-screen">
 
           <AuthProvider>
+
+            <ActivityTracker />
 
             <main className="fade-in">
               {children}

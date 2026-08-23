@@ -8,6 +8,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import FollowButton from "./FollowButton";
 import SocialLink from "./SocialLink";
+import { getUserStatus } from "@/lib/userStatus";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -189,6 +190,8 @@ export default async function PublicProfilePage({
 
   const themeStyles = getThemeStyles(user.theme || "default");
 
+  const userStatus = getUserStatus(user.lastSeen);
+
   const socialLinks = [
     {
       name: "Discord",
@@ -281,44 +284,65 @@ export default async function PublicProfilePage({
 
               <div className="-mt-20 flex justify-center relative z-10">
 
-                {user.image ? (
-                  <Image
-                    src={user.image}
-                    alt={user.username}
-                    width={144}
-                    height={144}
-                    className={`
-                      w-36
-                      h-36
-                      rounded-full
-                      object-cover
-                      border-4
-                      border-[#09090B]
-                      ring-2
-                      ${themeStyles.ring}
-                    `}
-                  />
-                ) : (
+                <div className="relative">
+
+                  {user.image ? (
+                    <Image
+                      src={user.image}
+                      alt={user.username}
+                      width={144}
+                      height={144}
+                      className={`
+                        w-36
+                        h-36
+                        rounded-full
+                        object-cover
+                        border-4
+                        border-[#09090B]
+                        ring-2
+                        ${themeStyles.ring}
+                      `}
+                    />
+                  ) : (
+                    <div
+                      className={`
+                        w-36
+                        h-36
+                        rounded-full
+                        bg-purple-600
+                        flex
+                        items-center
+                        justify-center
+                        text-5xl
+                        font-bold
+                        border-4
+                        border-[#09090B]
+                        ring-2
+                        ${themeStyles.ring}
+                      `}
+                    >
+                      {user.username.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+
+                  {/* Online / Idle / Offline Status Dot */}
+
                   <div
                     className={`
-                      w-36
-                      h-36
+                      absolute
+                      bottom-2
+                      right-2
+                      w-7
+                      h-7
                       rounded-full
-                      bg-purple-600
-                      flex
-                      items-center
-                      justify-center
-                      text-5xl
-                      font-bold
                       border-4
                       border-[#09090B]
-                      ring-2
-                      ${themeStyles.ring}
+                      ${userStatus.dot}
                     `}
-                  >
-                    {user.username.charAt(0).toUpperCase()}
-                  </div>
-                )}
+                    title={userStatus.label}
+                  />
+
+                </div>
 
               </div>
 
@@ -329,6 +353,34 @@ export default async function PublicProfilePage({
                 <h2 className="text-4xl font-bold">
                   {user.username}
                 </h2>
+
+                {/* Nexus Activity Status */}
+
+                <div
+                  className={`
+                    flex
+                    items-center
+                    justify-center
+                    gap-2
+                    mt-3
+                    text-sm
+                    font-semibold
+                    ${userStatus.color}
+                  `}
+                >
+                  <span
+                    className={`
+                      w-2.5
+                      h-2.5
+                      rounded-full
+                      ${userStatus.dot}
+                    `}
+                  />
+
+                  <span>
+                    {userStatus.label}
+                  </span>
+                </div>
 
                 <div className="flex justify-center mt-4">
 
