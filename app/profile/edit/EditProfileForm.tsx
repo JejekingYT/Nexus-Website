@@ -147,7 +147,7 @@ export default function EditProfileForm({ user }: any) {
         <input
           value={discord}
           onChange={(e) => setDiscord(e.target.value)}
-          placeholder="Discord username or profile"
+          placeholder="Discord Server Link"
           className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-purple-500 transition"
         />
 
