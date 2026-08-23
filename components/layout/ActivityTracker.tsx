@@ -8,7 +8,7 @@ export default function ActivityTracker() {
 
     const updateActivity = async () => {
       try {
-        await fetch("/api/user/activity", {
+        await fetch("/api/users/activity", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
