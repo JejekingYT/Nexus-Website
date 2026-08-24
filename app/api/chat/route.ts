@@ -17,6 +17,8 @@ async function getCurrentUser() {
     },
     select: {
       id: true,
+      username: true,
+      role: true,
     },
   });
 }
@@ -39,8 +41,136 @@ async function triggerPusher(
   }
 }
 
-export async function GET() {
+async function createAuditLog(
+  userId: number,
+  action: string,
+  target: string,
+  details: string
+) {
   try {
+    await prisma.auditLog.create({
+      data: {
+        userId,
+        action,
+        target,
+        details,
+      },
+    });
+  } catch (error) {
+    console.error(
+      "Failed to create audit log:",
+      error
+    );
+  }
+}
+
+export async function GET(
+  request: Request
+) {
+  try {
+    const user = await getCurrentUser();
+
+    const url = new URL(request.url);
+    const admin =
+      url.searchParams.get("admin") === "true";
+
+    /*
+     * OWNER ADMIN CHAT
+     *
+     * /api/chat?admin=true
+     *
+     * Only OWNERs can request admin chat data.
+     */
+    if (admin) {
+      if (!user) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "You must be logged in.",
+          },
+          {
+            status: 401,
+          }
+        );
+      }
+
+      if (user.role !== "OWNER") {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Owner access required.",
+          },
+          {
+            status: 403,
+          }
+        );
+      }
+
+      const [messages, users, logs] =
+        await Promise.all([
+          prisma.chatMessage.findMany({
+            orderBy: {
+              createdAt: "desc",
+            },
+            take: 100,
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  username: true,
+                  image: true,
+                  role: true,
+                  lastSeen: true,
+                },
+              },
+            },
+          }),
+
+          prisma.user.findMany({
+            orderBy: {
+              username: "asc",
+            },
+            select: {
+              id: true,
+              username: true,
+              image: true,
+              role: true,
+              lastSeen: true,
+              createdAt: true,
+            },
+          }),
+
+          prisma.auditLog.findMany({
+            orderBy: {
+              createdAt: "desc",
+            },
+            take: 100,
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  username: true,
+                  image: true,
+                  role: true,
+                },
+              },
+            },
+          }),
+        ]);
+
+      return NextResponse.json({
+        success: true,
+        messages: messages.reverse(),
+        users,
+        logs,
+        currentUserId: user.id,
+      });
+    }
+
+    /*
+     * NORMAL GLOBAL CHAT
+     */
+
     const [messages, currentUser] =
       await Promise.all([
         prisma.chatMessage.findMany({
@@ -72,7 +202,7 @@ export async function GET() {
     });
   } catch (error) {
     console.error(
-      "Failed to fetch chat messages:",
+      "Failed to fetch chat:",
       error
     );
 
@@ -80,6 +210,8 @@ export async function GET() {
       {
         success: false,
         messages: [],
+        users: [],
+        logs: [],
         currentUserId: null,
         error: "Failed to load chat.",
       },
@@ -163,8 +295,6 @@ export async function POST(
         },
       });
 
-    // Broadcast to all connected chat clients.
-    // A Pusher failure will NOT make the message fail.
     await triggerPusher(
       "new-message",
       newMessage
@@ -264,17 +394,15 @@ export async function PATCH(
     }
 
     const existingMessage =
-      await prisma.chatMessage.findUnique(
-        {
-          where: {
-            id: messageId,
-          },
-          select: {
-            id: true,
-            userId: true,
-          },
-        }
-      );
+      await prisma.chatMessage.findUnique({
+        where: {
+          id: messageId,
+        },
+        select: {
+          id: true,
+          userId: true,
+        },
+      });
 
     if (!existingMessage) {
       return NextResponse.json(
@@ -289,9 +417,18 @@ export async function PATCH(
       );
     }
 
+    /*
+     * OWNER can edit any message.
+     *
+     * Everyone else can only edit their
+     * own message.
+     */
+    const isOwner =
+      user.role === "OWNER";
+
     if (
-      existingMessage.userId !==
-      user.id
+      !isOwner &&
+      existingMessage.userId !== user.id
     ) {
       return NextResponse.json(
         {
@@ -326,7 +463,15 @@ export async function PATCH(
         },
       });
 
-    // Broadcast the edit.
+    if (isOwner) {
+      await createAuditLog(
+        user.id,
+        "CHAT_MESSAGE_EDITED",
+        `ChatMessage:${messageId}`,
+        `Owner edited a chat message belonging to user ID ${existingMessage.userId}.`
+      );
+    }
+
     await triggerPusher(
       "message-updated",
       updatedMessage
@@ -395,17 +540,21 @@ export async function DELETE(
     }
 
     const existingMessage =
-      await prisma.chatMessage.findUnique(
-        {
-          where: {
-            id: messageId,
+      await prisma.chatMessage.findUnique({
+        where: {
+          id: messageId,
+        },
+        select: {
+          id: true,
+          userId: true,
+          message: true,
+          user: {
+            select: {
+              username: true,
+            },
           },
-          select: {
-            id: true,
-            userId: true,
-          },
-        }
-      );
+        },
+      });
 
     if (!existingMessage) {
       return NextResponse.json(
@@ -420,9 +569,18 @@ export async function DELETE(
       );
     }
 
+    const isOwner =
+      user.role === "OWNER";
+
+    /*
+     * Normal users can delete their own
+     * messages.
+     *
+     * OWNER can delete ANY message.
+     */
     if (
-      existingMessage.userId !==
-      user.id
+      !isOwner &&
+      existingMessage.userId !== user.id
     ) {
       return NextResponse.json(
         {
@@ -442,7 +600,18 @@ export async function DELETE(
       },
     });
 
-    // Broadcast the deletion.
+    /*
+     * Record owner moderation actions.
+     */
+    if (isOwner) {
+      await createAuditLog(
+        user.id,
+        "CHAT_MESSAGE_DELETED",
+        `ChatMessage:${messageId}`,
+        `Owner deleted message from ${existingMessage.user.username}: "${existingMessage.message}"`
+      );
+    }
+
     await triggerPusher(
       "message-deleted",
       {

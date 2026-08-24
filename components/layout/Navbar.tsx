@@ -311,6 +311,21 @@ export default function Navbar({
                   </Link>
 
 
+                  {/* Global Chat */}
+                  <Link
+                    href="/chat"
+                    className="
+                      block
+                      px-4
+                      py-3
+                      rounded-xl
+                      hover:bg-white/10
+                    "
+                  >
+                    💬 Global Chat
+                  </Link>
+
+
                   {(isAdmin || isSupport) && (
 
                     <button
@@ -450,6 +465,15 @@ export default function Navbar({
 
                 <Link href="/profile/edit">
                   ⚙ Settings
+                </Link>
+
+
+                {/* Global Chat */}
+                <Link
+                  href="/chat"
+                  onClick={closeMobile}
+                >
+                  💬 Global Chat
                 </Link>
 
 

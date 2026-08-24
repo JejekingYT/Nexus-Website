@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { pusherClient } from "@/lib/pusher-client";
+import { useSession } from "next-auth/react";
 
 interface ChatUser {
   id: number;
@@ -96,6 +97,8 @@ function formatTime(date: string) {
 }
 
 export default function GlobalChatPage() {
+  const { data: session } = useSession();
+
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [message, setMessage] = useState("");
 
@@ -482,17 +485,49 @@ export default function GlobalChatPage() {
                 </p>
               </div>
 
-              <div
-                className="
-                  flex
-                  items-center
-                  gap-2
-                  text-sm
-                  text-gray-400
-                "
-              >
-                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                Live
+              <div className="flex items-center gap-3">
+
+                <div
+                  className="
+                    flex
+                    items-center
+                    gap-2
+                    text-sm
+                    text-gray-400
+                  "
+                >
+                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                  Live
+                </div>
+
+                {session?.user?.role === "OWNER" && (
+                  <Link
+                    href="/chat/admin"
+                    aria-label="Open Owner Chat"
+                    title="Owner Chat"
+                    className="
+                      w-10
+                      h-10
+                      flex
+                      items-center
+                      justify-center
+                      rounded-xl
+                      border
+                      border-white/10
+                      bg-white/[0.04]
+                      text-gray-400
+                      text-2xl
+                      leading-none
+                      hover:bg-white/[0.08]
+                      hover:text-white
+                      hover:border-purple-500/30
+                      transition
+                    "
+                  >
+                    ⋮
+                  </Link>
+                )}
+
               </div>
             </div>
 

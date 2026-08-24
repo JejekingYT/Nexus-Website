@@ -60,7 +60,10 @@ export const authOptions = {
 
           update: {
 
-            username: profile.username,
+            // IMPORTANT:
+            // Do NOT update the username here.
+            // The Nexus username should stay the same
+            // even if the Discord username changes.
 
             image: profile.avatar
 
@@ -75,6 +78,9 @@ export const authOptions = {
           create: {
 
             discordId: profile.id,
+
+            // Only use the Discord username when
+            // creating the account for the first time.
 
             username: profile.username,
 
