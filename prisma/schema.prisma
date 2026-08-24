@@ -161,6 +161,7 @@ model User {
   supportTickets      SupportTicket[]
   awardedBadges       UserBadge[]        @relation("AwardedBadges")
   badges              UserBadge[]        @relation("UserBadges")
+  chatMessages ChatMessage[]
 }
 
 model Badge {
@@ -301,4 +302,16 @@ enum PartnerStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+model ChatMessage {
+  id        Int      @id @default(autoincrement())
+  message   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
 }
