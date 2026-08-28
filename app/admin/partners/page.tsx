@@ -15,30 +15,31 @@ export default async function AdminPartnersPage() {
 
   const pendingPartners = await prisma.partner.findMany({
 
-  where:{
-    status:"PENDING",
-  },
-
-  orderBy:{
-    createdAt:"desc",
-  },
-
-});
-
-
-const partners = await prisma.partner.findMany({
-
-  where:{
-    status:{
-      not:"PENDING",
+    where:{
+      status:"PENDING",
     },
-  },
 
-  orderBy:{
-    createdAt:"desc",
-  },
+    orderBy:{
+      createdAt:"desc",
+    },
 
-});
+  });
+
+
+  const partners = await prisma.partner.findMany({
+
+    where:{
+      status:{
+        not:"PENDING",
+      },
+    },
+
+    orderBy:{
+      createdAt:"desc",
+    },
+
+  });
+
 
   return (
 
@@ -61,6 +62,7 @@ const partners = await prisma.partner.findMany({
             OWNER Panel
 
           </p>
+
 
           {/* Create Partner */}
 
@@ -87,12 +89,22 @@ const partners = await prisma.partner.findMany({
               className="w-full bg-black/30 border border-white/10 rounded-xl px-5 py-4"
             />
 
+
             <input
               name="slug"
               required
-              placeholder="Slug (example: sanctuary)"
+              placeholder="Community Slug"
               className="w-full bg-black/30 border border-white/10 rounded-xl px-5 py-4"
             />
+
+
+            <input
+              name="ownerName"
+              required
+              placeholder="Owner / Representative Name"
+              className="w-full bg-black/30 border border-white/10 rounded-xl px-5 py-4"
+            />
+
 
             <input
               name="logo"
@@ -101,11 +113,13 @@ const partners = await prisma.partner.findMany({
               className="w-full bg-black/30 border border-white/10 rounded-xl px-5 py-4"
             />
 
+
             <input
               name="banner"
-              placeholder="Banner URL"
+              placeholder="Banner URL (optional)"
               className="w-full bg-black/30 border border-white/10 rounded-xl px-5 py-4"
             />
+
 
             <textarea
 
@@ -113,7 +127,7 @@ const partners = await prisma.partner.findMany({
 
               required
 
-              placeholder="Description"
+              placeholder="Tell us about your community"
 
               className="
               w-full
@@ -128,27 +142,42 @@ const partners = await prisma.partner.findMany({
 
             />
 
+
+            <textarea
+
+              name="reason"
+
+              required
+
+              placeholder="Why do you want to partner with Nexus?"
+
+              className="
+              w-full
+              h-32
+              bg-black/30
+              border
+              border-white/10
+              rounded-xl
+              px-5
+              py-4
+              "
+
+            />
+
+
             <input
               name="discord"
-              placeholder="Discord Invite"
+              placeholder="Discord Invite (optional)"
               className="w-full bg-black/30 border border-white/10 rounded-xl px-5 py-4"
             />
 
-            <input
-              name="website"
-              placeholder="Website"
-              className="w-full bg-black/30 border border-white/10 rounded-xl px-5 py-4"
-            />
-            <input
-              name="discordId"
-              placeholder="Discord Server ID"
-              className="w-full bg-black/30 border border-white/10 rounded-xl px-5 py-4"
-            />
+
             <input
               name="roblox"
-              placeholder="Roblox Group"
+              placeholder="Roblox Group (optional)"
               className="w-full bg-black/30 border border-white/10 rounded-xl px-5 py-4"
             />
+
 
             <label className="flex items-center gap-3">
 
@@ -161,6 +190,7 @@ const partners = await prisma.partner.findMany({
 
             </label>
 
+
             <label className="flex items-center gap-3">
 
               <input
@@ -172,6 +202,7 @@ const partners = await prisma.partner.findMany({
               Verified Partner
 
             </label>
+
 
             <button
 
@@ -192,433 +223,387 @@ const partners = await prisma.partner.findMany({
 
           </form>
 
+
           {/* Pending Applications */}
 
-<h2 className="text-3xl font-bold mt-20">
-  Pending Applications
-</h2>
+          <h2 className="text-3xl font-bold mt-20">
+            Pending Applications
+          </h2>
 
 
-<div className="grid lg:grid-cols-2 gap-6 mt-8">
+          <div className="grid lg:grid-cols-2 gap-6 mt-8">
 
 
-{pendingPartners.map((partner)=>(
+            {pendingPartners.map((partner)=>(
 
 
-<div
+              <div
 
-key={partner.id}
+                key={partner.id}
 
-className="
-bg-yellow-500/5
-border
-border-yellow-500/20
-rounded-2xl
-p-6
-"
+                className="
+                bg-yellow-500/5
+                border
+                border-yellow-500/20
+                rounded-2xl
+                p-6
+                "
 
->
+              >
 
 
-<div className="flex items-center gap-4">
+                <div className="flex items-center gap-4">
 
 
-{partner.logo && (
+                  {partner.logo && (
 
-<img
+                    <img
 
-src={partner.logo}
+                      src={partner.logo}
 
-alt={partner.name}
+                      alt={partner.name}
 
-className="
-w-16
-h-16
-rounded-xl
-object-cover
-"
+                      className="
+                      w-16
+                      h-16
+                      rounded-xl
+                      object-cover
+                      "
 
-/>
+                    />
 
-)}
+                  )}
 
 
+                  <div>
 
-<div>
+                    <h3 className="text-2xl font-bold">
 
-<h3 className="text-2xl font-bold">
+                      {partner.name}
 
-{partner.name}
+                    </h3>
 
-</h3>
 
+                    <p className="text-gray-500">
 
-<p className="text-gray-500">
+                      /{partner.slug}
 
-/{partner.slug}
+                    </p>
 
-</p>
+                  </div>
 
-</div>
 
+                </div>
 
-</div>
 
+                <div className="mt-6 space-y-3 text-sm">
 
 
+                  <p>
 
+                    <span className="text-purple-400 font-bold">
+                      Owner:
+                    </span>{" "}
 
-<div className="mt-6 space-y-3 text-sm">
+                    {partner.ownerName}
 
+                  </p>
 
-<p>
 
-<span className="text-purple-400 font-bold">
-Owner:
-</span>{" "}
+                </div>
 
-{partner.ownerName}
 
-</p>
+                <div className="mt-6">
 
 
+                  <h4 className="font-bold text-lg">
+                    Description
+                  </h4>
 
-<p>
 
-<span className="text-purple-400 font-bold">
-Email:
-</span>{" "}
+                  <p className="text-gray-400 mt-2">
 
-{partner.email}
+                    {partner.description}
 
-</p>
+                  </p>
 
 
+                </div>
 
 
-<p>
+                <div className="mt-6">
 
-<span className="text-purple-400 font-bold">
-Members:
-</span>{" "}
 
-{partner.members.toLocaleString()}
+                  <h4 className="font-bold text-lg">
+                    Reason for Partnership
+                  </h4>
 
-</p>
 
+                  <p className="text-gray-400 mt-2">
 
-</div>
+                    {partner.reason}
 
+                  </p>
 
 
+                </div>
 
 
+                {partner.discord && (
 
+                  <div className="mt-6">
 
-<div className="mt-6">
+                    <h4 className="font-bold text-lg">
+                      Discord
+                    </h4>
 
+                    <p className="text-gray-400 mt-2">
 
-<h4 className="font-bold text-lg">
-Description
-</h4>
+                      {partner.discord}
 
+                    </p>
 
-<p className="text-gray-400 mt-2">
+                  </div>
 
-{partner.description}
+                )}
 
-</p>
 
+                {partner.roblox && (
 
-</div>
+                  <div className="mt-6">
 
+                    <h4 className="font-bold text-lg">
+                      Roblox
+                    </h4>
 
+                    <p className="text-gray-400 mt-2">
 
+                      {partner.roblox}
 
+                    </p>
 
+                  </div>
 
-<div className="mt-6">
+                )}
 
 
-<h4 className="font-bold text-lg">
-Reason for Partnership
-</h4>
+                <div className="flex gap-3 mt-8">
 
 
-<p className="text-gray-400 mt-2">
+                  <form action={approvePartner}>
 
-{partner.reason}
+                    <input
+                      type="hidden"
+                      name="id"
+                      value={partner.id}
+                    />
 
-</p>
 
+                    <button
 
-</div>
+                      className="
+                      bg-green-600
+                      hover:bg-green-700
+                      px-5
+                      py-3
+                      rounded-xl
+                      font-bold
+                      "
 
+                    >
 
+                      ✅ Approve
 
+                    </button>
 
+                  </form>
 
 
+                  <form action={rejectPartner}>
 
-{partner.socials && (
+                    <input
+                      type="hidden"
+                      name="id"
+                      value={partner.id}
+                    />
 
-<div className="mt-6">
 
+                    <button
 
-<h4 className="font-bold text-lg">
-Socials
-</h4>
+                      className="
+                      bg-red-600
+                      hover:bg-red-700
+                      px-5
+                      py-3
+                      rounded-xl
+                      font-bold
+                      "
 
+                    >
 
-<p className="text-gray-400 mt-2">
+                      ❌ Reject
 
-{partner.socials}
+                    </button>
 
-</p>
+                  </form>
 
 
-</div>
+                </div>
 
-)}
 
+              </div>
 
+            ))}
 
 
+          </div>
 
-
-
-
-<div className="flex gap-3 mt-8">
-
-
-<form action={approvePartner}>
-
-
-<input
-
-type="hidden"
-
-name="id"
-
-value={partner.id}
-
-/>
-
-
-
-<button
-
-className="
-bg-green-600
-hover:bg-green-700
-px-5
-py-3
-rounded-xl
-font-bold
-"
-
->
-
-✅ Approve
-
-</button>
-
-
-</form>
-
-
-
-
-
-
-
-
-<form action={rejectPartner}>
-
-
-<input
-
-type="hidden"
-
-name="id"
-
-value={partner.id}
-
-/>
-
-
-
-<button
-
-className="
-bg-red-600
-hover:bg-red-700
-px-5
-py-3
-rounded-xl
-font-bold
-"
-
->
-
-❌ Reject
-
-</button>
-
-
-</form>
-
-
-
-</div>
-
-
-
-</div>
-
-
-))}
-
-
-</div>
 
           {/* Partner List */}
 
-<h2 className="text-3xl font-bold mt-20">
-  Current Partners
-</h2>
+          <h2 className="text-3xl font-bold mt-20">
+            Current Partners
+          </h2>
 
-<div className="grid lg:grid-cols-2 gap-6 mt-8">
 
-  {partners.map((partner) => (
+          <div className="grid lg:grid-cols-2 gap-6 mt-8">
 
-    <div
-      key={partner.id}
-      className="
-      bg-white/5
-      border
-      border-white/10
-      rounded-2xl
-      p-6
-      "
-    >
 
-      <div className="flex justify-between items-center">
+            {partners.map((partner) => (
 
-        <div>
+              <div
+                key={partner.id}
+                className="
+                bg-white/5
+                border
+                border-white/10
+                rounded-2xl
+                p-6
+                "
+              >
 
-          <h3 className="text-2xl font-bold">
-            {partner.name}
-          </h3>
+                <div className="flex justify-between items-center">
 
-          <p className="text-gray-500 mt-1">
-            /{partner.slug}
-          </p>
+                  <div>
 
-        </div>
+                    <h3 className="text-2xl font-bold">
+                      {partner.name}
+                    </h3>
 
-        <div className="flex gap-2">
+                    <p className="text-gray-500 mt-1">
+                      /{partner.slug}
+                    </p>
 
-          {partner.featured && (
-            <span className="bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full text-sm">
-              ⭐ Featured
-            </span>
-          )}
+                  </div>
 
-          {partner.verified && (
-            <span className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm">
-              ✔ Verified
-            </span>
-          )}
+                  <div className="flex gap-2">
 
-        </div>
+                    {partner.featured && (
+                      <span className="bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full text-sm">
+                        ⭐ Featured
+                      </span>
+                    )}
 
-      </div>
+                    {partner.verified && (
+                      <span className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm">
+                        ✔ Verified
+                      </span>
+                    )}
 
-      {partner.logo && (
-        <img
-          src={partner.logo}
-          alt={partner.name}
-          className="w-16 h-16 rounded-xl mt-5 object-cover"
-        />
-      )}
+                  </div>
 
-      <p className="text-gray-400 mt-5">
-        {partner.description}
-      </p>
+                </div>
 
-      <div className="mt-6 space-y-2 text-sm">
 
-        {partner.discord && (
-          <p>
-            <span className="text-purple-400">Discord:</span>{" "}
-            {partner.discord}
-          </p>
-        )}
+                {partner.logo && (
+                  <img
+                    src={partner.logo}
+                    alt={partner.name}
+                    className="w-16 h-16 rounded-xl mt-5 object-cover"
+                  />
+                )}
 
-        {partner.website && (
-          <p>
-            <span className="text-purple-400">Website:</span>{" "}
-            {partner.website}
-          </p>
-        )}
 
-        {partner.roblox && (
-          <p>
-            <span className="text-purple-400">Roblox:</span>{" "}
-            {partner.roblox}
-          </p>
-        )}
+                <p className="text-gray-400 mt-5">
+                  {partner.description}
+                </p>
 
-      </div>
 
-      <div className="flex gap-3 mt-8 flex-wrap">
+                <div className="mt-6 space-y-2 text-sm">
 
-        <a
-          href={`/admin/partners/${partner.id}`}
-          className="
-          bg-blue-600
-          hover:bg-blue-700
-          px-5
-          py-3
-          rounded-xl
-          font-bold
-          "
-        >
-          Edit
-        </a>
+                  {partner.discord && (
+                    <p>
+                      <span className="text-purple-400">Discord:</span>{" "}
+                      {partner.discord}
+                    </p>
+                  )}
 
-        <form
-          action={async () => {
-            "use server";
-            await deletePartner(partner.id);
-          }}
-        >
-          <button
-            className="
-            bg-red-600
-            hover:bg-red-700
-            px-5
-            py-3
-            rounded-xl
-            font-bold
-            "
-          >
-            Delete
-          </button>
-        </form>
+                  {partner.roblox && (
+                    <p>
+                      <span className="text-purple-400">Roblox:</span>{" "}
+                      {partner.roblox}
+                    </p>
+                  )}
 
-      </div>
+                </div>
 
-    </div>
 
-  ))}
+                <div className="flex gap-3 mt-8 flex-wrap">
 
-</div>
+                  <a
+                    href={`/admin/partners/${partner.id}`}
+                    className="
+                    bg-blue-600
+                    hover:bg-blue-700
+                    px-5
+                    py-3
+                    rounded-xl
+                    font-bold
+                    "
+                  >
+                    Edit
+                  </a>
+
+
+                  <form
+                    action={async () => {
+                      "use server";
+                      await deletePartner(partner.id);
+                    }}
+                  >
+
+                    <button
+
+                      className="
+                      bg-red-600
+                      hover:bg-red-700
+                      px-5
+                      py-3
+                      rounded-xl
+                      font-bold
+                      "
+
+                    >
+                      Delete
+                    </button>
+
+                  </form>
+
+                </div>
+
+
+              </div>
+
+            ))}
+
+
+          </div>
+
 
         </div>
 
       </section>
+
 
       <Footer />
 

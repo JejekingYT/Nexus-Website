@@ -23,7 +23,7 @@ export async function createPartner(formData: FormData) {
 
 
       ownerName:
-        "Nexus Staff",
+        formData.get("ownerName") as string,
 
 
       email:
@@ -43,11 +43,11 @@ export async function createPartner(formData: FormData) {
 
 
       reason:
-        "Manually created by Nexus OWNER",
+        formData.get("reason") as string,
 
 
       members:
-        Number(formData.get("members") || 0),
+        0,
 
 
       discord:
@@ -59,14 +59,15 @@ export async function createPartner(formData: FormData) {
 
 
       website:
-        (formData.get("website") as string) || null,
+        null,
+
 
       discordId:
-        (formData.get("discordId") as string) || null,
+        null,
 
 
       socials:
-        (formData.get("socials") as string) || null,
+        null,
 
 
       featured:
@@ -89,6 +90,8 @@ export async function createPartner(formData: FormData) {
   redirect("/admin/partners");
 
 }
+
+
 
 
 
@@ -127,6 +130,8 @@ export async function approvePartner(
   redirect("/admin/partners");
 
 }
+
+
 
 
 
@@ -173,6 +178,7 @@ export async function rejectPartner(
 
 
 
+
 export async function updatePartner(
   formData: FormData
 ) {
@@ -183,6 +189,41 @@ export async function updatePartner(
   const id = Number(
     formData.get("id")
   );
+
+
+  /*
+   * Get the existing partner first.
+   *
+   * Email, members, website and socials are no longer
+   * part of the edit form, so we preserve their existing
+   * database values instead of trying to read them from
+   * the form.
+   */
+
+  const existingPartner =
+    await prisma.partner.findUnique({
+
+      where: {
+        id,
+      },
+
+      select: {
+        email: true,
+        members: true,
+        website: true,
+        socials: true,
+      },
+
+    });
+
+
+  if (!existingPartner) {
+
+    throw new Error(
+      "Partner not found."
+    );
+
+  }
 
 
 
@@ -209,7 +250,7 @@ export async function updatePartner(
 
 
       email:
-        formData.get("email") as string,
+        existingPartner.email,
 
 
       logo:
@@ -229,7 +270,7 @@ export async function updatePartner(
 
 
       members:
-        Number(formData.get("members") || 0),
+        existingPartner.members,
 
 
       discord:
@@ -237,7 +278,7 @@ export async function updatePartner(
 
 
       website:
-        (formData.get("website") as string) || null,
+        existingPartner.website,
 
 
       roblox:
@@ -245,7 +286,7 @@ export async function updatePartner(
 
 
       socials:
-        (formData.get("socials") as string) || null,
+        existingPartner.socials,
 
 
       tier:
@@ -271,6 +312,7 @@ export async function updatePartner(
   redirect("/admin/partners");
 
 }
+
 
 
 

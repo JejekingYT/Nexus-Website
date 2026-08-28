@@ -102,7 +102,8 @@ export default async function EditPartnerPage({
               name="name"
               defaultValue={partner.name}
               className="input"
-              placeholder="Name"
+              placeholder="Community Name"
+              required
             />
 
 
@@ -111,7 +112,18 @@ export default async function EditPartnerPage({
               name="slug"
               defaultValue={partner.slug}
               className="input"
-              placeholder="Slug"
+              placeholder="Community Slug"
+              required
+            />
+
+
+
+            <input
+              name="ownerName"
+              defaultValue={partner.ownerName}
+              className="input"
+              placeholder="Owner / Representative Name"
+              required
             />
 
 
@@ -121,6 +133,7 @@ export default async function EditPartnerPage({
               defaultValue={partner.logo}
               className="input"
               placeholder="Logo URL"
+              required
             />
 
 
@@ -137,6 +150,27 @@ export default async function EditPartnerPage({
             <textarea
               name="description"
               defaultValue={partner.description}
+              placeholder="Tell us about your community"
+              required
+              className="
+              w-full
+              h-32
+              bg-black/30
+              border
+              border-white/10
+              rounded-xl
+              px-5
+              py-4
+              "
+            />
+
+
+
+            <textarea
+              name="reason"
+              defaultValue={partner.reason ?? ""}
+              placeholder="Why do you want to partner with Nexus?"
+              required
               className="
               w-full
               h-32
@@ -155,16 +189,7 @@ export default async function EditPartnerPage({
               name="discord"
               defaultValue={partner.discord ?? ""}
               className="input"
-              placeholder="Discord"
-            />
-
-
-
-            <input
-              name="website"
-              defaultValue={partner.website ?? ""}
-              className="input"
-              placeholder="Website"
+              placeholder="Discord Invite"
             />
 
 
@@ -173,7 +198,7 @@ export default async function EditPartnerPage({
               name="roblox"
               defaultValue={partner.roblox ?? ""}
               className="input"
-              placeholder="Roblox"
+              placeholder="Roblox Group"
             />
 
 
