@@ -78,15 +78,6 @@ export default function PartnerApplyPage() {
 
 
             <input
-              name="email"
-              type="email"
-              required
-              placeholder="Contact Email"
-              className="input"
-            />
-
-
-            <input
               name="logo"
               required
               placeholder="Logo URL"
@@ -96,18 +87,9 @@ export default function PartnerApplyPage() {
 
             <input
               name="banner"
-              placeholder="Banner URL"
+              placeholder="Banner URL (optional)"
               className="input"
             />
-
-
-            <input
-              name="members"
-              type="number"
-              placeholder="Community Members"
-              className="input"
-            />
-
 
 
             <textarea
@@ -146,15 +128,7 @@ export default function PartnerApplyPage() {
 
             <input
               name="discord"
-              placeholder="Discord Invite"
-              className="input"
-            />
-
-
-
-            <input
-              name="website"
-              placeholder="Website"
+              placeholder="Discord Invite (optional)"
               className="input"
             />
 
@@ -162,17 +136,9 @@ export default function PartnerApplyPage() {
 
             <input
               name="roblox"
-              placeholder="Roblox Group"
+              placeholder="Roblox Group (optional)"
               className="input"
             />
-
-
-            <input
-              name="socials"
-              placeholder="Social Links (YouTube, Twitter, TikTok...)"
-              className="input"
-            />
-
 
 
             <button
