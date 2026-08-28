@@ -30,7 +30,6 @@ export default async function Communities() {
       discord: true,
       roblox: true,
       about: true,
-      members: true,
 
     },
 
@@ -240,6 +239,8 @@ export default async function Communities() {
 
 
 
+
+
                   <h2 className="
                     mt-6
                     text-3xl
@@ -247,6 +248,8 @@ export default async function Communities() {
                   ">
                     {community.name}
                   </h2>
+
+
 
 
 
@@ -264,27 +267,6 @@ export default async function Communities() {
                   </p>
 
 
-
-
-
-
-
-
-                  <div className="
-                    mt-5
-                    flex
-                    items-center
-                    gap-2
-                    text-gray-300
-                  ">
-
-                    👥
-
-                    <span>
-                      {community.members.toLocaleString()} members
-                    </span>
-
-                  </div>
 
 
 

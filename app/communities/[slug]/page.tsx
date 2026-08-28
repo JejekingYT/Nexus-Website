@@ -316,46 +316,13 @@ export default async function CommunityPage({
 
 
 
+
+
+
+
           <div className="
-            grid
-            md:grid-cols-2
-            gap-6
             mt-20
           ">
-
-
-
-
-            <div className="
-              glass
-              p-8
-              text-center
-            ">
-
-              <h2 className="
-                text-2xl
-                font-bold
-              ">
-                👥 Members
-              </h2>
-
-
-              <p className="
-                mt-4
-                text-5xl
-                font-extrabold
-              ">
-                {community.members.toLocaleString()}
-              </p>
-
-
-            </div>
-
-
-
-
-
-
 
 
 

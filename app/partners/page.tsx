@@ -401,32 +401,6 @@ export default async function PartnersPage() {
 
 
 
-                    <div className="
-                      flex
-                      justify-between
-                      items-center
-                      mt-6
-                    ">
-
-
-                      <p className="
-                        text-gray-500
-                        text-sm
-                      ">
-
-                        👥 {partner.members.toLocaleString()} members
-
-                      </p>
-
-
-
-                    </div>
-
-
-
-
-
-
 
 
                     <Link
