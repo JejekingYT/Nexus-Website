@@ -4,7 +4,21 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
 import { pusher } from "@/lib/pusher";
 
-async function getCurrentUser() {
+const MAX_MESSAGE_LENGTH = 500;
+const DEFAULT_MESSAGE_LIMIT = 50;
+const MAX_MESSAGE_LIMIT = 100;
+
+type ChatUser = {
+  id: number;
+  username: string;
+  role: string;
+};
+
+/* =========================================================
+   CURRENT USER
+   ========================================================= */
+
+async function getCurrentUser(): Promise<ChatUser | null> {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
@@ -23,6 +37,10 @@ async function getCurrentUser() {
   });
 }
 
+/* =========================================================
+   PUSHER
+   ========================================================= */
+
 async function triggerPusher(
   event: string,
   data: unknown
@@ -40,6 +58,10 @@ async function triggerPusher(
     );
   }
 }
+
+/* =========================================================
+   AUDIT LOG
+   ========================================================= */
 
 async function createAuditLog(
   userId: number,
@@ -64,6 +86,71 @@ async function createAuditLog(
   }
 }
 
+/* =========================================================
+   MESSAGE LIMIT
+   ========================================================= */
+
+function getMessageLimit(
+  request: Request,
+  fallback = DEFAULT_MESSAGE_LIMIT
+) {
+  const url = new URL(request.url);
+
+  const requestedLimit = Number(
+    url.searchParams.get("limit")
+  );
+
+  if (
+    !Number.isInteger(requestedLimit) ||
+    requestedLimit <= 0
+  ) {
+    return fallback;
+  }
+
+  return Math.min(
+    requestedLimit,
+    MAX_MESSAGE_LIMIT
+  );
+}
+
+/* =========================================================
+   OWNER CHECK
+   ========================================================= */
+
+function ownerRequired(
+  user: ChatUser | null
+) {
+  if (!user) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: "You must be logged in.",
+      },
+      {
+        status: 401,
+      }
+    );
+  }
+
+  if (user.role !== "OWNER") {
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Owner access required.",
+      },
+      {
+        status: 403,
+      }
+    );
+  }
+
+  return null;
+}
+
+/* =========================================================
+   GET /api/chat
+   ========================================================= */
+
 export async function GET(
   request: Request
 ) {
@@ -71,113 +158,38 @@ export async function GET(
     const user = await getCurrentUser();
 
     const url = new URL(request.url);
+
     const admin =
       url.searchParams.get("admin") === "true";
 
+    const limit = getMessageLimit(request);
+
     /*
+     * =====================================================
      * OWNER ADMIN CHAT
      *
      * /api/chat?admin=true
-     *
-     * Only OWNERs can request admin chat data.
+     * =====================================================
      */
+
     if (admin) {
-      if (!user) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: "You must be logged in.",
-          },
-          {
-            status: 401,
-          }
-        );
+      const ownerError =
+        ownerRequired(user);
+
+      if (ownerError) {
+        return ownerError;
       }
 
-      if (user.role !== "OWNER") {
-        return NextResponse.json(
-          {
-            success: false,
-            error: "Owner access required.",
-          },
-          {
-            status: 403,
-          }
-        );
-      }
-
-      const [messages, users, logs] =
-        await Promise.all([
-          prisma.chatMessage.findMany({
-            orderBy: {
-              createdAt: "desc",
-            },
-            take: 100,
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  username: true,
-                  image: true,
-                  role: true,
-                  lastSeen: true,
-                },
-              },
-            },
-          }),
-
-          prisma.user.findMany({
-            orderBy: {
-              username: "asc",
-            },
-            select: {
-              id: true,
-              username: true,
-              image: true,
-              role: true,
-              lastSeen: true,
-              createdAt: true,
-            },
-          }),
-
-          prisma.auditLog.findMany({
-            orderBy: {
-              createdAt: "desc",
-            },
-            take: 100,
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  username: true,
-                  image: true,
-                  role: true,
-                },
-              },
-            },
-          }),
-        ]);
-
-      return NextResponse.json({
-        success: true,
-        messages: messages.reverse(),
+      const [
+        messages,
         users,
         logs,
-        currentUserId: user.id,
-      });
-    }
-
-    /*
-     * NORMAL GLOBAL CHAT
-     */
-
-    const [messages, currentUser] =
-      await Promise.all([
+      ] = await Promise.all([
         prisma.chatMessage.findMany({
           orderBy: {
             createdAt: "desc",
           },
-          take: 50,
+          take: limit,
           include: {
             user: {
               select: {
@@ -191,14 +203,128 @@ export async function GET(
           },
         }),
 
-        getCurrentUser(),
+        /*
+         * Load ALL registered users.
+         *
+         * This intentionally does not depend on
+         * chat participation, so offline users
+         * remain visible in Owner Chat.
+         */
+        prisma.user.findMany({
+          orderBy: {
+            username: "asc",
+          },
+          select: {
+            id: true,
+            username: true,
+            image: true,
+            role: true,
+            lastSeen: true,
+            createdAt: true,
+            warnings: true,
+            muted: true,
+            mutedUntil: true,
+            banned: true,
+            bannedUntil: true,
+            banReason: true,
+          },
+        }),
+
+        prisma.auditLog.findMany({
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: 100,
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                image: true,
+                role: true,
+              },
+            },
+          },
+        }),
       ]);
+
+      /*
+       * Current moderation records are stored
+       * directly on User, so they persist across
+       * page reloads and server restarts.
+       */
+      const moderationUsers =
+        await prisma.user.findMany({
+          where: {
+            OR: [
+              {
+                warnings: {
+                  gt: 0,
+                },
+              },
+              {
+                muted: true,
+              },
+              {
+                banned: true,
+              },
+            ],
+          },
+          orderBy: {
+            username: "asc",
+          },
+          select: {
+            id: true,
+            username: true,
+            role: true,
+            warnings: true,
+            muted: true,
+            mutedUntil: true,
+            banned: true,
+            bannedUntil: true,
+            banReason: true,
+          },
+        });
+
+      return NextResponse.json({
+        success: true,
+        messages: messages.reverse(),
+        users,
+        logs,
+        currentUserId: user!.id,
+        moderationUsers,
+      });
+    }
+
+    /*
+     * =====================================================
+     * NORMAL GLOBAL CHAT
+     * =====================================================
+     */
+
+    const messages =
+      await prisma.chatMessage.findMany({
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: limit,
+        include: {
+          user: {
+            select: {
+              id: true,
+              username: true,
+              image: true,
+              role: true,
+              lastSeen: true,
+            },
+          },
+        },
+      });
 
     return NextResponse.json({
       success: true,
       messages: messages.reverse(),
-      currentUserId:
-        currentUser?.id ?? null,
+      currentUserId: user?.id ?? null,
     });
   } catch (error) {
     console.error(
@@ -222,12 +348,15 @@ export async function GET(
   }
 }
 
+/* =========================================================
+   POST /api/chat
+   ========================================================= */
+
 export async function POST(
   request: Request
 ) {
   try {
-    const user =
-      await getCurrentUser();
+    const user = await getCurrentUser();
 
     if (!user) {
       return NextResponse.json(
@@ -242,8 +371,456 @@ export async function POST(
       );
     }
 
-    const body =
-      await request.json();
+    const body = await request.json();
+
+    /*
+     * =====================================================
+     * OWNER MODERATION ACTIONS
+     * =====================================================
+     *
+     * These are handled inside POST so the existing
+     * message POST functionality remains unchanged.
+     */
+
+    const action =
+      typeof body.action === "string"
+        ? body.action
+        : "";
+
+    if (
+      action === "warning" ||
+      action === "mute" ||
+      action === "ban"
+    ) {
+      const ownerError =
+        ownerRequired(user);
+
+      if (ownerError) {
+        return ownerError;
+      }
+
+      const targetUserId = Number(
+        body.userId
+      );
+
+      const reason =
+        typeof body.reason === "string"
+          ? body.reason.trim()
+          : "";
+
+      if (
+        !Number.isInteger(
+          targetUserId
+        )
+      ) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Invalid user ID.",
+          },
+          {
+            status: 400,
+          }
+        );
+      }
+
+      if (!reason) {
+        return NextResponse.json(
+          {
+            success: false,
+            error:
+              "Moderation reason cannot be empty.",
+          },
+          {
+            status: 400,
+          }
+        );
+      }
+
+      const targetUser =
+        await prisma.user.findUnique({
+          where: {
+            id: targetUserId,
+          },
+          select: {
+            id: true,
+            username: true,
+            role: true,
+            warnings: true,
+            muted: true,
+            mutedUntil: true,
+            banned: true,
+            bannedUntil: true,
+            banReason: true,
+          },
+        });
+
+      if (!targetUser) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "User not found.",
+          },
+          {
+            status: 404,
+          }
+        );
+      }
+
+      /*
+       * Prevent an OWNER from accidentally
+       * moderating another OWNER.
+       */
+      if (
+        targetUser.role === "OWNER" &&
+        targetUser.id !== user.id
+      ) {
+        return NextResponse.json(
+          {
+            success: false,
+            error:
+              "Owner accounts cannot be moderated.",
+          },
+          {
+            status: 403,
+          }
+        );
+      }
+
+      /* ===================================================
+         WARNING
+         =================================================== */
+
+      if (action === "warning") {
+        const updatedUser =
+          await prisma.user.update({
+            where: {
+              id: targetUser.id,
+            },
+            data: {
+              warnings: {
+                increment: 1,
+              },
+            },
+            select: {
+              id: true,
+              username: true,
+              role: true,
+              warnings: true,
+              muted: true,
+              mutedUntil: true,
+              banned: true,
+              bannedUntil: true,
+              banReason: true,
+            },
+          });
+
+        await createAuditLog(
+          user.id,
+          "USER_WARNING_ISSUED",
+          `User:${targetUser.id}`,
+          `Owner issued a warning to ${targetUser.username}: ${reason}`
+        );
+
+        await triggerPusher(
+          "user-moderated",
+          {
+            type: "warning",
+            user: updatedUser,
+            reason,
+            moderator: user.username,
+          }
+        );
+
+        return NextResponse.json({
+          success: true,
+          action: "warning",
+          user: updatedUser,
+          reason,
+          moderator: user.username,
+        });
+      }
+
+      /* ===================================================
+         MUTE
+         =================================================== */
+
+      if (action === "mute") {
+        const durationMinutes =
+          Number(body.durationMinutes);
+
+        /*
+         * Default mute duration:
+         * 60 minutes.
+         */
+        const safeDuration =
+          Number.isInteger(
+            durationMinutes
+          ) &&
+          durationMinutes > 0
+            ? durationMinutes
+            : 60;
+
+        const mutedUntil =
+          new Date(
+            Date.now() +
+              safeDuration *
+                60 *
+                1000
+          );
+
+        const updatedUser =
+          await prisma.user.update({
+            where: {
+              id: targetUser.id,
+            },
+            data: {
+              muted: true,
+              mutedUntil,
+            },
+            select: {
+              id: true,
+              username: true,
+              role: true,
+              warnings: true,
+              muted: true,
+              mutedUntil: true,
+              banned: true,
+              bannedUntil: true,
+              banReason: true,
+            },
+          });
+
+        await createAuditLog(
+          user.id,
+          "USER_MUTED",
+          `User:${targetUser.id}`,
+          `Owner muted ${targetUser.username} for ${safeDuration} minutes: ${reason}`
+        );
+
+        await triggerPusher(
+          "user-moderated",
+          {
+            type: "mute",
+            user: updatedUser,
+            reason,
+            durationMinutes:
+              safeDuration,
+            moderator: user.username,
+          }
+        );
+
+        return NextResponse.json({
+          success: true,
+          action: "mute",
+          user: updatedUser,
+          reason,
+          durationMinutes:
+            safeDuration,
+          moderator: user.username,
+        });
+      }
+
+      /* ===================================================
+         BAN
+         =================================================== */
+
+      if (action === "ban") {
+        const durationMinutes =
+          Number(body.durationMinutes);
+
+        /*
+         * If no duration is provided,
+         * the ban is permanent.
+         */
+        const bannedUntil =
+          Number.isInteger(
+            durationMinutes
+          ) &&
+          durationMinutes > 0
+            ? new Date(
+                Date.now() +
+                  durationMinutes *
+                    60 *
+                    1000
+              )
+            : null;
+
+        const updatedUser =
+          await prisma.user.update({
+            where: {
+              id: targetUser.id,
+            },
+            data: {
+              banned: true,
+              bannedUntil,
+              banReason: reason,
+            },
+            select: {
+              id: true,
+              username: true,
+              role: true,
+              warnings: true,
+              muted: true,
+              mutedUntil: true,
+              banned: true,
+              bannedUntil: true,
+              banReason: true,
+            },
+          });
+
+        await createAuditLog(
+          user.id,
+          "USER_BANNED",
+          `User:${targetUser.id}`,
+          bannedUntil
+            ? `Owner banned ${targetUser.username} until ${bannedUntil.toISOString()}: ${reason}`
+            : `Owner permanently banned ${targetUser.username}: ${reason}`
+        );
+
+        await triggerPusher(
+          "user-moderated",
+          {
+            type: "ban",
+            user: updatedUser,
+            reason,
+            bannedUntil,
+            moderator: user.username,
+          }
+        );
+
+        return NextResponse.json({
+          success: true,
+          action: "ban",
+          user: updatedUser,
+          reason,
+          bannedUntil,
+          moderator: user.username,
+        });
+      }
+    }
+
+    /*
+     * =====================================================
+     * NORMAL CHAT MESSAGE
+     * =====================================================
+     */
+
+    /*
+     * Automatically clear expired mute/ban states
+     * before checking whether the user can chat.
+     */
+    const now = new Date();
+
+    if (
+      user.role !== "OWNER"
+    ) {
+      const fullUser =
+        await prisma.user.findUnique({
+          where: {
+            id: user.id,
+          },
+          select: {
+            muted: true,
+            mutedUntil: true,
+            banned: true,
+            bannedUntil: true,
+          },
+        });
+
+      if (!fullUser) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "User not found.",
+          },
+          {
+            status: 404,
+          }
+        );
+      }
+
+      /*
+       * Expired mute.
+       */
+      if (
+        fullUser.muted &&
+        fullUser.mutedUntil &&
+        fullUser.mutedUntil <= now
+      ) {
+        await prisma.user.update({
+          where: {
+            id: user.id,
+          },
+          data: {
+            muted: false,
+            mutedUntil: null,
+          },
+        });
+
+        fullUser.muted = false;
+        fullUser.mutedUntil = null;
+      }
+
+      /*
+       * Expired ban.
+       */
+      if (
+        fullUser.banned &&
+        fullUser.bannedUntil &&
+        fullUser.bannedUntil <= now
+      ) {
+        await prisma.user.update({
+          where: {
+            id: user.id,
+          },
+          data: {
+            banned: false,
+            bannedUntil: null,
+            banReason: null,
+          },
+        });
+
+        fullUser.banned = false;
+        fullUser.bannedUntil = null;
+      }
+
+      /*
+       * Active ban.
+       */
+      if (fullUser.banned) {
+        return NextResponse.json(
+          {
+            success: false,
+            error:
+              fullUser.bannedUntil
+                ? `You are banned until ${fullUser.bannedUntil.toISOString()}.`
+                : "You are banned from the global chat.",
+          },
+          {
+            status: 403,
+          }
+        );
+      }
+
+      /*
+       * Active mute.
+       */
+      if (fullUser.muted) {
+        return NextResponse.json(
+          {
+            success: false,
+            error:
+              fullUser.mutedUntil
+                ? `You are muted until ${fullUser.mutedUntil.toISOString()}.`
+                : "You are muted from the global chat.",
+          },
+          {
+            status: 403,
+          }
+        );
+      }
+    }
 
     const message =
       typeof body.message === "string"
@@ -254,8 +831,7 @@ export async function POST(
       return NextResponse.json(
         {
           success: false,
-          error:
-            "Message cannot be empty.",
+          error: "Message cannot be empty.",
         },
         {
           status: 400,
@@ -263,7 +839,10 @@ export async function POST(
       );
     }
 
-    if (message.length > 500) {
+    if (
+      message.length >
+      MAX_MESSAGE_LENGTH
+    ) {
       return NextResponse.json(
         {
           success: false,
@@ -295,26 +874,33 @@ export async function POST(
         },
       });
 
+    /*
+     * Send real-time event.
+     */
     await triggerPusher(
       "new-message",
       newMessage
     );
 
-    return NextResponse.json({
-      success: true,
-      message: newMessage,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        message: newMessage,
+      },
+      {
+        status: 201,
+      }
+    );
   } catch (error) {
     console.error(
-      "Failed to send chat message:",
+      "Failed to process chat POST:",
       error
     );
 
     return NextResponse.json(
       {
         success: false,
-        error:
-          "Failed to send message.",
+        error: "Failed to process request.",
       },
       {
         status: 500,
@@ -323,19 +909,21 @@ export async function POST(
   }
 }
 
+/* =========================================================
+   PATCH /api/chat
+   ========================================================= */
+
 export async function PATCH(
   request: Request
 ) {
   try {
-    const user =
-      await getCurrentUser();
+    const user = await getCurrentUser();
 
     if (!user) {
       return NextResponse.json(
         {
           success: false,
-          error:
-            "You must be logged in.",
+          error: "You must be logged in.",
         },
         {
           status: 401,
@@ -343,23 +931,262 @@ export async function PATCH(
       );
     }
 
-    const body =
-      await request.json();
+    const body = await request.json();
 
-    const messageId =
-      Number(body.id);
+    const action =
+      typeof body.action === "string"
+        ? body.action
+        : "";
+
+    /*
+     * =====================================================
+     * OWNER MODERATION PATCH ACTIONS
+     * =====================================================
+     */
+
+    if (
+      action === "remove-warning" ||
+      action === "unmute" ||
+      action === "unban"
+    ) {
+      const ownerError =
+        ownerRequired(user);
+
+      if (ownerError) {
+        return ownerError;
+      }
+
+      const targetUserId = Number(
+        body.userId
+      );
+
+      if (
+        !Number.isInteger(
+          targetUserId
+        )
+      ) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Invalid user ID.",
+          },
+          {
+            status: 400,
+          }
+        );
+      }
+
+      const targetUser =
+        await prisma.user.findUnique({
+          where: {
+            id: targetUserId,
+          },
+          select: {
+            id: true,
+            username: true,
+            role: true,
+            warnings: true,
+            muted: true,
+            mutedUntil: true,
+            banned: true,
+            bannedUntil: true,
+            banReason: true,
+          },
+        });
+
+      if (!targetUser) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "User not found.",
+          },
+          {
+            status: 404,
+          }
+        );
+      }
+
+      /*
+       * Remove one warning.
+       */
+      if (
+        action === "remove-warning"
+      ) {
+        const updatedUser =
+          await prisma.user.update({
+            where: {
+              id: targetUser.id,
+            },
+            data: {
+              warnings: Math.max(
+                0,
+                targetUser.warnings - 1
+              ),
+            },
+            select: {
+              id: true,
+              username: true,
+              role: true,
+              warnings: true,
+              muted: true,
+              mutedUntil: true,
+              banned: true,
+              bannedUntil: true,
+              banReason: true,
+            },
+          });
+
+        await createAuditLog(
+          user.id,
+          "USER_WARNING_REMOVED",
+          `User:${targetUser.id}`,
+          `Owner removed one warning from ${targetUser.username}.`
+        );
+
+        await triggerPusher(
+          "user-moderated",
+          {
+            type: "warning-removed",
+            user: updatedUser,
+            moderator: user.username,
+          }
+        );
+
+        return NextResponse.json({
+          success: true,
+          action,
+          user: updatedUser,
+        });
+      }
+
+      /*
+       * Unmute.
+       */
+      if (
+        action === "unmute"
+      ) {
+        const updatedUser =
+          await prisma.user.update({
+            where: {
+              id: targetUser.id,
+            },
+            data: {
+              muted: false,
+              mutedUntil: null,
+            },
+            select: {
+              id: true,
+              username: true,
+              role: true,
+              warnings: true,
+              muted: true,
+              mutedUntil: true,
+              banned: true,
+              bannedUntil: true,
+              banReason: true,
+            },
+          });
+
+        await createAuditLog(
+          user.id,
+          "USER_UNMUTED",
+          `User:${targetUser.id}`,
+          `Owner unmuted ${targetUser.username}.`
+        );
+
+        await triggerPusher(
+          "user-moderated",
+          {
+            type: "unmute",
+            user: updatedUser,
+            moderator: user.username,
+          }
+        );
+
+        return NextResponse.json({
+          success: true,
+          action,
+          user: updatedUser,
+        });
+      }
+
+      /*
+       * Unban.
+       */
+      if (
+        action === "unban"
+      ) {
+        const updatedUser =
+          await prisma.user.update({
+            where: {
+              id: targetUser.id,
+            },
+            data: {
+              banned: false,
+              bannedUntil: null,
+              banReason: null,
+            },
+            select: {
+              id: true,
+              username: true,
+              role: true,
+              warnings: true,
+              muted: true,
+              mutedUntil: true,
+              banned: true,
+              bannedUntil: true,
+              banReason: true,
+            },
+          });
+
+        await createAuditLog(
+          user.id,
+          "USER_UNBANNED",
+          `User:${targetUser.id}`,
+          `Owner unbanned ${targetUser.username}.`
+        );
+
+        await triggerPusher(
+          "user-moderated",
+          {
+            type: "unban",
+            user: updatedUser,
+            moderator: user.username,
+          }
+        );
+
+        return NextResponse.json({
+          success: true,
+          action,
+          user: updatedUser,
+        });
+      }
+    }
+
+    /*
+     * =====================================================
+     * EXISTING MESSAGE PATCH
+     * =====================================================
+     */
+
+    const messageId = Number(
+      body.id
+    );
 
     const message =
       typeof body.message === "string"
         ? body.message.trim()
         : "";
 
-    if (!Number.isInteger(messageId)) {
+    if (
+      !Number.isInteger(
+        messageId
+      )
+    ) {
       return NextResponse.json(
         {
           success: false,
-          error:
-            "Invalid message ID.",
+          error: "Invalid message ID.",
         },
         {
           status: 400,
@@ -380,7 +1207,10 @@ export async function PATCH(
       );
     }
 
-    if (message.length > 500) {
+    if (
+      message.length >
+      MAX_MESSAGE_LENGTH
+    ) {
       return NextResponse.json(
         {
           success: false,
@@ -401,6 +1231,12 @@ export async function PATCH(
         select: {
           id: true,
           userId: true,
+          message: true,
+          user: {
+            select: {
+              username: true,
+            },
+          },
         },
       });
 
@@ -408,8 +1244,7 @@ export async function PATCH(
       return NextResponse.json(
         {
           success: false,
-          error:
-            "Message not found.",
+          error: "Message not found.",
         },
         {
           status: 404,
@@ -417,15 +1252,15 @@ export async function PATCH(
       );
     }
 
-    /*
-     * OWNER can edit any message.
-     *
-     * Everyone else can only edit their
-     * own message.
-     */
     const isOwner =
       user.role === "OWNER";
 
+    /*
+     * OWNER can edit any message.
+     *
+     * Everyone else can only edit
+     * their own message.
+     */
     if (
       !isOwner &&
       existingMessage.userId !== user.id
@@ -463,15 +1298,25 @@ export async function PATCH(
         },
       });
 
+    /*
+     * Owner moderation audit log.
+     */
     if (isOwner) {
       await createAuditLog(
         user.id,
         "CHAT_MESSAGE_EDITED",
         `ChatMessage:${messageId}`,
-        `Owner edited a chat message belonging to user ID ${existingMessage.userId}.`
+        `Owner edited a chat message from ${existingMessage.user.username}.`
       );
     }
 
+    /*
+     * Broadcast updated message.
+     *
+     * updatedAt comes directly from Prisma,
+     * so the frontend can determine that
+     * the message was edited.
+     */
     await triggerPusher(
       "message-updated",
       updatedMessage
@@ -483,7 +1328,7 @@ export async function PATCH(
     });
   } catch (error) {
     console.error(
-      "Failed to edit chat message:",
+      "Failed to edit/update chat:",
       error
     );
 
@@ -491,7 +1336,7 @@ export async function PATCH(
       {
         success: false,
         error:
-          "Failed to edit message.",
+          "Failed to update chat.",
       },
       {
         status: 500,
@@ -500,19 +1345,21 @@ export async function PATCH(
   }
 }
 
+/* =========================================================
+   DELETE /api/chat
+   ========================================================= */
+
 export async function DELETE(
   request: Request
 ) {
   try {
-    const user =
-      await getCurrentUser();
+    const user = await getCurrentUser();
 
     if (!user) {
       return NextResponse.json(
         {
           success: false,
-          error:
-            "You must be logged in.",
+          error: "You must be logged in.",
         },
         {
           status: 401,
@@ -520,18 +1367,68 @@ export async function DELETE(
       );
     }
 
-    const body =
-      await request.json();
+    const body = await request.json();
 
-    const messageId =
-      Number(body.id);
+    /*
+     * =====================================================
+     * OWNER DELETE ALL MESSAGES
+     * =====================================================
+     */
 
-    if (!Number.isInteger(messageId)) {
+    if (
+      body.action ===
+      "delete-all"
+    ) {
+      const ownerError =
+        ownerRequired(user);
+
+      if (ownerError) {
+        return ownerError;
+      }
+
+      const deleted =
+        await prisma.chatMessage.deleteMany();
+
+      await createAuditLog(
+        user.id,
+        "CHAT_MESSAGES_DELETED_ALL",
+        "GlobalChat",
+        `Owner deleted ${deleted.count} chat messages.`
+      );
+
+      await triggerPusher(
+        "messages-deleted-all",
+        {
+          count: deleted.count,
+        }
+      );
+
+      return NextResponse.json({
+        success: true,
+        deletedCount:
+          deleted.count,
+      });
+    }
+
+    /*
+     * =====================================================
+     * NORMAL MESSAGE DELETE
+     * =====================================================
+     */
+
+    const messageId = Number(
+      body.id
+    );
+
+    if (
+      !Number.isInteger(
+        messageId
+      )
+    ) {
       return NextResponse.json(
         {
           success: false,
-          error:
-            "Invalid message ID.",
+          error: "Invalid message ID.",
         },
         {
           status: 400,
@@ -560,8 +1457,7 @@ export async function DELETE(
       return NextResponse.json(
         {
           success: false,
-          error:
-            "Message not found.",
+          error: "Message not found.",
         },
         {
           status: 404,
@@ -573,10 +1469,10 @@ export async function DELETE(
       user.role === "OWNER";
 
     /*
-     * Normal users can delete their own
-     * messages.
+     * Normal users can delete their
+     * own messages.
      *
-     * OWNER can delete ANY message.
+     * OWNER can delete any message.
      */
     if (
       !isOwner &&
@@ -601,17 +1497,20 @@ export async function DELETE(
     });
 
     /*
-     * Record owner moderation actions.
+     * Record owner moderation action.
      */
     if (isOwner) {
       await createAuditLog(
         user.id,
         "CHAT_MESSAGE_DELETED",
         `ChatMessage:${messageId}`,
-        `Owner deleted message from ${existingMessage.user.username}: "${existingMessage.message}"`
+        `Owner deleted a message from ${existingMessage.user.username}: "${existingMessage.message}"`
       );
     }
 
+    /*
+     * Broadcast deletion.
+     */
     await triggerPusher(
       "message-deleted",
       {
@@ -621,6 +1520,7 @@ export async function DELETE(
 
     return NextResponse.json({
       success: true,
+      deletedId: messageId,
     });
   } catch (error) {
     console.error(
@@ -631,8 +1531,7 @@ export async function DELETE(
     return NextResponse.json(
       {
         success: false,
-        error:
-          "Failed to delete message.",
+        error: "Failed to delete message.",
       },
       {
         status: 500,

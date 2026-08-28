@@ -135,21 +135,29 @@ model Follow {
 }
 
 model User {
-  id                  Int                @id @default(autoincrement())
-  discordId           String             @unique
-  username            String
-  image               String?
-  bio                 String?
-  role                String             @default("USER")
-  createdAt           DateTime           @default(now())
-  lastSeen            DateTime           @default(now())
-  banner              String?
-  discord             String?
-  github              String?
-  roblox              String?
-  theme               String             @default("default")
-  twitter             String?
-  youtube             String?
+  id        Int      @id @default(autoincrement())
+  discordId String   @unique
+  username  String
+  image     String?
+  bio       String?
+  role      String   @default("USER")
+  createdAt DateTime @default(now())
+  lastSeen  DateTime @default(now())
+  banner    String?
+  discord   String?
+  github    String?
+  roblox    String?
+  theme     String   @default("default")
+  twitter   String?
+  youtube   String?
+
+  warnings    Int       @default(0)
+  muted       Boolean   @default(false)
+  mutedUntil  DateTime?
+  banned      Boolean   @default(false)
+  bannedUntil DateTime?
+  banReason   String?
+
   logs                AuditLog[]
   badgeProgress       BadgeProgress[]
   communityReviews    CommunityReview[]
@@ -161,7 +169,15 @@ model User {
   supportTickets      SupportTicket[]
   awardedBadges       UserBadge[]        @relation("AwardedBadges")
   badges              UserBadge[]        @relation("UserBadges")
-  chatMessages ChatMessage[]
+  chatMessages        ChatMessage[]
+  issuedWarnings      UserWarning[]      @relation("IssuedWarnings")
+  warningsReceived    UserWarning[]      @relation("UserWarnings")
+
+  issuedMutes   UserMute[] @relation("IssuedMutes")
+  mutesReceived UserMute[] @relation("UserMutes")
+
+  issuedBans   UserBan[] @relation("IssuedBans")
+  bansReceived UserBan[] @relation("UserBans")
 }
 
 model Badge {
@@ -216,7 +232,12 @@ model AuditLog {
   details   String
   userId    Int?
   createdAt DateTime @default(now())
-  user      User?    @relation(fields: [userId], references: [id])
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([action])
 }
 
 model SiteSettings {
@@ -314,4 +335,53 @@ model ChatMessage {
 
   @@index([userId])
   @@index([createdAt])
+}
+
+model UserWarning {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  moderatorId Int
+  reason      String
+  createdAt   DateTime @default(now())
+
+  user      User @relation("UserWarnings", fields: [userId], references: [id], onDelete: Cascade)
+  moderator User @relation("IssuedWarnings", fields: [moderatorId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([moderatorId])
+  @@index([createdAt])
+}
+
+model UserMute {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  moderatorId Int
+  reason      String
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime?
+
+  user      User @relation("UserMutes", fields: [userId], references: [id], onDelete: Cascade)
+  moderator User @relation("IssuedMutes", fields: [moderatorId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([moderatorId])
+  @@index([createdAt])
+  @@index([expiresAt])
+}
+
+model UserBan {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  moderatorId Int
+  reason      String
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime?
+
+  user      User @relation("UserBans", fields: [userId], references: [id], onDelete: Cascade)
+  moderator User @relation("IssuedBans", fields: [moderatorId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([moderatorId])
+  @@index([createdAt])
+  @@index([expiresAt])
 }

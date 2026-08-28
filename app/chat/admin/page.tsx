@@ -13,6 +13,16 @@ interface ChatUser {
   image: string | null;
   role: string;
   lastSeen: string;
+  createdAt: string | null;
+
+  warnings: number;
+
+  muted: boolean;
+  mutedUntil: string | null;
+
+  banned: boolean;
+  bannedUntil: string | null;
+  banReason: string | null;
 }
 
 interface ChatMessage {
@@ -135,6 +145,7 @@ export default function OwnerChatPage() {
   const router = useRouter();
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [allUsers, setAllUsers] = useState<ChatUser[]>([]);
   const [message, setMessage] = useState("");
 
   const [loading, setLoading] = useState(true);
@@ -166,8 +177,14 @@ export default function OwnerChatPage() {
   const [muteReason, setMuteReason] =
     useState("");
 
+  const [muteDuration, setMuteDuration] =
+    useState("60");
+
   const [banReason, setBanReason] =
     useState("");
+
+  const [banDuration, setBanDuration] =
+    useState("permanent");
 
   const [moderationUserId, setModerationUserId] =
     useState<number | null>(null);
@@ -217,36 +234,144 @@ export default function OwnerChatPage() {
     ]);
   }
 
-  async function loadMessages() {
-    try {
-      const response = await fetch("/api/chat", {
+async function loadMessages() {
+  try {
+    const response = await fetch(
+      "/api/chat?admin=true",
+      {
         cache: "no-store",
-      });
-
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
-        setError(
-          data.error || "Failed to load chat."
-        );
-        return;
       }
+    );
 
-      setMessages(data.messages);
-      setCurrentUserId(
-        data.currentUserId ?? null
-      );
-    } catch (error) {
-      console.error(
-        "Failed to load chat:",
-        error
-      );
+    const data = await response.json();
 
-      setError("Failed to load chat.");
-    } finally {
-      setLoading(false);
+    if (!response.ok || !data.success) {
+      setError(
+        data.error || "Failed to load chat."
+      );
+      return;
     }
+
+    setMessages(data.messages ?? []);
+    setAllUsers(data.users ?? []);
+
+    setCurrentUserId(
+      data.currentUserId ?? null
+    );
+
+    /*
+     * =====================================================
+     * LOAD PERSISTED MODERATION DATA
+     * =====================================================
+     *
+     * Moderation is stored in Prisma/User.
+     * Rebuild the frontend moderation lists from
+     * the database whenever the page loads.
+     */
+
+    const moderationUsers =
+      data.moderationUsers ?? [];
+
+    const loadedMutes: ModerationRecord[] =
+      moderationUsers
+        .filter(
+          (user: ChatUser) =>
+            user.muted === true
+        )
+        .map(
+          (user: ChatUser) => ({
+            id: user.id,
+            username: user.username,
+            userId: user.id,
+            reason:
+              user.banReason ||
+              "No reason provided.",
+            createdAt:
+              user.mutedUntil
+                ? new Date(
+                    new Date(
+                      user.mutedUntil
+                    ).getTime() -
+                      60 * 60 * 1000
+                  ).toISOString()
+                : new Date().toISOString(),
+            moderator: "Owner",
+          })
+        );
+
+    const loadedBans: ModerationRecord[] =
+      moderationUsers
+        .filter(
+          (user: ChatUser) =>
+            user.banned === true
+        )
+        .map(
+          (user: ChatUser) => ({
+            id: user.id,
+            username: user.username,
+            userId: user.id,
+            reason:
+              user.banReason ||
+              "No reason provided.",
+            createdAt:
+              user.bannedUntil
+                ? new Date(
+                    new Date(
+                      user.bannedUntil
+                    ).getTime() -
+                      60 * 60 * 1000
+                  ).toISOString()
+                : new Date().toISOString(),
+            moderator: "Owner",
+          })
+        );
+
+    setMutes(loadedMutes);
+    setBans(loadedBans);
+
+    /*
+     * Load warnings as well.
+     */
+    const loadedWarnings: ModerationRecord[] =
+      moderationUsers
+        .filter(
+          (user: ChatUser) =>
+            user.warnings > 0
+        )
+        .map(
+          (user: ChatUser) => ({
+            id: user.id,
+            username: user.username,
+            userId: user.id,
+            reason:
+              `${user.warnings} warning${
+                user.warnings === 1
+                  ? ""
+                  : "s"
+              }`,
+            createdAt:
+              new Date().toISOString(),
+            moderator: "Owner",
+          })
+        );
+
+    setWarnings(loadedWarnings);
+
+    /*
+     * Load persisted audit logs.
+     */
+    setLogs(data.logs ?? []);
+  } catch (error) {
+    console.error(
+      "Failed to load chat:",
+      error
+    );
+
+    setError("Failed to load chat.");
+  } finally {
+    setLoading(false);
   }
+}
 
   useEffect(() => {
     if (status !== "authenticated") return;
@@ -623,14 +748,7 @@ export default function OwnerChatPage() {
     }
   }
 
-  const users = Array.from(
-    new Map(
-      messages.map((item) => [
-        item.user.id,
-        item.user,
-      ])
-    ).values()
-  );
+  const users = allUsers;
 
   const currentModerationUser =
     users.find(
@@ -638,11 +756,34 @@ export default function OwnerChatPage() {
         user.id === moderationUserId
     ) ?? null;
 
-  function createWarning() {
-    if (
-      !currentModerationUser ||
-      !warningReason.trim()
-    ) {
+  async function createWarning() {
+  if (
+    !currentModerationUser ||
+    !warningReason.trim()
+  ) {
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        action: "warning",
+        userId: currentModerationUser.id,
+        reason: warningReason.trim(),
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      setError(
+        data.error ||
+          "Failed to issue warning."
+      );
       return;
     }
 
@@ -672,13 +813,50 @@ export default function OwnerChatPage() {
 
     setWarningReason("");
     setModerationUserId(null);
+    setError("");
+  } catch (error) {
+    console.error(
+      "Failed to issue warning:",
+      error
+    );
+
+    setError(
+      "Failed to issue warning."
+    );
+  }
+}
+
+async function removeWarning(id: number) {
+  const warning =
+    warnings.find(
+      (item) => item.id === id
+    );
+
+  if (!warning) {
+    return;
   }
 
-  function removeWarning(id: number) {
-    const warning =
-      warnings.find(
-        (item) => item.id === id
+  try {
+    const response = await fetch("/api/chat", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        action: "remove-warning",
+        userId: warning.userId,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      setError(
+        data.error ||
+          "Failed to remove warning."
       );
+      return;
+    }
 
     setWarnings((current) =>
       current.filter(
@@ -686,20 +864,57 @@ export default function OwnerChatPage() {
       )
     );
 
-    if (warning) {
-      addLog(
-        "Warning Removed",
-        warning.username,
-        `Removed warning: ${warning.reason}`
-      );
-    }
+    addLog(
+      "Warning Removed",
+      warning.username,
+      `Removed warning: ${warning.reason}`
+    );
+
+    setError("");
+  } catch (error) {
+    console.error(
+      "Failed to remove warning:",
+      error
+    );
+
+    setError(
+      "Failed to remove warning."
+    );
+  }
+}
+
+async function createMute() {
+  if (
+    !currentModerationUser ||
+    !muteReason.trim()
+  ) {
+    return;
   }
 
-  function createMute() {
-    if (
-      !currentModerationUser ||
-      !muteReason.trim()
-    ) {
+  try {
+    const durationMinutes =
+      Number(muteDuration);
+
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        action: "mute",
+        userId: currentModerationUser.id,
+        reason: muteReason.trim(),
+        durationMinutes,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      setError(
+        data.error ||
+          "Failed to mute user."
+      );
       return;
     }
 
@@ -724,18 +939,76 @@ export default function OwnerChatPage() {
     addLog(
       "User Muted",
       currentModerationUser.username,
-      muteReason.trim()
+      `${muteReason.trim()} (${durationMinutes} minutes)`
+    );
+
+    /*
+     * Update the selected user locally
+     * using the actual persistent database
+     * value returned by the API.
+     */
+    setAllUsers((current) =>
+      current.map((item) =>
+        item.id ===
+        currentModerationUser.id
+          ? {
+              ...item,
+              muted: true,
+              mutedUntil:
+                data.user?.mutedUntil ??
+                null,
+            }
+          : item
+      )
     );
 
     setMuteReason("");
+    setMuteDuration("60");
     setModerationUserId(null);
+    setError("");
+  } catch (error) {
+    console.error(
+      "Failed to mute user:",
+      error
+    );
+
+    setError(
+      "Failed to mute user."
+    );
+  }
+}
+
+async function removeMute(id: number) {
+  const mute =
+    mutes.find(
+      (item) => item.id === id
+    );
+
+  if (!mute) {
+    return;
   }
 
-  function removeMute(id: number) {
-    const mute =
-      mutes.find(
-        (item) => item.id === id
+  try {
+    const response = await fetch("/api/chat", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        action: "unmute",
+        userId: mute.userId,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      setError(
+        data.error ||
+          "Failed to remove mute."
       );
+      return;
+    }
 
     setMutes((current) =>
       current.filter(
@@ -743,20 +1016,71 @@ export default function OwnerChatPage() {
       )
     );
 
-    if (mute) {
-      addLog(
-        "Mute Removed",
-        mute.username,
-        `Removed mute: ${mute.reason}`
-      );
-    }
+    addLog(
+      "Mute Removed",
+      mute.username,
+      `Removed mute: ${mute.reason}`
+    );
+
+    setAllUsers((current) =>
+      current.map((item) =>
+        item.id === mute.userId
+          ? {
+              ...item,
+              muted: false,
+              mutedUntil: null,
+            }
+          : item
+      )
+    );
+
+    setError("");
+  } catch (error) {
+    console.error(
+      "Failed to remove mute:",
+      error
+    );
+
+    setError(
+      "Failed to remove mute."
+    );
+  }
+}
+
+async function createBan() {
+  if (
+    !currentModerationUser ||
+    !banReason.trim()
+  ) {
+    return;
   }
 
-  function createBan() {
-    if (
-      !currentModerationUser ||
-      !banReason.trim()
-    ) {
+  try {
+    const durationMinutes =
+      banDuration === "permanent"
+        ? null
+        : Number(banDuration);
+
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        action: "ban",
+        userId: currentModerationUser.id,
+        reason: banReason.trim(),
+        durationMinutes,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      setError(
+        data.error ||
+          "Failed to ban user."
+      );
       return;
     }
 
@@ -781,18 +1105,75 @@ export default function OwnerChatPage() {
     addLog(
       "User Banned",
       currentModerationUser.username,
-      banReason.trim()
+      banDuration === "permanent"
+        ? banReason.trim()
+        : `${banReason.trim()} (${durationMinutes} minutes)`
+    );
+
+    setAllUsers((current) =>
+      current.map((item) =>
+        item.id ===
+        currentModerationUser.id
+          ? {
+              ...item,
+              banned: true,
+              bannedUntil:
+                data.user?.bannedUntil ??
+                null,
+              banReason:
+                banReason.trim(),
+            }
+          : item
+      )
     );
 
     setBanReason("");
+    setBanDuration("permanent");
     setModerationUserId(null);
+    setError("");
+  } catch (error) {
+    console.error(
+      "Failed to ban user:",
+      error
+    );
+
+    setError(
+      "Failed to ban user."
+    );
+  }
+}
+
+async function removeBan(id: number) {
+  const ban =
+    bans.find(
+      (item) => item.id === id
+    );
+
+  if (!ban) {
+    return;
   }
 
-  function removeBan(id: number) {
-    const ban =
-      bans.find(
-        (item) => item.id === id
+  try {
+    const response = await fetch("/api/chat", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        action: "unban",
+        userId: ban.userId,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      setError(
+        data.error ||
+          "Failed to remove ban."
       );
+      return;
+    }
 
     setBans((current) =>
       current.filter(
@@ -800,14 +1181,37 @@ export default function OwnerChatPage() {
       )
     );
 
-    if (ban) {
-      addLog(
-        "Ban Removed",
-        ban.username,
-        `Removed ban: ${ban.reason}`
-      );
-    }
+    addLog(
+      "Ban Removed",
+      ban.username,
+      `Removed ban: ${ban.reason}`
+    );
+
+    setAllUsers((current) =>
+      current.map((item) =>
+        item.id === ban.userId
+          ? {
+              ...item,
+              banned: false,
+              bannedUntil: null,
+              banReason: null,
+            }
+          : item
+      )
+    );
+
+    setError("");
+  } catch (error) {
+    console.error(
+      "Failed to remove ban:",
+      error
+    );
+
+    setError(
+      "Failed to remove ban."
+    );
   }
+}
 
   function selectUser(
     user: ChatUser
@@ -847,7 +1251,7 @@ export default function OwnerChatPage() {
       case "chat":
         return "Owner controls enabled";
       case "users":
-        return `${users.length} unique users found in recent chat`;
+        return `${users.length} registered users`;
       case "delete":
         return "Manage and remove Global Chat messages";
       case "warnings":
@@ -1605,8 +2009,7 @@ export default function OwnerChatPage() {
                     </h3>
 
                     <p className="text-gray-500 mt-2">
-                      Users will appear here after
-                      messages are loaded.
+                      All registered users are shown here.
                     </p>
                   </div>
                 ) : (
@@ -1947,7 +2350,7 @@ export default function OwnerChatPage() {
                   </h3>
 
                   <p className="text-sm text-gray-500 mt-1">
-                    Select a user from the recent chat users.
+                    Select a user from the registered users.
                   </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
@@ -2136,69 +2539,100 @@ export default function OwnerChatPage() {
                     Add a mute record for a user.
                   </p>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
 
-                    <select
-                      value={
-                        moderationUserId ??
-                        ""
-                      }
-                      onChange={(event) =>
-                        setModerationUserId(
-                          event.target.value
-                            ? Number(
-                                event.target.value
-                              )
-                            : null
-                        )
-                      }
-                      className="
-                        rounded-xl
-                        border
-                        border-white/10
-                        bg-black/30
-                        px-4
-                        py-3
-                        text-white
-                        outline-none
-                      "
-                    >
-                      <option value="">
-                        Select user
-                      </option>
+  <select
+    value={
+      moderationUserId ??
+      ""
+    }
+    onChange={(event) =>
+      setModerationUserId(
+        event.target.value
+          ? Number(
+              event.target.value
+            )
+          : null
+      )
+    }
+    className="
+      rounded-xl
+      border
+      border-white/10
+      bg-black/30
+      px-4
+      py-3
+      text-white
+      outline-none
+    "
+  >
+    <option value="">
+      Select user
+    </option>
 
-                      {users.map((user) => (
-                        <option
-                          key={user.id}
-                          value={user.id}
-                        >
-                          {user.username}
-                        </option>
-                      ))}
-                    </select>
+    {users.map((user) => (
+      <option
+        key={user.id}
+        value={user.id}
+      >
+        {user.username}
+      </option>
+    ))}
+  </select>
 
-                    <input
-                      value={muteReason}
-                      onChange={(event) =>
-                        setMuteReason(
-                          event.target.value
-                        )
-                      }
-                      placeholder="Mute reason..."
-                      className="
-                        rounded-xl
-                        border
-                        border-white/10
-                        bg-black/30
-                        px-4
-                        py-3
-                        text-white
-                        outline-none
-                        placeholder:text-gray-600
-                      "
-                    />
+  <select
+    value={muteDuration}
+    onChange={(event) =>
+      setMuteDuration(
+        event.target.value
+      )
+    }
+    className="
+      rounded-xl
+      border
+      border-white/10
+      bg-black/30
+      px-4
+      py-3
+      text-white
+      outline-none
+    "
+  >
+    <option value="5">5 minutes</option>
+    <option value="10">10 minutes</option>
+    <option value="30">30 minutes</option>
+    <option value="60">1 hour</option>
+    <option value="120">2 hours</option>
+    <option value="360">6 hours</option>
+    <option value="720">12 hours</option>
+    <option value="1440">1 day</option>
+    <option value="4320">3 days</option>
+    <option value="10080">7 days</option>
+    <option value="43200">30 days</option>
+  </select>
 
-                  </div>
+  <input
+    value={muteReason}
+    onChange={(event) =>
+      setMuteReason(
+        event.target.value
+      )
+    }
+    placeholder="Mute reason..."
+    className="
+      rounded-xl
+      border
+      border-white/10
+      bg-black/30
+      px-4
+      py-3
+      text-white
+      outline-none
+      placeholder:text-gray-600
+    "
+  />
+
+</div>
 
                   <button
                     type="button"
@@ -2322,69 +2756,136 @@ export default function OwnerChatPage() {
                     Add a ban record for a user.
                   </p>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
 
-                    <select
-                      value={
-                        moderationUserId ??
-                        ""
-                      }
-                      onChange={(event) =>
-                        setModerationUserId(
-                          event.target.value
-                            ? Number(
-                                event.target.value
-                              )
-                            : null
-                        )
-                      }
-                      className="
-                        rounded-xl
-                        border
-                        border-white/10
-                        bg-black/30
-                        px-4
-                        py-3
-                        text-white
-                        outline-none
-                      "
-                    >
-                      <option value="">
-                        Select user
-                      </option>
+  <select
+    value={
+      moderationUserId ??
+      ""
+    }
+    onChange={(event) =>
+      setModerationUserId(
+        event.target.value
+          ? Number(
+              event.target.value
+            )
+          : null
+      )
+    }
+    className="
+      rounded-xl
+      border
+      border-white/10
+      bg-black/30
+      px-4
+      py-3
+      text-white
+      outline-none
+    "
+  >
+    <option value="">
+      Select user
+    </option>
 
-                      {users.map((user) => (
-                        <option
-                          key={user.id}
-                          value={user.id}
-                        >
-                          {user.username}
-                        </option>
-                      ))}
-                    </select>
+    {users.map((user) => (
+      <option
+        key={user.id}
+        value={user.id}
+      >
+        {user.username}
+      </option>
+    ))}
+  </select>
 
-                    <input
-                      value={banReason}
-                      onChange={(event) =>
-                        setBanReason(
-                          event.target.value
-                        )
-                      }
-                      placeholder="Ban reason..."
-                      className="
-                        rounded-xl
-                        border
-                        border-white/10
-                        bg-black/30
-                        px-4
-                        py-3
-                        text-white
-                        outline-none
-                        placeholder:text-gray-600
-                      "
-                    />
+  <select
+    value={banDuration}
+    onChange={(event) =>
+      setBanDuration(
+        event.target.value
+      )
+    }
+    className="
+      rounded-xl
+      border
+      border-white/10
+      bg-black/30
+      px-4
+      py-3
+      text-white
+      outline-none
+    "
+  >
+    <option value="permanent">
+      Permanent
+    </option>
 
-                  </div>
+    <option value="5">
+      5 minutes
+    </option>
+
+    <option value="10">
+      10 minutes
+    </option>
+
+    <option value="30">
+      30 minutes
+    </option>
+
+    <option value="60">
+      1 hour
+    </option>
+
+    <option value="120">
+      2 hours
+    </option>
+
+    <option value="360">
+      6 hours
+    </option>
+
+    <option value="720">
+      12 hours
+    </option>
+
+    <option value="1440">
+      1 day
+    </option>
+
+    <option value="4320">
+      3 days
+    </option>
+
+    <option value="10080">
+      7 days
+    </option>
+
+    <option value="43200">
+      30 days
+    </option>
+  </select>
+
+  <input
+    value={banReason}
+    onChange={(event) =>
+      setBanReason(
+        event.target.value
+      )
+    }
+    placeholder="Ban reason..."
+    className="
+      rounded-xl
+      border
+      border-white/10
+      bg-black/30
+      px-4
+      py-3
+      text-white
+      outline-none
+      placeholder:text-gray-600
+    "
+  />
+
+</div>
 
                   <button
                     type="button"
