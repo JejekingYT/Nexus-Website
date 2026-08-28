@@ -283,6 +283,24 @@ export async function GET(
             banned: true,
             bannedUntil: true,
             banReason: true,
+
+            warningsReceived: {
+              orderBy: {
+                createdAt: "desc",
+              },
+              select: {
+                id: true,
+                userId: true,
+                moderatorId: true,
+                reason: true,
+                createdAt: true,
+                moderator: {
+                  select: {
+                    username: true,
+                  },
+                },
+              },
+            },
           },
         });
 
@@ -487,59 +505,71 @@ export async function POST(
         );
       }
 
-      /* ===================================================
-         WARNING
-         =================================================== */
+    /* ===================================================
+    WARNING
+    =================================================== */
 
-      if (action === "warning") {
-        const updatedUser =
-          await prisma.user.update({
-            where: {
-              id: targetUser.id,
-            },
-            data: {
-              warnings: {
-                increment: 1,
-              },
-            },
-            select: {
-              id: true,
-              username: true,
-              role: true,
-              warnings: true,
-              muted: true,
-              mutedUntil: true,
-              banned: true,
-              bannedUntil: true,
-              banReason: true,
-            },
-          });
-
-        await createAuditLog(
-          user.id,
-          "USER_WARNING_ISSUED",
-          `User:${targetUser.id}`,
-          `Owner issued a warning to ${targetUser.username}: ${reason}`
-        );
-
-        await triggerPusher(
-          "user-moderated",
-          {
-            type: "warning",
-            user: updatedUser,
-            reason,
-            moderator: user.username,
-          }
-        );
-
-        return NextResponse.json({
-          success: true,
-          action: "warning",
-          user: updatedUser,
+if (action === "warning") {
+  const [warning, updatedUser] =
+    await prisma.$transaction([
+      prisma.userWarning.create({
+        data: {
+          userId: targetUser.id,
+          moderatorId: user.id,
           reason,
-          moderator: user.username,
-        });
-      }
+        },
+      }),
+
+      prisma.user.update({
+        where: {
+          id: targetUser.id,
+        },
+        data: {
+          warnings: {
+            increment: 1,
+          },
+        },
+        select: {
+          id: true,
+          username: true,
+          role: true,
+          warnings: true,
+          muted: true,
+          mutedUntil: true,
+          banned: true,
+          bannedUntil: true,
+          banReason: true,
+        },
+      }),
+    ]);
+
+  await createAuditLog(
+    user.id,
+    "USER_WARNING_ISSUED",
+    `User:${targetUser.id}`,
+    `Owner issued a warning to ${targetUser.username}: ${reason}`
+  );
+
+  await triggerPusher(
+    "user-moderated",
+    {
+      type: "warning",
+      user: updatedUser,
+      warning,
+      reason,
+      moderator: user.username,
+    }
+  );
+
+  return NextResponse.json({
+    success: true,
+    action: "warning",
+    user: updatedUser,
+    warning,
+    reason,
+    moderator: user.username,
+  });
+}
 
       /* ===================================================
          MUTE
@@ -1006,58 +1036,87 @@ export async function PATCH(
         );
       }
 
-      /*
-       * Remove one warning.
-       */
-      if (
-        action === "remove-warning"
-      ) {
-        const updatedUser =
-          await prisma.user.update({
-            where: {
-              id: targetUser.id,
-            },
-            data: {
-              warnings: Math.max(
-                0,
-                targetUser.warnings - 1
-              ),
-            },
-            select: {
-              id: true,
-              username: true,
-              role: true,
-              warnings: true,
-              muted: true,
-              mutedUntil: true,
-              banned: true,
-              bannedUntil: true,
-              banReason: true,
-            },
-          });
+    /* ===================================================
+    REMOVE WARNING
+    =================================================== */
 
-        await createAuditLog(
-          user.id,
-          "USER_WARNING_REMOVED",
-          `User:${targetUser.id}`,
-          `Owner removed one warning from ${targetUser.username}.`
-        );
+if (action === "remove-warning") {
+  const warning = await prisma.userWarning.findFirst({
+    where: {
+      userId: targetUser.id,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
-        await triggerPusher(
-          "user-moderated",
-          {
-            type: "warning-removed",
-            user: updatedUser,
-            moderator: user.username,
-          }
-        );
-
-        return NextResponse.json({
-          success: true,
-          action,
-          user: updatedUser,
-        });
+  if (!warning) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: "No warnings found for this user.",
+      },
+      {
+        status: 404,
       }
+    );
+  }
+
+  const [deletedWarning, updatedUser] =
+    await prisma.$transaction([
+      prisma.userWarning.delete({
+        where: {
+          id: warning.id,
+        },
+      }),
+
+      prisma.user.update({
+        where: {
+          id: targetUser.id,
+        },
+        data: {
+          warnings: {
+            decrement: 1,
+          },
+        },
+        select: {
+          id: true,
+          username: true,
+          role: true,
+          warnings: true,
+          muted: true,
+          mutedUntil: true,
+          banned: true,
+          bannedUntil: true,
+          banReason: true,
+        },
+      }),
+    ]);
+
+  await createAuditLog(
+    user.id,
+    "USER_WARNING_REMOVED",
+    `User:${targetUser.id}`,
+    `Owner removed a warning from ${targetUser.username}: ${warning.reason}`
+  );
+
+  await triggerPusher(
+    "user-moderated",
+    {
+      type: "warning-removed",
+      user: updatedUser,
+      warning: deletedWarning,
+      moderator: user.username,
+    }
+  );
+
+  return NextResponse.json({
+    success: true,
+    action: "remove-warning",
+    user: updatedUser,
+    warning: deletedWarning,
+  });
+}
 
       /*
        * Unmute.
