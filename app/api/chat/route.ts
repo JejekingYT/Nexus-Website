@@ -200,6 +200,21 @@ export async function GET(
                 lastSeen: true,
               },
             },
+
+            replyTo: {
+              select: {
+                id: true,
+                message: true,
+                user: {
+                  select: {
+                    d: true,
+                    username: true,
+                    image: true,
+                    role: true,
+                  },
+                },
+              },
+            },
           },
         }),
 
@@ -334,6 +349,21 @@ export async function GET(
               image: true,
               role: true,
               lastSeen: true,
+            },
+          },
+
+          replyTo: {
+            select: {
+              id: true,
+              message: true,
+              user: {
+                select: {
+                  id: true,
+                  username: true,
+                  image: true,
+                  role: true,
+                },
+              },
             },
           },
         },
@@ -885,11 +915,59 @@ if (action === "warning") {
       );
     }
 
+    let replyToId: number | null = null;
+
+if (
+  body.replyToId !== undefined &&
+  body.replyToId !== null
+) {
+  replyToId = Number(body.replyToId);
+
+  if (!Number.isInteger(replyToId)) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Invalid reply message ID.",
+      },
+      {
+        status: 400,
+      }
+    );
+  }
+
+  const replyMessage =
+    await prisma.chatMessage.findUnique({
+      where: {
+        id: replyToId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+  if (!replyMessage) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Reply message not found.",
+      },
+      {
+        status: 404,
+      }
+    );
+  }
+}
+
     const newMessage =
       await prisma.chatMessage.create({
         data: {
           message,
           userId: user.id,
+          replyToId:
+            body.replyToId !== undefined &&
+            body.replyToId !== null
+              ? Number(body.replyToId)
+              : null,
         },
         include: {
           user: {
@@ -899,6 +977,19 @@ if (action === "warning") {
               image: true,
               role: true,
               lastSeen: true,
+            },
+          },
+
+          replyTo: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  username: true,
+                  image: true,
+                  role: true,
+                },
+              },
             },
           },
         },

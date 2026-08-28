@@ -20,6 +20,17 @@ interface ChatMessage {
   createdAt: string;
   updatedAt: string;
   user: ChatUser;
+
+  replyTo?: {
+    id: number;
+    message: string;
+    user: {
+      id: number;
+      username: string;
+      image: string | null;
+      role: string;
+    };
+  } | null;
 }
 
 function getRoleStyle(role: string) {
@@ -101,6 +112,9 @@ export default function GlobalChatPage() {
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [message, setMessage] = useState("");
+
+  const [replyingTo, setReplyingTo] =
+  useState<ChatMessage | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
@@ -245,6 +259,7 @@ export default function GlobalChatPage() {
           },
           body: JSON.stringify({
             message: trimmedMessage,
+            replyToId: replyingTo?.id ?? null,
           }),
         }
       );
@@ -261,6 +276,7 @@ export default function GlobalChatPage() {
       }
 
       setMessage("");
+      setReplyingTo(null);
 
       setMessages((current) => {
         if (
@@ -792,70 +808,124 @@ export default function GlobalChatPage() {
 
                           </div>
                         ) : (
-                          <p
-                            className="
-                              text-gray-300
-                              mt-1
-                              break-words
-                              whitespace-pre-wrap
-                            "
-                          >
-                            {item.message}
-                          </p>
-                        )}
+                          <>
+  {item.replyTo && (
+    <button
+      type="button"
+      onClick={() => {
+        const target = document.getElementById(
+          `message-${item.replyTo?.id}`
+        );
 
-                        {isOwnMessage &&
-                          !isEditing && (
-                            <div
-                              className="
-                                flex
-                                items-center
-                                gap-2
-                                mt-2
-                                opacity-0
-                                group-hover:opacity-100
-                                transition
-                              "
-                            >
+        target?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }}
+      className="
+        mt-2
+        mb-1
+        block
+        w-full
+        max-w-md
+        rounded-lg
+        border-l-2
+        border-blue-500/60
+        bg-white/[0.03]
+        px-3
+        py-2
+        text-left
+        hover:bg-white/[0.06]
+        transition
+      "
+    >
+      <div className="text-xs font-semibold text-blue-400">
+        ↩️ Replying to {item.replyTo.user.username}
+      </div>
 
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  startEditing(item)
-                                }
-                                className="
-                                  text-xs
-                                  text-gray-500
-                                  hover:text-purple-400
-                                  transition
-                                "
-                              >
-                                ✏️ Edit
-                              </button>
+      <div className="mt-0.5 truncate text-xs text-gray-500">
+        {item.replyTo.message}
+      </div>
+    </button>
+  )}
 
-                              <span className="text-gray-700">
-                                •
-                              </span>
+  <p
+    className="
+      text-gray-300
+      mt-1
+      break-words
+      whitespace-pre-wrap
+    "
+  >
+    {item.message}
+  </p>
+</>
+)}
 
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  deleteMessage(
-                                    item.id
-                                  )
-                                }
-                                className="
-                                  text-xs
-                                  text-gray-500
-                                  hover:text-red-400
-                                  transition
-                                "
-                              >
-                                🗑️ Delete
-                              </button>
+                        {!isEditing && (
+  <div
+    className="
+      flex
+      items-center
+      gap-2
+      mt-2
+      opacity-0
+      group-hover:opacity-100
+      transition
+    "
+  >
+    <button
+      type="button"
+      onClick={() => setReplyingTo(item)}
+      className="
+        text-xs
+        text-gray-500
+        hover:text-blue-400
+        transition
+      "
+    >
+      ↩️ Reply
+    </button>
 
-                            </div>
-                          )}
+    {isOwnMessage && (
+      <>
+        <span className="text-gray-700">
+          •
+        </span>
+
+        <button
+          type="button"
+          onClick={() => startEditing(item)}
+          className="
+            text-xs
+            text-gray-500
+            hover:text-purple-400
+            transition
+          "
+        >
+          ✏️ Edit
+        </button>
+
+        <span className="text-gray-700">
+          •
+        </span>
+
+        <button
+          type="button"
+          onClick={() => deleteMessage(item.id)}
+          className="
+            text-xs
+            text-gray-500
+            hover:text-red-400
+            transition
+          "
+        >
+          🗑️ Delete
+        </button>
+      </>
+    )}
+  </div>
+)}
 
                       </div>
                     </div>
@@ -886,15 +956,67 @@ export default function GlobalChatPage() {
             )}
 
             <form
-              onSubmit={sendMessage}
-              className="
-                p-5
-                border-t
-                border-white/10
-                bg-white/[0.02]
-              "
-            >
-              <div className="flex gap-3">
+  onSubmit={sendMessage}
+  className="
+    p-5
+    border-t
+    border-white/10
+    bg-white/[0.02]
+  "
+>
+  {replyingTo && (
+    <div
+      className="
+        mb-3
+        flex
+        items-center
+        justify-between
+        gap-3
+        rounded-xl
+        border
+        border-blue-500/20
+        bg-blue-500/5
+        px-4
+        py-3
+      "
+    >
+      <div className="min-w-0">
+        <div className="flex items-center gap-2">
+          <span className="text-blue-400 text-sm font-semibold">
+            ↩️ Replying to
+          </span>
+
+          <span className="text-sm font-bold text-white">
+            {replyingTo.user.username}
+          </span>
+        </div>
+
+        <p className="mt-1 truncate text-xs text-gray-500">
+          {replyingTo.message}
+        </p>
+      </div>
+
+      <button
+        type="button"
+        onClick={() => setReplyingTo(null)}
+        className="
+          shrink-0
+          rounded-lg
+          px-2
+          py-1
+          text-xs
+          text-gray-500
+          hover:bg-white/10
+          hover:text-white
+          transition
+        "
+      >
+        ✕
+      </button>
+    </div>
+  )}
+
+  <div className="flex gap-3">
 
                 <input
                   value={message}

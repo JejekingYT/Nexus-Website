@@ -330,11 +330,17 @@ model ChatMessage {
   message   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
   userId    Int
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  replyToId Int?
+  replyTo   ChatMessage?  @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies   ChatMessage[] @relation("MessageReplies")
+
   @@index([userId])
   @@index([createdAt])
+  @@index([replyToId])
 }
 
 model UserWarning {
