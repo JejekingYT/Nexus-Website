@@ -1,9 +1,11 @@
+
 import Navbar from "@/components/layout/NavbarWrapper";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import EmailLogin from "./EmailLogin";
+import DiscordLogin from "./DiscordLogin";
 
 export default async function LoginPage({
   searchParams,
@@ -223,24 +225,7 @@ export default async function LoginPage({
 
             {/* Discord */}
 
-            <a
-              href="/api/auth/signin/discord"
-              className="
-                block
-                w-full
-                bg-purple-600
-                hover:bg-purple-500
-                px-8
-                py-4
-                rounded-xl
-                font-bold
-                text-center
-                transition
-                hover:scale-[1.02]
-              "
-            >
-              🟣 Login with Discord
-            </a>
+            <DiscordLogin />
 
 
             {/* Divider */}

@@ -3,17 +3,16 @@
 import { signIn } from "next-auth/react";
 
 export default function DiscordLogin() {
-  const handleDiscordLogin = () => {
-    signIn("discord", {
-      callbackUrl: "/",
-    });
-  };
-
   return (
     <button
       type="button"
-      onClick={handleDiscordLogin}
+      onClick={() =>
+        signIn("discord", {
+          callbackUrl: "/",
+        })
+      }
       className="
+        block
         w-full
         bg-purple-600
         hover:bg-purple-500
@@ -21,6 +20,7 @@ export default function DiscordLogin() {
         py-4
         rounded-xl
         font-bold
+        text-center
         transition
         hover:scale-[1.02]
       "
