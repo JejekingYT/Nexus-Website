@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -10,7 +10,6 @@ export default function Navbar({
 }: {
   siteName?: string;
 }) {
-
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -18,15 +17,12 @@ export default function Navbar({
   const [openMobile, setOpenMobile] = useState(false);
   const [openCommunities, setOpenCommunities] = useState(false);
 
-
   const isAdmin =
     session?.user?.role === "OWNER" ||
     session?.user?.role === "ADMIN";
 
-
   const isSupport =
     session?.user?.role === "SUPPORT";
-
 
   const openAdmin = () => {
     if (isSupport) {
@@ -37,40 +33,37 @@ export default function Navbar({
     router.push("/admin");
   };
 
-
   const closeMobile = () => {
     setOpenMobile(false);
   };
 
-
   const navLink =
     "whitespace-nowrap transition hover:text-purple-400 duration-200";
 
-
   return (
-
-    <nav className="
-      fixed
-      top-0
-      left-0
-      w-full
-      z-50
-      bg-black/30
-      backdrop-blur-xl
-      border-b
-      border-white/10
-    ">
-
-      <div className="
-        max-w-7xl
-        mx-auto
-        flex
-        items-center
-        px-6
-        py-4
-      ">
-
-
+    <nav
+      className="
+        fixed
+        top-0
+        left-0
+        w-full
+        z-50
+        bg-black/30
+        backdrop-blur-xl
+        border-b
+        border-white/10
+      "
+    >
+      <div
+        className="
+          max-w-7xl
+          mx-auto
+          flex
+          items-center
+          px-6
+          py-4
+        "
+      >
         <Link
           href="/"
           className="
@@ -86,19 +79,17 @@ export default function Navbar({
           {siteName}
         </Link>
 
-
-
-        <div className="
-          hidden
-          md:flex
-          items-center
-          gap-7
-          ml-7
-          text-gray-300
-          font-medium
-        ">
-
-
+        <div
+          className="
+            hidden
+            md:flex
+            items-center
+            gap-7
+            ml-7
+            text-gray-300
+            font-medium
+          "
+        >
           <Link
             href="/"
             className={navLink}
@@ -106,35 +97,32 @@ export default function Navbar({
             Home
           </Link>
 
-
-
           <div className="relative">
-
             <button
-              onClick={() => setOpenCommunities(!openCommunities)}
+              onClick={() =>
+                setOpenCommunities(!openCommunities)
+              }
               className={navLink}
             >
               Communities ▾
             </button>
 
-
             {openCommunities && (
-
-              <div className="
-                absolute
-                top-10
-                left-0
-                w-64
-                rounded-2xl
-                bg-[#111827]/95
-                backdrop-blur-xl
-                border
-                border-white/10
-                shadow-2xl
-                overflow-hidden
-              ">
-
-
+              <div
+                className="
+                  absolute
+                  top-10
+                  left-0
+                  w-64
+                  rounded-2xl
+                  bg-[#111827]/95
+                  backdrop-blur-xl
+                  border
+                  border-white/10
+                  shadow-2xl
+                  overflow-hidden
+                "
+              >
                 <Link
                   href="/communities"
                   className="
@@ -147,7 +135,6 @@ export default function Navbar({
                 >
                   🏛 Nexus Communities
                 </Link>
-
 
                 <Link
                   href="/partners"
@@ -162,7 +149,6 @@ export default function Navbar({
                   🤝 Partner Communities
                 </Link>
 
-
                 <Link
                   href="/partners/apply"
                   className="
@@ -175,29 +161,22 @@ export default function Navbar({
                 >
                   ✨ Become a Partner
                 </Link>
-
-
               </div>
-
             )}
-
           </div>
 
-
-
           {[
-            ["Games","/games"],
-            ["Projects","/projects"],
-            ["News","/news"],
-            ["Events","/events"],
-            ["Badges","/badges"],
-            ["Developers","/developers"],
-            ["Members","/members"],
-            ["Hall of Fame","/hall-of-fame"],
-            ["Contact","/contact"],
-            ["Support","/support"],
-          ].map(([name,path]) => (
-
+            ["Games", "/games"],
+            ["Projects", "/projects"],
+            ["News", "/news"],
+            ["Events", "/events"],
+            ["Badges", "/badges"],
+            ["Developers", "/developers"],
+            ["Members", "/members"],
+            ["Hall of Fame", "/hall-of-fame"],
+            ["Contact", "/contact"],
+            ["Support", "/support"],
+          ].map(([name, path]) => (
             <Link
               key={path}
               href={path}
@@ -205,16 +184,11 @@ export default function Navbar({
             >
               {name}
             </Link>
-
           ))}
 
-
-
-
           {!session ? (
-
-            <button
-              onClick={() => signIn("discord")}
+            <Link
+              href="/login"
               className="
                 px-5
                 py-2
@@ -226,25 +200,20 @@ export default function Navbar({
               "
             >
               Login
-            </button>
-
-
+            </Link>
           ) : (
-
             <div className="relative">
-
-
               <button
-                onClick={() => setOpenProfile(!openProfile)}
+                onClick={() =>
+                  setOpenProfile(!openProfile)
+                }
                 className="
                   flex
                   items-center
                   gap-3
                 "
               >
-
                 {session.user.image && (
-
                   <img
                     src={session.user.image}
                     alt="Profile"
@@ -256,33 +225,28 @@ export default function Navbar({
                       border-purple-500/50
                     "
                   />
-
                 )}
 
                 <span className="text-white">
                   {session.user.name}
                 </span>
-
               </button>
 
-
-
               {openProfile && (
-
-                <div className="
-                  absolute
-                  right-0
-                  mt-4
-                  w-60
-                  rounded-2xl
-                  bg-[#111827]
-                  border
-                  border-white/10
-                  shadow-xl
-                  p-3
-                ">
-
-
+                <div
+                  className="
+                    absolute
+                    right-0
+                    mt-4
+                    w-60
+                    rounded-2xl
+                    bg-[#111827]
+                    border
+                    border-white/10
+                    shadow-xl
+                    p-3
+                  "
+                >
                   <Link
                     href="/profile"
                     className="
@@ -295,7 +259,6 @@ export default function Navbar({
                   >
                     👤 Profile
                   </Link>
-
 
                   <Link
                     href="/profile/edit"
@@ -310,8 +273,6 @@ export default function Navbar({
                     ⚙ Settings
                   </Link>
 
-
-                  {/* Global Chat */}
                   <Link
                     href="/chat"
                     className="
@@ -325,9 +286,7 @@ export default function Navbar({
                     💬 Global Chat
                   </Link>
 
-
                   {(isAdmin || isSupport) && (
-
                     <button
                       onClick={openAdmin}
                       className="
@@ -342,9 +301,7 @@ export default function Navbar({
                     >
                       🛠 Admin Panel
                     </button>
-
                   )}
-
 
                   <button
                     onClick={() => signOut()}
@@ -360,76 +317,67 @@ export default function Navbar({
                   >
                     🚪 Logout
                   </button>
-
-
                 </div>
-
               )}
-
-
             </div>
-
           )}
-
         </div>
 
-
-
         <button
-          onClick={() => setOpenMobile(!openMobile)}
+          onClick={() =>
+            setOpenMobile(!openMobile)
+          }
           className="
             md:hidden
             text-3xl
             text-white
+            ml-auto
           "
         >
           ☰
         </button>
-
-
       </div>
 
-
-
       {openMobile && (
-
-        <div className="
-          md:hidden
-          bg-black/70
-          backdrop-blur-xl
-          border-t
-          border-white/10
-          px-6
-          py-6
-        ">
-
-
-          <div className="
-            flex
-            flex-col
-            gap-5
-            text-gray-300
-          ">
-
-            <Link href="/" onClick={closeMobile}>
+        <div
+          className="
+            md:hidden
+            bg-black/70
+            backdrop-blur-xl
+            border-t
+            border-white/10
+            px-6
+            py-6
+          "
+        >
+          <div
+            className="
+              flex
+              flex-col
+              gap-5
+              text-gray-300
+            "
+          >
+            <Link
+              href="/"
+              onClick={closeMobile}
+            >
               Home
             </Link>
 
-
             {[
-              ["Communities","/communities"],
-              ["Games","/games"],
-              ["Projects","/projects"],
-              ["News","/news"],
-              ["Events","/events"],
-              ["Badges","/badges"],
-              ["Developers","/developers"],
-              ["Members","/members"],
-              ["🏆 Hall of Fame","/hall-of-fame"],
-              ["Contact","/contact"],
-              ["Support","/support"],
-            ].map(([name,path]) => (
-
+              ["Communities", "/communities"],
+              ["Games", "/games"],
+              ["Projects", "/projects"],
+              ["News", "/news"],
+              ["Events", "/events"],
+              ["Badges", "/badges"],
+              ["Developers", "/developers"],
+              ["Members", "/members"],
+              ["🏆 Hall of Fame", "/hall-of-fame"],
+              ["Contact", "/contact"],
+              ["Support", "/support"],
+            ].map(([name, path]) => (
               <Link
                 key={path}
                 href={path}
@@ -437,38 +385,32 @@ export default function Navbar({
               >
                 {name}
               </Link>
-
             ))}
 
-
-
             {!session ? (
-
-              <button
-                onClick={() => {
-                  closeMobile();
-                  signIn("discord");
-                }}
+              <Link
+                href="/login"
+                onClick={closeMobile}
                 className="text-left"
               >
                 Login
-              </button>
-
+              </Link>
             ) : (
-
               <>
-
-                <Link href="/profile">
+                <Link
+                  href="/profile"
+                  onClick={closeMobile}
+                >
                   👤 Profile
                 </Link>
 
-
-                <Link href="/profile/edit">
+                <Link
+                  href="/profile/edit"
+                  onClick={closeMobile}
+                >
                   ⚙ Settings
                 </Link>
 
-
-                {/* Global Chat */}
                 <Link
                   href="/chat"
                   onClick={closeMobile}
@@ -476,37 +418,32 @@ export default function Navbar({
                   💬 Global Chat
                 </Link>
 
-
                 {(isAdmin || isSupport) && (
-
                   <button
-                    onClick={openAdmin}
+                    onClick={() => {
+                      closeMobile();
+                      openAdmin();
+                    }}
                     className="text-left text-purple-400"
                   >
                     🛠 Admin Panel
                   </button>
-
                 )}
 
-
                 <button
-                  onClick={() => signOut()}
+                  onClick={() => {
+                    closeMobile();
+                    signOut();
+                  }}
                   className="text-left text-red-400"
                 >
                   🚪 Logout
                 </button>
-
               </>
-
             )}
-
           </div>
-
         </div>
-
       )}
-
     </nav>
-
   );
 }

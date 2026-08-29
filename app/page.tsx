@@ -16,19 +16,38 @@ import { updateMembershipBadgeProgress } from "@/lib/badges";
 
 export default async function Home() {
 
-    const session = await getServerSession(authOptions);
+  const session = await getServerSession(authOptions);
+
+
+  // ==========================================
+  // UPDATE MEMBERSHIP BADGE PROGRESS
+  // ==========================================
 
   if (session?.user?.id) {
+
     const user = await prisma.user.findUnique({
+
       where: {
-        discordId: session.user.id,
+        id: Number(session.user.id),
       },
+
     });
 
+
     if (user) {
-      await updateMembershipBadgeProgress(user.id);
+
+      await updateMembershipBadgeProgress(
+        user.id
+      );
+
     }
+
   }
+
+
+  // ==========================================
+  // LATEST EVENTS
+  // ==========================================
 
   const events = await prisma.event.findMany({
 
@@ -45,18 +64,18 @@ export default async function Home() {
   });
 
 
-
   return (
 
-    <main className="
-      min-h-screen
-      text-white
-      overflow-hidden
-    ">
+    <main
+      className="
+        min-h-screen
+        text-white
+        overflow-hidden
+      "
+    >
 
 
       <Navbar />
-
 
 
       <div className="fade-in">
@@ -74,52 +93,66 @@ export default async function Home() {
         <LatestNews />
 
 
+        {/* ========================================== */}
+        {/* LATEST EVENTS */}
+        {/* ========================================== */}
 
-        {/* Latest Events */}
-
-        <section className="
-          py-24
-          px-6
-        ">
-
-
-          <div className="
-            max-w-6xl
-            mx-auto
-          ">
+        <section
+          className="
+            py-24
+            px-6
+          "
+        >
 
 
+          <div
+            className="
+              max-w-6xl
+              mx-auto
+            "
+          >
 
-            <div className="text-center mb-14">
+
+            <div
+              className="
+                text-center
+                mb-14
+              "
+            >
 
 
-              <h2 className="
-                text-4xl
-                md:text-5xl
-                font-extrabold
-              ">
+              <h2
+                className="
+                  text-4xl
+                  md:text-5xl
+                  font-extrabold
+                "
+              >
 
                 Latest{" "}
 
-                <span className="
-                  bg-linear-to-r
-                  from-purple-400
-                  to-blue-400
-                  bg-clip-text
-                  text-transparent
-                ">
+                <span
+                  className="
+                    bg-linear-to-r
+                    from-purple-400
+                    to-blue-400
+                    bg-clip-text
+                    text-transparent
+                  "
+                >
                   Events
                 </span>
 
               </h2>
 
 
-
-              <p className="
-                text-gray-400
-                mt-4
-                text-lg
-              ">
+              <p
+                className="
+                  text-gray-400
+                  mt-4
+                  text-lg
+                "
+              >
                 Join the newest Nexus community events.
               </p>
 
@@ -127,15 +160,13 @@ export default async function Home() {
             </div>
 
 
-
-
-
-            <div className="
-              grid
-              md:grid-cols-3
-              gap-6
-            ">
-
+            <div
+              className="
+                grid
+                md:grid-cols-3
+                gap-6
+              "
+            >
 
 
               {events.map((event) => (
@@ -150,37 +181,36 @@ export default async function Home() {
                 >
 
 
-
-                  <h3 className="
-                    text-2xl
-                    font-bold
-                  ">
+                  <h3
+                    className="
+                      text-2xl
+                      font-bold
+                    "
+                  >
                     {event.title}
                   </h3>
 
 
-
-
-                  <p className="
-                    text-purple-400
-                    mt-3
-                    font-medium
-                  ">
+                  <p
+                    className="
+                      text-purple-400
+                      mt-3
+                      font-medium
+                    "
+                  >
                     📅 {event.date} • {event.time}
                   </p>
 
 
-
-
-                  <p className="
-                    text-gray-400
-                    mt-4
-                    leading-relaxed
-                  ">
+                  <p
+                    className="
+                      text-gray-400
+                      mt-4
+                      leading-relaxed
+                    "
+                  >
                     {event.description}
                   </p>
-
-
 
 
                   <Link
@@ -203,32 +233,27 @@ export default async function Home() {
                   </Link>
 
 
-
                 </div>
 
               ))}
 
 
-
             </div>
-
-
-
-
 
 
             {events.length === 0 && (
 
-              <p className="
-                text-gray-400
-                text-center
-                mt-10
-              ">
+              <p
+                className="
+                  text-gray-400
+                  text-center
+                  mt-10
+                "
+              >
                 No upcoming events.
               </p>
 
             )}
-
 
 
           </div>
@@ -238,7 +263,6 @@ export default async function Home() {
 
 
       </div>
-
 
 
       <Footer />

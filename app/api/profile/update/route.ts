@@ -6,6 +6,10 @@ import { createActivityLog } from "@/lib/auth";
 
 export async function POST(request: Request) {
   try {
+    // ==========================================
+    // GET SESSION
+    // ==========================================
+
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
@@ -15,11 +19,20 @@ export async function POST(request: Request) {
       );
     }
 
+    // ==========================================
+    // GET REQUEST BODY
+    // ==========================================
+
     const body = await request.json();
+
+    // ==========================================
+    // FIND CURRENT USER
+    // session.user.id = Prisma User ID
+    // ==========================================
 
     const user = await prisma.user.findUnique({
       where: {
-        discordId: session.user.id,
+        id: Number(session.user.id),
       },
     });
 
@@ -30,17 +43,65 @@ export async function POST(request: Request) {
       );
     }
 
+    // ==========================================
+    // VALIDATE USERNAME
+    // ==========================================
+
+    const username =
+      typeof body.username === "string"
+        ? body.username.trim()
+        : user.username;
+
+    if (!username || username.length < 3) {
+      return NextResponse.json(
+        {
+          error: "Username must be at least 3 characters.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    // ==========================================
+    // CHECK USERNAME AVAILABILITY
+    // ==========================================
+
+    if (username !== user.username) {
+      const existingUser = await prisma.user.findFirst({
+        where: {
+          username,
+          NOT: {
+            id: user.id,
+          },
+        },
+      });
+
+      if (existingUser) {
+        return NextResponse.json(
+          {
+            error: "This username is already taken.",
+          },
+          {
+            status: 400,
+          }
+        );
+      }
+    }
+
+    // ==========================================
+    // UPDATE PROFILE
+    // ==========================================
+
     await prisma.user.update({
       where: {
-        discordId: session.user.id,
+        id: user.id,
       },
 
       data: {
-        // Existing profile fields
-        username:
-          typeof body.username === "string"
-            ? body.username.trim()
-            : user.username,
+        // Profile information
+
+        username,
 
         bio:
           typeof body.bio === "string"
@@ -48,6 +109,7 @@ export async function POST(request: Request) {
             : user.bio,
 
         // Profile customization
+
         banner:
           typeof body.banner === "string"
             ? body.banner.trim() || null
@@ -59,6 +121,7 @@ export async function POST(request: Request) {
             : user.theme,
 
         // Social links
+
         discord:
           typeof body.discord === "string"
             ? body.discord.trim() || null
@@ -86,13 +149,20 @@ export async function POST(request: Request) {
       },
     });
 
-    // Keep your existing activity logging
+    // ==========================================
+    // ACTIVITY LOG
+    // ==========================================
+
     await createActivityLog({
       action: "UPDATE_PROFILE",
-      target: user.username,
+      target: username,
       details: "Updated profile information",
       userId: user.id,
     });
+
+    // ==========================================
+    // SUCCESS
+    // ==========================================
 
     return NextResponse.json({
       success: true,

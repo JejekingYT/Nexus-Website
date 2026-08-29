@@ -106,7 +106,7 @@ export default async function ProfilePage() {
 
   const user = await prisma.user.findUnique({
     where: {
-      discordId: session.user.id,
+      id: Number(session.user.id),
     },
 
     include: {

@@ -159,34 +159,34 @@ export default async function PublicProfilePage({
   let isFollowing = false;
   let isOwnProfile = false;
 
-  if (session?.user?.id) {
-    const currentUser = await prisma.user.findUnique({
-      where: {
-        discordId: String(session.user.id),
-      },
+if (session?.user?.id) {
+  const currentUser = await prisma.user.findUnique({
+    where: {
+      id: Number(session.user.id),
+    },
 
-      select: {
-        id: true,
-      },
-    });
+    select: {
+      id: true,
+    },
+  });
 
-    if (currentUser) {
-      isOwnProfile = currentUser.id === user.id;
+  if (currentUser) {
+    isOwnProfile = currentUser.id === user.id;
 
-      if (!isOwnProfile) {
-        const existingFollow = await prisma.follow.findUnique({
-          where: {
-            followerId_followingId: {
-              followerId: currentUser.id,
-              followingId: user.id,
-            },
+    if (!isOwnProfile) {
+      const existingFollow = await prisma.follow.findUnique({
+        where: {
+          followerId_followingId: {
+            followerId: currentUser.id,
+            followingId: user.id,
           },
-        });
+        },
+      });
 
-        isFollowing = !!existingFollow;
-      }
+      isFollowing = !!existingFollow;
     }
   }
+}
 
   const themeStyles = getThemeStyles(user.theme || "default");
 
