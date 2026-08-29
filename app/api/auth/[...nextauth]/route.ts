@@ -230,7 +230,12 @@ export const authOptions = {
         account?.provider === "credentials" &&
         user
       ) {
-        token.userId = Number(user.id);
+        const userId = Number(user.id);
+
+        if (Number.isInteger(userId) && userId > 0) {
+          token.userId = userId;
+        }
+
         token.discordId = user.discordId ?? null;
         token.robloxId = user.robloxId ?? null;
         token.role = user.role;
@@ -243,27 +248,58 @@ export const authOptions = {
       // REFRESH USER DATA
       // --------------------------------------
 
-      if (token.userId) {
-  const userId = Number(token.userId);
+      /*
+       * IMPORTANT:
+       * Only query Prisma if token.userId is a
+       * valid positive integer.
+       *
+       * This prevents:
+       *
+       * PrismaClientValidationError:
+       * Argument `id` is missing.
+       */
 
-  if (Number.isInteger(userId) && userId > 0) {
-    const dbUser = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-    });
+      const rawUserId = token.userId;
 
-    if (dbUser) {
-      token.userId = dbUser.id;
-      token.discordId = dbUser.discordId;
-      token.robloxId = dbUser.robloxId;
-      token.role = dbUser.role;
-      token.username = dbUser.username;
-      token.image = dbUser.image;
-      token.email = dbUser.email;
-    }
-  }
-}
+      if (
+        rawUserId !== undefined &&
+        rawUserId !== null &&
+        rawUserId !== ""
+      ) {
+        const userId = Number(rawUserId);
+
+        if (
+          Number.isInteger(userId) &&
+          userId > 0
+        ) {
+          const dbUser =
+            await prisma.user.findUnique({
+              where: {
+                id: userId,
+              },
+            });
+
+          if (dbUser) {
+            token.userId = dbUser.id;
+            token.discordId = dbUser.discordId;
+            token.robloxId = dbUser.robloxId;
+            token.role = dbUser.role;
+            token.username = dbUser.username;
+            token.image = dbUser.image;
+            token.email = dbUser.email;
+          }
+        } else {
+          /*
+           * Invalid userId.
+           *
+           * Do not send it to Prisma.
+           */
+          console.warn(
+            "NEXUS AUTH: Invalid token.userId:",
+            rawUserId
+          );
+        }
+      }
 
       return token;
     },
@@ -277,8 +313,21 @@ export const authOptions = {
       token,
     }: any) {
       if (session.user) {
-        session.user.id =
-          String(token.userId);
+        /*
+         * Only expose a valid user ID.
+         */
+
+        if (
+          token.userId !== undefined &&
+          token.userId !== null &&
+          Number.isInteger(Number(token.userId)) &&
+          Number(token.userId) > 0
+        ) {
+          session.user.id =
+            String(token.userId);
+        } else {
+          session.user.id = "";
+        }
 
         session.user.name =
           token.username ?? "User";
