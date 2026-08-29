@@ -244,23 +244,26 @@ export const authOptions = {
       // --------------------------------------
 
       if (token.userId) {
-        const dbUser =
-          await prisma.user.findUnique({
-            where: {
-              id: Number(token.userId),
-            },
-          });
+  const userId = Number(token.userId);
 
-        if (dbUser) {
-          token.userId = dbUser.id;
-          token.discordId = dbUser.discordId;
-          token.robloxId = dbUser.robloxId;
-          token.role = dbUser.role;
-          token.username = dbUser.username;
-          token.image = dbUser.image;
-          token.email = dbUser.email;
-        }
-      }
+  if (Number.isInteger(userId) && userId > 0) {
+    const dbUser = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (dbUser) {
+      token.userId = dbUser.id;
+      token.discordId = dbUser.discordId;
+      token.robloxId = dbUser.robloxId;
+      token.role = dbUser.role;
+      token.username = dbUser.username;
+      token.image = dbUser.image;
+      token.email = dbUser.email;
+    }
+  }
+}
 
       return token;
     },
