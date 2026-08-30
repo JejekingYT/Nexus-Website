@@ -27,7 +27,7 @@ async function getCurrentUser(): Promise<ChatUser | null> {
 
   return prisma.user.findUnique({
     where: {
-      discordId: String(session.user.id),
+      id: Number(session.user.id),
     },
     select: {
       id: true,
