@@ -159,34 +159,34 @@ export default async function PublicProfilePage({
   let isFollowing = false;
   let isOwnProfile = false;
 
-if (session?.user?.id) {
-  const currentUser = await prisma.user.findUnique({
-    where: {
-      id: Number(session.user.id),
-    },
+  if (session?.user?.id) {
+    const currentUser = await prisma.user.findUnique({
+      where: {
+        id: Number(session.user.id),
+      },
 
-    select: {
-      id: true,
-    },
-  });
+      select: {
+        id: true,
+      },
+    });
 
-  if (currentUser) {
-    isOwnProfile = currentUser.id === user.id;
+    if (currentUser) {
+      isOwnProfile = currentUser.id === user.id;
 
-    if (!isOwnProfile) {
-      const existingFollow = await prisma.follow.findUnique({
-        where: {
-          followerId_followingId: {
-            followerId: currentUser.id,
-            followingId: user.id,
+      if (!isOwnProfile) {
+        const existingFollow = await prisma.follow.findUnique({
+          where: {
+            followerId_followingId: {
+              followerId: currentUser.id,
+              followingId: user.id,
+            },
           },
-        },
-      });
+        });
 
-      isFollowing = !!existingFollow;
+        isFollowing = !!existingFollow;
+      }
     }
   }
-}
 
   const themeStyles = getThemeStyles(user.theme || "default");
 
@@ -253,36 +253,46 @@ if (session?.user?.id) {
 
             {/* Banner */}
 
-            <div
-              className={`
-                h-52
-                bg-linear-to-r
-                ${themeStyles.banner}
-                relative
-                overflow-hidden
-              `}
-              style={
-                user.banner
-                  ? {
-                      backgroundImage: `url(${user.banner})`,
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                    }
-                  : undefined
-              }
-            >
+            {user.showBanner && (
+              <div
+                className={`
+                  h-52
+                  bg-linear-to-r
+                  ${themeStyles.banner}
+                  relative
+                  overflow-hidden
+                `}
+                style={
+                  user.banner
+                    ? {
+                        backgroundImage: `url(${user.banner})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                      }
+                    : undefined
+                }
+              >
 
-              {user.banner && (
-                <div className="absolute inset-0 bg-black/25" />
-              )}
+                {user.banner && (
+                  <div className="absolute inset-0 bg-black/25" />
+                )}
 
-            </div>
+              </div>
+            )}
 
             <div className="px-8 pb-12">
 
               {/* Avatar */}
 
-              <div className="-mt-20 flex justify-center relative z-10">
+              <div
+                className={`
+                  flex
+                  justify-center
+                  relative
+                  z-10
+                  ${user.showBanner ? "-mt-20" : "mt-8"}
+                `}
+              >
 
                 <div className="relative">
 
@@ -408,7 +418,7 @@ if (session?.user?.id) {
 
                 {/* Social Links */}
 
-                {socialLinks.length > 0 && (
+                {user.showSocialLinks && socialLinks.length > 0 && (
                   <div className="flex flex-wrap justify-center gap-3 mt-7">
 
                     {socialLinks.map((social) => (
@@ -598,78 +608,80 @@ if (session?.user?.id) {
 
               {/* Badges */}
 
-              <div className="mt-14">
+              {user.showBadges && (
+                <div className="mt-14">
 
-                <h3 className="text-3xl font-bold text-center">
-                  🏅 Badges
-                </h3>
+                  <h3 className="text-3xl font-bold text-center">
+                    🏅 Badges
+                  </h3>
 
-                {user.badges.length > 0 ? (
+                  {user.badges.length > 0 ? (
 
-                  <div className="grid md:grid-cols-2 gap-5 mt-8">
+                    <div className="grid md:grid-cols-2 gap-5 mt-8">
 
-                    {user.badges.map((item) => (
+                      {user.badges.map((item) => (
 
-                      <div
-                        key={item.id}
-                        className="
-                          glass
-                          p-5
-                          rounded-2xl
-                          hover:border-purple-500
-                          transition
-                        "
-                      >
+                        <div
+                          key={item.id}
+                          className="
+                            glass
+                            p-5
+                            rounded-2xl
+                            hover:border-purple-500
+                            transition
+                          "
+                        >
 
-                        <div className="flex gap-4 items-center">
+                          <div className="flex gap-4 items-center">
 
-                          <div
-                            className="
-                              w-14
-                              h-14
-                              rounded-2xl
-                              bg-purple-500/20
-                              border
-                              border-purple-500/30
-                              flex
-                              items-center
-                              justify-center
-                              text-3xl
-                            "
-                          >
-                            {item.badge.icon}
-                          </div>
+                            <div
+                              className="
+                                w-14
+                                h-14
+                                rounded-2xl
+                                bg-purple-500/20
+                                border
+                                border-purple-500/30
+                                flex
+                                items-center
+                                justify-center
+                                text-3xl
+                              "
+                            >
+                              {item.badge.icon}
+                            </div>
 
-                          <div>
+                            <div>
 
-                            <h4 className="font-bold text-lg">
-                              {item.badge.name}
-                            </h4>
+                              <h4 className="font-bold text-lg">
+                                {item.badge.name}
+                              </h4>
 
-                            <p className="text-gray-400 text-sm">
-                              {item.badge.description ||
-                                "No description available."}
-                            </p>
+                              <p className="text-gray-400 text-sm">
+                                {item.badge.description ||
+                                  "No description available."}
+                              </p>
+
+                            </div>
 
                           </div>
 
                         </div>
 
-                      </div>
+                      ))}
 
-                    ))}
+                    </div>
 
-                  </div>
+                  ) : (
 
-                ) : (
+                    <p className="text-center text-gray-500 mt-6">
+                      No badges earned yet.
+                    </p>
 
-                  <p className="text-center text-gray-500 mt-6">
-                    No badges earned yet.
-                  </p>
+                  )}
 
-                )}
-
-              </div>
+                </div>
+              )}
 
               {/* Back Button */}
 

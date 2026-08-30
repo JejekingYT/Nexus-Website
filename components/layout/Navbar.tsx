@@ -261,7 +261,7 @@ export default function Navbar({
                   </Link>
 
                   <Link
-                    href="/profile/edit"
+                    href="/profile/settings"
                     className="
                       block
                       px-4
@@ -405,7 +405,7 @@ export default function Navbar({
                 </Link>
 
                 <Link
-                  href="/profile/edit"
+                  href="/profile/settings"
                   onClick={closeMobile}
                 >
                   ⚙ Settings

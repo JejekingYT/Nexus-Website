@@ -4,6 +4,52 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
 import { createActivityLog } from "@/lib/auth";
 
+export async function GET() {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: Number(session.user.id),
+      },
+      select: {
+        showBanner: true,
+        showBadges: true,
+        showSocialLinks: true,
+      },
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "User not found." },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      user,
+    });
+  } catch (error) {
+    console.error("PROFILE_GET_ERROR:", error);
+
+    return NextResponse.json(
+      {
+        error: "Failed to load profile settings.",
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+}
+
 export async function POST(request: Request) {
   try {
     // ==========================================
@@ -119,6 +165,23 @@ export async function POST(request: Request) {
           typeof body.theme === "string"
             ? body.theme.trim() || "default"
             : user.theme,
+
+        // Profile appearance settings
+
+        showBanner:
+          typeof body.showBanner === "boolean"
+            ? body.showBanner
+            : user.showBanner,
+
+        showBadges:
+          typeof body.showBadges === "boolean"
+            ? body.showBadges
+            : user.showBadges,
+
+        showSocialLinks:
+          typeof body.showSocialLinks === "boolean"
+            ? body.showSocialLinks
+            : user.showSocialLinks,
 
         // Social links
 

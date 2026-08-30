@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* =========================================================
+   NEXUS THEME VARIABLES
+   ========================================================= */
+
 :root {
   --background: #070711;
   --foreground: #f8fafc;
@@ -10,8 +14,103 @@
 
   --card: rgba(255, 255, 255, 0.05);
   --border: rgba(255, 255, 255, 0.1);
+
   --muted: #94a3b8;
+
+  --input-background: rgba(255, 255, 255, 0.05);
+  --input-border: rgba(255, 255, 255, 0.1);
+
+  --selection-background: rgba(139, 92, 246, 0.5);
+
+  --scrollbar-track: #070711;
+  --scrollbar-thumb: rgba(139, 92, 246, 0.6);
 }
+
+
+/* =========================================================
+   DARK THEME
+   ========================================================= */
+
+html.dark {
+  --background: #070711;
+  --foreground: #f8fafc;
+
+  --primary: #8b5cf6;
+  --primary-hover: #a78bfa;
+  --secondary: #3b82f6;
+
+  --card: rgba(255, 255, 255, 0.05);
+  --border: rgba(255, 255, 255, 0.1);
+
+  --muted: #94a3b8;
+
+  --input-background: rgba(255, 255, 255, 0.05);
+  --input-border: rgba(255, 255, 255, 0.1);
+
+  --selection-background: rgba(139, 92, 246, 0.5);
+
+  --scrollbar-track: #070711;
+  --scrollbar-thumb: rgba(139, 92, 246, 0.6);
+}
+
+
+/* =========================================================
+   LIGHT THEME
+   ========================================================= */
+
+html.light {
+  --background: #f5f7fb;
+  --foreground: #111827;
+
+  --primary: #7c3aed;
+  --primary-hover: #6d28d9;
+  --secondary: #2563eb;
+
+  --card: rgba(255, 255, 255, 0.75);
+  --border: rgba(15, 23, 42, 0.1);
+
+  --muted: #64748b;
+
+  --input-background: rgba(255, 255, 255, 0.8);
+  --input-border: rgba(15, 23, 42, 0.12);
+
+  --selection-background: rgba(124, 58, 237, 0.25);
+
+  --scrollbar-track: #e5e7eb;
+  --scrollbar-thumb: rgba(124, 58, 237, 0.55);
+}
+
+
+/* =========================================================
+   SYSTEM THEME
+   ========================================================= */
+
+html:not(.dark):not(.light) {
+  --background: #070711;
+  --foreground: #f8fafc;
+
+  --primary: #8b5cf6;
+  --primary-hover: #a78bfa;
+  --secondary: #3b82f6;
+
+  --card: rgba(255, 255, 255, 0.05);
+  --border: rgba(255, 255, 255, 0.1);
+
+  --muted: #94a3b8;
+
+  --input-background: rgba(255, 255, 255, 0.05);
+  --input-border: rgba(255, 255, 255, 0.1);
+
+  --selection-background: rgba(139, 92, 246, 0.5);
+
+  --scrollbar-track: #070711;
+  --scrollbar-thumb: rgba(139, 92, 246, 0.6);
+}
+
+
+/* =========================================================
+   TAILWIND THEME
+   ========================================================= */
 
 @theme inline {
   --color-background: var(--background);
@@ -21,6 +120,10 @@
   --font-mono: var(--font-geist-mono);
 }
 
+
+/* =========================================================
+   GLOBAL
+   ========================================================= */
 
 * {
   border-color: var(--border);
@@ -42,63 +145,103 @@ body {
     var(--background);
 
   color: var(--foreground);
+
   font-family: Arial, Helvetica, sans-serif;
 
   min-height: 100vh;
+
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
 }
 
 
-/* Text Selection */
+/* Light theme background */
+
+html.light body {
+  background:
+    radial-gradient(
+      circle at top,
+      rgba(124, 58, 237, 0.08),
+      transparent 40%
+    ),
+    var(--background);
+}
+
+
+/* =========================================================
+   TEXT SELECTION
+   ========================================================= */
 
 ::selection {
-  background: rgba(139, 92, 246, 0.5);
-  color: white;
+  background: var(--selection-background);
+  color: var(--foreground);
 }
 
 
-/* Scrollbar */
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
 
 ::-webkit-scrollbar {
   width: 10px;
 }
 
+
 ::-webkit-scrollbar-track {
-  background: #070711;
+  background: var(--scrollbar-track);
 }
 
+
 ::-webkit-scrollbar-thumb {
-  background: rgba(139, 92, 246, 0.6);
+  background: var(--scrollbar-thumb);
   border-radius: 999px;
 }
+
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(167, 139, 250, 0.8);
 }
 
 
-/* Glass Cards */
+/* =========================================================
+   GLASS CARDS
+   ========================================================= */
 
 .glass {
   background: var(--card);
+
   backdrop-filter: blur(16px);
+
   border: 1px solid var(--border);
+
   border-radius: 16px;
+
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease;
 }
 
 
-/* Card Hover */
+/* =========================================================
+   CARD HOVER
+   ========================================================= */
 
 .card-hover {
   transition: all 0.3s ease;
 }
 
+
 .card-hover:hover {
   transform: translateY(-5px);
+
   border-color: rgba(139, 92, 246, 0.5);
 }
 
 
-/* Buttons */
+/* =========================================================
+   BUTTONS
+   ========================================================= */
 
 .btn-primary {
   background: linear-gradient(
@@ -110,24 +253,28 @@ body {
   color: white;
 
   padding: 12px 24px;
+
   border-radius: 12px;
 
   font-weight: 600;
 
-  transition: all .3s ease;
+  transition: all 0.3s ease;
 }
 
 
 .btn-primary:hover {
   transform: translateY(-2px);
+
   filter: brightness(1.15);
 }
 
 
-/* Animations */
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
 
 .fade-in {
-  animation: fadeIn .5s ease forwards;
+  animation: fadeIn 0.5s ease forwards;
 }
 
 
@@ -144,14 +291,16 @@ body {
 }
 
 
-/* Nexus Form Inputs */
+/* =========================================================
+   NEXUS FORM INPUTS
+   ========================================================= */
 
 .input {
   width: 100%;
 
-  background: rgba(255,255,255,0.05);
+  background: var(--input-background);
 
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid var(--input-border);
 
   border-radius: 12px;
 
@@ -159,14 +308,14 @@ body {
 
   outline: none;
 
-  color: white;
+  color: var(--foreground);
 
-  transition: all .25s ease;
+  transition: all 0.25s ease;
 }
 
 
 .input::placeholder {
-  color: #94a3b8;
+  color: var(--muted);
 }
 
 
@@ -174,5 +323,123 @@ body {
   border-color: var(--primary);
 
   box-shadow:
-    0 0 0 3px rgba(139,92,246,.2);
+    0 0 0 3px rgba(139, 92, 246, 0.2);
+}
+
+
+/* =========================================================
+   LIGHT THEME - COMMON TAILWIND OVERRIDES
+   ========================================================= */
+
+/*
+  A lot of Nexus components currently use Tailwind's
+  dark-style utility classes directly.
+
+  These overrides make the most common ones behave correctly
+  when the Light theme is active.
+*/
+
+html.light .text-white {
+  color: #111827;
+}
+
+
+html.light .text-gray-300 {
+  color: #374151;
+}
+
+
+html.light .text-gray-400 {
+  color: #6b7280;
+}
+
+
+html.light .text-gray-500 {
+  color: #6b7280;
+}
+
+
+html.light .text-gray-600 {
+  color: #4b5563;
+}
+
+
+html.light .bg-black\/20 {
+  background-color: rgba(255, 255, 255, 0.65);
+}
+
+
+html.light .bg-black\/30 {
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+
+html.light .bg-black\/70 {
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+
+html.light .bg-white\/5 {
+  background-color: rgba(15, 23, 42, 0.04);
+}
+
+
+html.light .bg-white\/10 {
+  background-color: rgba(15, 23, 42, 0.07);
+}
+
+
+html.light .border-white\/10 {
+  border-color: rgba(15, 23, 42, 0.1);
+}
+
+
+html.light .border-white\/20 {
+  border-color: rgba(15, 23, 42, 0.15);
+}
+
+
+html.light .hover\:bg-white\/10:hover {
+  background-color: rgba(15, 23, 42, 0.07);
+}
+
+
+/* =========================================================
+   LIGHT THEME - NAVBAR
+   ========================================================= */
+
+html.light nav {
+  background-color: rgba(255, 255, 255, 0.75);
+  border-color: rgba(15, 23, 42, 0.1);
+}
+
+
+html.light nav a,
+html.light nav button {
+  color: #374151;
+}
+
+
+html.light nav a:hover,
+html.light nav button:hover {
+  color: #7c3aed;
+}
+
+
+/* =========================================================
+   LIGHT THEME - LINKS
+   ========================================================= */
+
+html.light a {
+  transition: color 0.2s ease;
+}
+
+
+/* =========================================================
+   LIGHT THEME - FOOTER
+   ========================================================= */
+
+html.light footer {
+  background-color: rgba(255, 255, 255, 0.55);
+  border-color: rgba(15, 23, 42, 0.1);
 }

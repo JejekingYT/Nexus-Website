@@ -176,46 +176,54 @@ export default async function ProfilePage() {
 
             {/* Banner */}
 
-            <div
-              className={`
-                relative
-                h-52
-                bg-linear-to-r
-                ${theme.banner}
-                overflow-hidden
-              `}
-            >
+            {user.showBanner && (
+              <div
+                className={`
+                  relative
+                  h-52
+                  bg-linear-to-r
+                  ${theme.banner}
+                  overflow-hidden
+                `}
+              >
 
-              {user.banner && (
-                <img
-                  src={user.banner}
-                  alt="Profile banner"
+                {user.banner && (
+                  <img
+                    src={user.banner}
+                    alt="Profile banner"
+                    className="
+                      absolute
+                      inset-0
+                      w-full
+                      h-full
+                      object-cover
+                    "
+                  />
+                )}
+
+                <div
                   className="
                     absolute
                     inset-0
-                    w-full
-                    h-full
-                    object-cover
+                    bg-black/20
                   "
                 />
-              )}
 
-              <div
-                className="
-                  absolute
-                  inset-0
-                  bg-black/20
-                "
-              />
-
-            </div>
+              </div>
+            )}
 
 
             <div className="px-8 pb-12 text-center">
 
               {/* Avatar */}
 
-              <div className="-mt-20 relative z-10">
+              <div
+                className={
+                  user.showBanner
+                    ? "-mt-20 relative z-10"
+                    : "pt-8 relative z-10"
+                }
+              >
 
                 {user.image ? (
                   <Image
@@ -339,11 +347,12 @@ export default async function ProfilePage() {
 
               {/* Social Links */}
 
-              {(user.discord ||
-                user.youtube ||
-                user.github ||
-                user.twitter ||
-                user.roblox) && (
+              {user.showSocialLinks &&
+                (user.discord ||
+                  user.youtube ||
+                  user.github ||
+                  user.twitter ||
+                  user.roblox) && (
 
                 <div className="flex justify-center flex-wrap gap-3 mt-8">
 
@@ -582,115 +591,117 @@ export default async function ProfilePage() {
 
               {/* Badges */}
 
-              <div className="mt-14">
+              {user.showBadges && (
+                <div className="mt-14">
 
-                <h3 className="text-3xl font-bold">
-                  🏆 Badges
-                </h3>
+                  <h3 className="text-3xl font-bold">
+                    🏆 Badges
+                  </h3>
 
-                {user.badges.length > 0 ? (
+                  {user.badges.length > 0 ? (
 
-                  <div className="grid md:grid-cols-2 gap-5 mt-8 text-left">
+                    <div className="grid md:grid-cols-2 gap-5 mt-8 text-left">
 
-                    {user.badges.map((item) => (
+                      {user.badges.map((item) => (
 
-                      <div
-                        key={item.id}
-                        className="
-                          glass
-                          p-5
-                          rounded-2xl
-                          hover:border-purple-500/50
-                          transition
-                        "
-                      >
+                        <div
+                          key={item.id}
+                          className="
+                            glass
+                            p-5
+                            rounded-2xl
+                            hover:border-purple-500/50
+                            transition
+                          "
+                        >
 
-                        <div className="flex gap-4">
+                          <div className="flex gap-4">
 
-                          <div
-                            className="
-                              w-16
-                              h-16
-                              shrink-0
-                              rounded-2xl
-                              bg-purple-500/20
-                              border
-                              border-purple-500/30
-                              flex
-                              items-center
-                              justify-center
-                              text-3xl
-                            "
-                          >
-                            {item.badge.icon}
-                          </div>
-
-
-                          <div className="min-w-0 flex-1">
-
-                            <div className="flex items-start justify-between gap-3">
-
-                              <h4 className="font-bold text-lg">
-                                {item.badge.name}
-                              </h4>
-
-                              <span
-                                className="
-                                  shrink-0
-                                  rounded-full
-                                  border
-                                  border-purple-500/20
-                                  bg-purple-500/10
-                                  px-3
-                                  py-1
-                                  text-xs
-                                  font-semibold
-                                  text-purple-400
-                                "
-                              >
-                                {item.badge.category}
-                              </span>
-
+                            <div
+                              className="
+                                w-16
+                                h-16
+                                shrink-0
+                                rounded-2xl
+                                bg-purple-500/20
+                                border
+                                border-purple-500/30
+                                flex
+                                items-center
+                                justify-center
+                                text-3xl
+                              "
+                            >
+                              {item.badge.icon}
                             </div>
 
 
-                            <p className="text-gray-400 text-sm mt-2">
-                              {item.badge.description ||
-                                "No description available."}
-                            </p>
+                            <div className="min-w-0 flex-1">
+
+                              <div className="flex items-start justify-between gap-3">
+
+                                <h4 className="font-bold text-lg">
+                                  {item.badge.name}
+                                </h4>
+
+                                <span
+                                  className="
+                                    shrink-0
+                                    rounded-full
+                                    border
+                                    border-purple-500/20
+                                    bg-purple-500/10
+                                    px-3
+                                    py-1
+                                    text-xs
+                                    font-semibold
+                                    text-purple-400
+                                  "
+                                >
+                                  {item.badge.category}
+                                </span>
+
+                              </div>
 
 
-                            <p className="text-gray-500 text-xs mt-3">
-                              Awarded{" "}
-                              {item.awardedAt.toLocaleDateString(
-                                "en-US",
-                                {
-                                  year: "numeric",
-                                  month: "short",
-                                  day: "numeric",
-                                }
-                              )}
-                            </p>
+                              <p className="text-gray-400 text-sm mt-2">
+                                {item.badge.description ||
+                                  "No description available."}
+                              </p>
+
+
+                              <p className="text-gray-500 text-xs mt-3">
+                                Awarded{" "}
+                                {item.awardedAt.toLocaleDateString(
+                                  "en-US",
+                                  {
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric",
+                                  }
+                                )}
+                              </p>
+
+                            </div>
 
                           </div>
 
                         </div>
 
-                      </div>
+                      ))}
 
-                    ))}
+                    </div>
 
-                  </div>
+                  ) : (
 
-                ) : (
+                    <p className="text-gray-500 mt-8">
+                      You haven't received any badges yet.
+                    </p>
 
-                  <p className="text-gray-500 mt-8">
-                    You haven't received any badges yet.
-                  </p>
+                  )}
 
-                )}
-
-              </div>
+                </div>
+              )}
 
 
               {/* Buttons */}
