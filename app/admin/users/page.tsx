@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import RoleSelector from "./RoleSelector";
+import DeleteUserButton from "./DeleteUserButton";
 import { requireRole } from "@/lib/auth";
 
 export default async function UsersPage() {
@@ -153,6 +154,12 @@ export default async function UsersPage() {
 
                   role={user.role}
 
+                />
+
+                <DeleteUserButton
+                  userId={user.id}
+
+                  username={user.username}
                 />
 
 

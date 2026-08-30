@@ -53,7 +53,7 @@ model News {
   published Boolean  @default(false)
   authorId  Int?
   createdAt DateTime @default(now())
-  author    User?    @relation(fields: [authorId], references: [id])
+  author    User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
 }
 
 model Event {
@@ -233,7 +233,7 @@ model UserBadge {
   badgeId     Int
   awardedById Int?
   awardedAt   DateTime @default(now())
-  awardedBy   User?    @relation("AwardedBadges", fields: [awardedById], references: [id])
+  awardedBy   User?    @relation("AwardedBadges", fields: [awardedById], references: [id], onDelete: SetNull)
   badge       Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
   user        User     @relation("UserBadges", fields: [userId], references: [id], onDelete: Cascade)
 
@@ -265,7 +265,7 @@ model AuditLog {
   userId    Int?
   createdAt DateTime @default(now())
 
-  user User? @relation(fields: [userId], references: [id])
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([createdAt])
@@ -297,7 +297,7 @@ model SupportTicket {
   deletedAt DateTime?
   deletedBy String?
   messages  SupportMessage[]
-  user      User?            @relation(fields: [userId], references: [id])
+  user      User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
 }
 
 model SupportMessage {
@@ -306,7 +306,7 @@ model SupportMessage {
   senderId  Int?
   message   String
   createdAt DateTime      @default(now())
-  sender    User?         @relation(fields: [senderId], references: [id])
+  sender    User?         @relation(fields: [senderId], references: [id], onDelete: SetNull)
   ticket    SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
 }
 
