@@ -1,31 +1,25 @@
 import Navbar from "@/components/layout/NavbarWrapper";
 import Link from "next/link";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+
+import { requireRole } from "@/lib/auth";
 
 import PageHeader from "@/components/admin/PageHeader";
 import StatCard from "@/components/admin/StatCard";
 import AdminCard from "@/components/admin/AdminCard";
 
 export default async function AdminPage() {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user?.id) {
-    redirect("/api/auth/signin");
-  }
-
-  const currentUser = await prisma.user.findUnique({
-    where: {
-      discordId: session.user.id,
-    },
-  });
-
-  const isSupport = currentUser?.role === "SUPPORT";
+  const currentUser = await requireRole([
+    "OWNER",
+    "CO-OWNER",
+    "MANAGER",
+    "ADMIN",
+    "SUPPORT",
+  ]);
 
   // Support users only access support panel
-  if (isSupport) {
+  if (currentUser.role === "SUPPORT") {
     redirect("/admin/support");
   }
 
@@ -41,21 +35,13 @@ export default async function AdminPage() {
     pendingReviewCount,
   ] = await Promise.all([
     prisma.community.count(),
-
     prisma.news.count(),
-
     prisma.event.count(),
-
     prisma.game.count(),
-
     prisma.developer.count(),
-
     prisma.user.count(),
-
     prisma.project.count(),
-
     prisma.supportTicket.count(),
-
     prisma.communityReview.count({
       where: {
         status: "PENDING",
@@ -139,13 +125,13 @@ export default async function AdminPage() {
           <PageHeader
             title="Nexus Admin"
             description={
-              <>
-                Welcome back, {session.user.name}. Role:{" "}
-                <span className="text-purple-400">
-                  {currentUser?.role}
-                </span>
-              </>
-            }
+            <>
+              Welcome back, {currentUser.username}. Role:{" "}
+              <span className="text-purple-400">
+                {currentUser.role}
+              </span>
+            </>
+          }
           />
 
           <div className="grid md:grid-cols-4 gap-6 mt-12">
