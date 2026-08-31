@@ -200,10 +200,10 @@ export async function POST(request: Request) {
             ? body.github.trim() || null
             : user.github,
 
-        twitter:
-          typeof body.twitter === "string"
-            ? body.twitter.trim() || null
-            : user.twitter,
+        twitch:
+          typeof body.twitch === "string"
+            ? body.twitch.trim() || null
+            : user.twitch,
 
         roblox:
           typeof body.roblox === "string"
