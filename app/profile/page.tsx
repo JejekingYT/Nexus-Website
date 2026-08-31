@@ -351,7 +351,7 @@ export default async function ProfilePage() {
                 (user.discord ||
                   user.youtube ||
                   user.github ||
-                  user.twitter ||
+                  user.twitch ||
                   user.roblox) && (
 
                 <div className="flex justify-center flex-wrap gap-3 mt-8">
@@ -423,9 +423,9 @@ export default async function ProfilePage() {
                     </a>
                   )}
 
-                  {user.twitter && (
+                  {user.twitch && (
                     <a
-                      href={user.twitter}
+                      href={user.twitch}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="
@@ -440,7 +440,7 @@ export default async function ProfilePage() {
                         transition
                       "
                     >
-                      𝕏 Twitter
+                      🎥 Twitch
                     </a>
                   )}
 

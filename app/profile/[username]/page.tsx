@@ -107,8 +107,8 @@ function getSocialIcon(name: string) {
       return "▶️";
     case "GitHub":
       return "💻";
-    case "Twitter":
-      return "𝕏";
+    case "Twitch":
+      return "🎥";
     case "Roblox":
       return "🎮";
     default:
@@ -206,8 +206,8 @@ export default async function PublicProfilePage({
       value: user.github,
     },
     {
-      name: "Twitter",
-      value: user.twitter,
+      name: "Twitch",
+      value: user.twitch,
     },
     {
       name: "Roblox",
@@ -391,6 +391,8 @@ export default async function PublicProfilePage({
                     {userStatus.label}
                   </span>
                 </div>
+
+                {/* Role */}
 
                 <div className="flex justify-center mt-4">
 

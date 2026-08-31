@@ -21,7 +21,7 @@ export default function EditProfileForm({ user }: any) {
   const [discord, setDiscord] = useState(user.discord || "");
   const [youtube, setYoutube] = useState(user.youtube || "");
   const [github, setGithub] = useState(user.github || "");
-  const [twitter, setTwitter] = useState(user.twitter || "");
+  const [twitch, setTwitch] = useState(user.twitch || "");
   const [roblox, setRoblox] = useState(user.roblox || "");
 
   const [saving, setSaving] = useState(false);
@@ -116,7 +116,7 @@ export default function EditProfileForm({ user }: any) {
           discord,
           youtube,
           github,
-          twitter,
+          twitch,
           roblox,
         }),
       });
@@ -437,9 +437,9 @@ export default function EditProfileForm({ user }: any) {
         />
 
         <input
-          value={twitter}
-          onChange={(e) => setTwitter(e.target.value)}
-          placeholder="Twitter / X URL"
+          value={twitch}
+          onChange={(e) => setTwitch(e.target.value)}
+          placeholder="Twitch URL"
           className="
             w-full
             bg-white/5
