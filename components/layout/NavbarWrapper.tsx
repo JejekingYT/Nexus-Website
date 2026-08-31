@@ -1,15 +1,7 @@
+"use client";
+
 import Navbar from "./Navbar";
-import { getSiteSettings } from "@/lib/settings";
 
-export default async function NavbarWrapper() {
-
-  const settings = await getSiteSettings();
-
-
-  return (
-    <Navbar
-      siteName={settings.siteName}
-    />
-  );
-
+export default function NavbarWrapper() {
+  return <Navbar siteName="Nexus" />;
 }
