@@ -61,7 +61,7 @@ export default function EditProfileForm({ user }: any) {
 
       formData.append("file", file);
 
-      const response = await fetch("/api/profile/upload-image", {
+      const response = await fetch("/api/profile/upload", {
         method: "POST",
         body: formData,
       });
