@@ -13,12 +13,18 @@ export default async function DevelopersPage() {
 
 
   const developers = await prisma.developer.findMany({
-
-    orderBy: {
-      createdAt: "asc",
+  include: {
+    user: {
+      select: {
+        image: true,
+        username: true,
+      },
     },
-
-  });
+  },
+  orderBy: {
+    createdAt: "asc",
+  },
+});
 
 
 
@@ -154,55 +160,37 @@ export default async function DevelopersPage() {
 
 
 
-                  {developer.image ? (
-
-                    <img
-
-                      src={developer.image}
-
-                      alt={developer.name}
-
-                      className="
-                        w-24
-                        h-24
-                        mx-auto
-                        rounded-full
-                        object-cover
-                        border
-                        border-purple-500/40
-                      "
-
-                    />
-
-                  ) : (
-
-                    <div className="
-                      w-24
-                      h-24
-                      mx-auto
-                      rounded-full
-                      bg-purple-500/20
-                      border
-                      border-purple-500/40
-                      flex
-                      items-center
-                      justify-center
-                      text-5xl
-                    ">
-
-                      {developer.icon}
-
-                    </div>
-
-                  )}
-
-
-
-
-
-
-
-
+                  {developer.user?.image || developer.image ? (
+  <img
+    src={developer.user?.image || developer.image || ""}
+    alt={developer.name}
+    className="
+      w-24
+      h-24
+      mx-auto
+      rounded-full
+      object-cover
+      border
+      border-purple-500/40
+    "
+  />
+) : (
+  <div className="
+    w-24
+    h-24
+    mx-auto
+    rounded-full
+    bg-purple-500/20
+    border
+    border-purple-500/40
+    flex
+    items-center
+    justify-center
+    text-5xl
+  ">
+    {developer.icon}
+  </div>
+)}
 
                   <h2 className="
                     mt-6

@@ -118,6 +118,8 @@ model Developer {
   description String
   image       String?
   github      String?
+  userId      Int?     @unique
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   createdAt   DateTime @default(now())
 }
 
@@ -155,6 +157,8 @@ model User {
   theme     String   @default("dark")
   twitch    String?
   youtube   String?
+
+  developer Developer?
 
   showBanner      Boolean @default(true)
   showBadges      Boolean @default(true)

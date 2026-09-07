@@ -23,6 +23,7 @@ export async function GET() {
         showBanner: true,
         showBadges: true,
         showSocialLinks: true,
+        image: true,
       },
     });
 
@@ -148,6 +149,11 @@ export async function POST(request: Request) {
         // Profile information
 
         username,
+
+        image:
+          typeof body.image === "string"
+            ? body.image.trim() || null
+            : user.image,
 
         bio:
           typeof body.bio === "string"
