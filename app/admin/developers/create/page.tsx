@@ -23,6 +23,31 @@ export default async function CreateDeveloperPage() {
 
 
 
+
+  const users = await prisma.user.findMany({
+
+    select: {
+
+      id: true,
+
+      username: true,
+
+      image: true,
+
+    },
+
+    orderBy: {
+
+      username: "asc",
+
+    },
+
+  });
+
+
+
+
+
   async function createDeveloper(formData: FormData) {
 
     "use server";
@@ -47,6 +72,12 @@ export default async function CreateDeveloperPage() {
 
     const github = formData.get("github") as string;
 
+    const userIdValue = formData.get("userId") as string;
+
+    const userId = userIdValue
+      ? Number(userIdValue)
+      : null;
+
 
 
 
@@ -66,6 +97,8 @@ export default async function CreateDeveloperPage() {
         image: image || null,
 
         github: github || null,
+
+        userId,
 
       },
 
@@ -107,6 +140,7 @@ export default async function CreateDeveloperPage() {
 
 
 
+
   return (
 
     <main className="min-h-screen bg-[#09090B] text-white">
@@ -135,6 +169,7 @@ export default async function CreateDeveloperPage() {
             </span>
 
           </h1>
+
 
 
 
@@ -170,6 +205,8 @@ export default async function CreateDeveloperPage() {
 
 
 
+
+
             <input
 
               name="role"
@@ -181,6 +218,8 @@ export default async function CreateDeveloperPage() {
               required
 
             />
+
+
 
 
 
@@ -204,6 +243,8 @@ export default async function CreateDeveloperPage() {
 
 
 
+
+
             <textarea
 
               name="description"
@@ -221,6 +262,45 @@ export default async function CreateDeveloperPage() {
 
 
 
+
+            <select
+
+              name="userId"
+
+              className="w-full bg-[#121216] border border-white/10 rounded-xl px-5 py-4"
+
+            >
+
+              <option value="">
+
+                No Nexus User Linked
+
+              </option>
+
+              {users.map((user) => (
+
+                <option
+
+                  key={user.id}
+
+                  value={user.id}
+
+                >
+
+                  {user.username}
+
+                </option>
+
+              ))}
+
+            </select>
+
+
+
+
+
+
+
             <input
 
               name="image"
@@ -230,6 +310,8 @@ export default async function CreateDeveloperPage() {
               className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4"
 
             />
+
+
 
 
 
@@ -252,6 +334,8 @@ export default async function CreateDeveloperPage() {
 
 
 
+
+
             <button
 
               className="bg-purple-600 hover:bg-purple-700 px-8 py-4 rounded-xl font-bold"
@@ -266,7 +350,11 @@ export default async function CreateDeveloperPage() {
 
 
 
+
+
           </form>
+
+
 
 
 
@@ -278,7 +366,11 @@ export default async function CreateDeveloperPage() {
 
 
 
+
+
       </section>
+
+
 
 
 

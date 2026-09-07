@@ -25,11 +25,30 @@ export default async function DevelopersPage() {
 
   const developers = await prisma.developer.findMany({
 
+    include: {
+
+      user: {
+
+        select: {
+
+          id: true,
+
+          username: true,
+
+          image: true,
+
+        },
+
+      },
+
+    },
+
     orderBy: {
       createdAt: "desc",
     },
 
   });
+
 
 
 
@@ -119,6 +138,7 @@ export default async function DevelopersPage() {
     redirect("/admin/developers");
 
   }
+
 
 
 
@@ -230,12 +250,16 @@ export default async function DevelopersPage() {
 
 
 
-                  {developer.image && (
+                  {(developer.user?.image || developer.image) && (
 
 
                     <img
 
-                      src={developer.image}
+                      src={
+                        developer.user?.image ||
+                        developer.image ||
+                        ""
+                      }
 
                       alt={developer.name}
 
@@ -245,6 +269,7 @@ export default async function DevelopersPage() {
 
 
                   )}
+
 
 
 
@@ -285,6 +310,26 @@ export default async function DevelopersPage() {
 
 
 
+                  {developer.user && (
+
+                    <p className="text-gray-500 text-sm mt-3">
+
+                      Nexus User:{" "}
+
+                      <span className="text-purple-400">
+
+                        {developer.user.username}
+
+                      </span>
+
+                    </p>
+
+                  )}
+
+
+
+
+
 
 
                   {developer.github && (
@@ -306,6 +351,7 @@ export default async function DevelopersPage() {
 
 
                   )}
+
 
 
 

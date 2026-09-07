@@ -51,6 +51,49 @@ export default async function EditDeveloperPage({
 
 
 
+  const users = await prisma.user.findMany({
+
+    where: {
+
+      OR: [
+
+        {
+          developer: null,
+        },
+
+        {
+          developer: {
+            id: developer.id,
+          },
+        },
+
+      ],
+
+    },
+
+    select: {
+
+      id: true,
+
+      username: true,
+
+      image: true,
+
+    },
+
+    orderBy: {
+
+      username: "asc",
+
+    },
+
+  });
+
+
+
+
+
+
 
   async function updateDeveloper(formData: FormData) {
 
@@ -88,6 +131,17 @@ export default async function EditDeveloperPage({
 
 
 
+    const userIdValue = formData.get("userId") as string;
+
+    const userId = userIdValue
+      ? Number(userIdValue)
+      : null;
+
+
+
+
+
+
     const updatedDeveloper = await prisma.developer.update({
 
       where: {
@@ -119,6 +173,9 @@ export default async function EditDeveloperPage({
 
         github:
           (formData.get("github") as string) || null,
+
+
+        userId,
 
       },
 
@@ -230,6 +287,8 @@ export default async function EditDeveloperPage({
 
 
 
+
+
             <input
 
               name="role"
@@ -243,6 +302,8 @@ export default async function EditDeveloperPage({
               required
 
             />
+
+
 
 
 
@@ -270,6 +331,8 @@ export default async function EditDeveloperPage({
 
 
 
+
+
             <textarea
 
               name="description"
@@ -283,6 +346,46 @@ export default async function EditDeveloperPage({
               required
 
             />
+
+
+
+
+
+
+
+            <select
+
+              name="userId"
+
+              defaultValue={developer.userId?.toString() ?? ""}
+
+              className="w-full bg-[#121216] border border-white/10 rounded-xl px-5 py-4"
+
+            >
+
+              <option value="">
+
+                No Nexus User Linked
+
+              </option>
+
+              {users.map((user) => (
+
+                <option
+
+                  key={user.id}
+
+                  value={user.id}
+
+                >
+
+                  {user.username}
+
+                </option>
+
+              ))}
+
+            </select>
 
 
 
@@ -308,6 +411,8 @@ export default async function EditDeveloperPage({
 
 
 
+
+
             <input
 
               name="github"
@@ -319,6 +424,8 @@ export default async function EditDeveloperPage({
               className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4"
 
             />
+
+
 
 
 
@@ -340,7 +447,11 @@ export default async function EditDeveloperPage({
 
 
 
+
+
           </form>
+
+
 
 
 
@@ -352,7 +463,11 @@ export default async function EditDeveloperPage({
 
 
 
+
+
       </section>
+
+
 
 
 
