@@ -158,7 +158,7 @@ export default function EditProfileForm({ user }: any) {
           </h2>
 
           <p className="text-sm text-gray-400 mt-1">
-            Upload an image from your computer to use as your profile picture.
+            Profile picture customization is coming soon.
           </p>
         </div>
 
@@ -225,38 +225,35 @@ export default function EditProfileForm({ user }: any) {
 
           </div>
 
-          {/* Upload */}
+          {/* Upload - Coming Soon */}
 
           <div className="flex-1 w-full">
 
-            <label
+            <button
+              type="button"
+              disabled
               className="
                 inline-flex
                 items-center
                 justify-center
-                cursor-pointer
-                bg-purple-600
-                hover:bg-purple-700
+                gap-2
+                bg-white/5
+                border
+                border-white/10
+                text-gray-400
                 px-6
                 py-3
                 rounded-xl
                 font-bold
-                transition
+                opacity-60
+                cursor-not-allowed
               "
             >
-              📷 Choose Profile Picture
-
-              <input
-                type="file"
-                accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
-                onChange={handleImageUpload}
-                disabled={uploadingImage}
-                className="hidden"
-              />
-            </label>
+              🚧 Profile Picture — Coming Soon
+            </button>
 
             <p className="text-xs text-gray-500 mt-3">
-              PNG, JPG, WEBP or GIF • Maximum 5 MB
+              Profile picture uploads will be available in a future update.
             </p>
 
           </div>
